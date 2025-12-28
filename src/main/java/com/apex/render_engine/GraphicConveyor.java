@@ -1,8 +1,8 @@
 package com.apex.render_engine;
+
 import javax.vecmath.*;
 
 public class GraphicConveyor {
-
     public static Matrix4f rotateScaleTranslate() {
         float[] matrix = new float[]{
                 1, 0, 0, 0,

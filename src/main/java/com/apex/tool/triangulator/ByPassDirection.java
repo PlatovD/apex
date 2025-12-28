@@ -1,4 +1,4 @@
-package com.apex.tool.triangulator.util;
+package com.apex.tool.triangulator;
 
 public enum ByPassDirection {
     FIRST,

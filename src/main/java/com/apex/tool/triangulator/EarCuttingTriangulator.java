@@ -6,7 +6,6 @@ import com.apex.math.Vector3f;
 import com.apex.model.Model;
 import com.apex.model.Polygon;
 import com.apex.model.Triangle;
-import com.apex.tool.triangulator.util.ByPassDirection;
 import com.apex.core.Constants;
 import com.apex.util.PolygonUtil;
 
