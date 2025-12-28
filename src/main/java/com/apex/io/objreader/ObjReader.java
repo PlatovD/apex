@@ -1,5 +1,6 @@
-package com.apex.objreader;
+package com.apex.io.objreader;
 
+import com.apex.exception.ObjReaderException;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
 import com.apex.model.Model;

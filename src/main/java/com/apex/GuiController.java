@@ -18,8 +18,8 @@ import java.io.File;
 import javax.vecmath.Vector3f;
 
 import com.apex.model.Model;
-import com.apex.objreader.ObjReader;
-import com.apex.render_engine.Camera;
+import com.apex.io.objreader.ObjReader;
+import com.apex.model.Camera;
 
 public class GuiController {
 

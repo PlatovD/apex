@@ -1,5 +1,7 @@
 package com.apex.objreader;
 
+import com.apex.io.objreader.ObjReader;
+import com.apex.exception.ObjReaderException;
 import com.apex.math.Vector3f;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
