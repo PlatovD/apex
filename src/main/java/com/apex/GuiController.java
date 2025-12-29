@@ -1,14 +1,17 @@
 package com.apex;
 
+import com.apex.model.FrameBuffer;
 import com.apex.reflection.AutoInject;
 import com.apex.core.Constants;
 import com.apex.render_engine.pipeline.Pipeline;
+import com.apex.tool.triangulator.Triangulator;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.PixelFormat;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
@@ -19,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
+import java.util.function.Supplier;
 import javax.vecmath.Vector3f;
 
 import com.apex.model.Model;
@@ -28,6 +32,12 @@ import com.apex.model.Camera;
 public class GuiController {
     @AutoInject
     private Pipeline pipeline;
+
+    @AutoInject
+    private FrameBuffer frameBuffer;
+
+    @AutoInject
+    private Triangulator triangulator;
 
     final private float TRANSLATION = 0.5F;
 
@@ -48,15 +58,10 @@ public class GuiController {
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
-        double scaleX = Screen.getPrimary().getOutputScaleX();
-        double scaleY = Screen.getPrimary().getOutputScaleY();
-        Constants.SCENE_WIDTH = (int) Math.round(canvas.getWidth() * scaleX);
-        Constants.SCENE_HEIGHT = (int) Math.round(canvas.getHeight() * scaleY);
-
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
 
-        KeyFrame frame = new KeyFrame(Duration.millis(15), event -> {
+        KeyFrame frame = new KeyFrame(Duration.millis(60), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
 
@@ -65,11 +70,28 @@ public class GuiController {
 
             if (mesh != null) {
                 pipeline.applyAll(mesh);
+                rasterize();
             }
         });
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
+    }
+
+    private void rasterize() {
+        int[] rawPixels = frameBuffer.getRawData();
+        int width = Constants.SCENE_WIDTH;
+        int height = Constants.SCENE_HEIGHT;
+
+
+        canvas.getGraphicsContext2D().getPixelWriter().setPixels(
+                0, 0,
+                width, height,
+                PixelFormat.getIntArgbInstance(),
+                rawPixels,
+                0,
+                rawPixels.length / height
+        );
     }
 
     @FXML
@@ -88,6 +110,7 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
+            triangulator.triangulateModel(mesh);
             // todo: обработка ошибок
         } catch (IOException exception) {
 

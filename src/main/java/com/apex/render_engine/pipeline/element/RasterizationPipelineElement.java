@@ -24,9 +24,9 @@ public class RasterizationPipelineElement implements PipelineElement {
             int vertex3Index = polygon.getVertexIndices().get(2);
             float[] rawVertices = model.workVertices;
             Rasterization.drawTriangle(frameBuffer,
-                    (int) rawVertices[vertex1Index * 3], (int) rawVertices[vertex1Index * 3 + 1],
-                    (int) rawVertices[vertex2Index * 3], (int) rawVertices[vertex2Index * 3 + 1],
-                    (int) rawVertices[vertex3Index * 3], (int) rawVertices[vertex3Index * 3 + 1]
+                    (int) Math.ceil(rawVertices[vertex1Index * 3]), (int) Math.ceil(rawVertices[vertex1Index * 3 + 1]),
+                    (int) Math.ceil(rawVertices[vertex2Index * 3]), (int) Math.ceil(rawVertices[vertex2Index * 3 + 1]),
+                    (int) Math.ceil(rawVertices[vertex3Index * 3]), (int) Math.ceil(rawVertices[vertex3Index * 3 + 1])
             );
         }
     }

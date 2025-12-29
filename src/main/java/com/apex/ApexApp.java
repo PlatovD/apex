@@ -20,12 +20,10 @@ public class ApexApp extends Application {
         // Loader читает fxml и видит "com.apex.GuiController". После этого он передает в этот метод именно этот класс
         loader.setControllerFactory(ReflectionScanner::findAssignableBeanByClass);
         AnchorPane viewport = loader.load();
-        Scene scene = new Scene(viewport);
-        stage.setWidth(Constants.SCENE_WIDTH);
-        stage.setHeight(Constants.SCENE_HEIGHT);
-        viewport.prefWidthProperty().bind(scene.widthProperty());
-        viewport.prefHeightProperty().bind(scene.heightProperty());
-        stage.setTitle("Apex");
+
+        viewport.setPrefSize(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+
+        Scene scene = new Scene(viewport, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         stage.setScene(scene);
         stage.show();
     }

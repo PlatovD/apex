@@ -29,9 +29,12 @@ public class FrameBuffer {
     }
 
     public void setPixel(int x, int y, int rgbColor) {
-        int index = x * width + y * height;
-        if (index > width * height) throw new FrameBufferException("Pixel out of bounds");
-        pixels[index] = rgbColor;
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+            pixels[y * width + x] = rgbColor;
+        }
+//        int index = x * width + y * height;
+//        if (index > width * height) throw new FrameBufferException("Pixel out of bounds");
+//        pixels[index] = rgbColor;
     }
 
     public void clear() {

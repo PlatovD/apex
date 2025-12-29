@@ -228,7 +228,7 @@ public class Rasterization {
      * Метод для растеризации треугольника с использованием идеи scanline и нахождения границ через алгоритм
      * Брезенхейма.
      */
-    public static void drawTriangleBresenham(PixelWriter pw, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangleBresenham(FrameBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
         if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) > max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
             int tmp;
             if (y0 > y1) {
@@ -273,7 +273,7 @@ public class Rasterization {
                 }
                 for (int x = min(borderFirst, borderLast); x <= max(borderFirst, borderLast); x++) {
 
-                    pw.setColor(x, y, Color.BLACK);
+                    fb.setPixel(x, y0, 0xFF000000);
                 }
             }
         } else {
@@ -319,13 +319,13 @@ public class Rasterization {
                     borderLast = lineBC.get(x).get(lineBC.get(x).size() - 1);
                 }
                 for (int y = min(borderFirst, borderLast); y <= max(borderFirst, borderLast); y++) {
-                    pw.setColor(x, y, Color.BLACK);
+                    fb.setPixel(x, y0, 0xFF000000);
                 }
             }
         }
     }
 
-    public static void drawLineBresenham(PixelWriter pixelWriter, int x0, int y0, int x1, int y1) {
+    public static void drawLineBresenham(FrameBuffer fb, int x0, int y0, int x1, int y1) {
         if (abs(x1 - x0) > abs(y1 - y0)) {
             if (x1 < x0) {
                 int tmp = x0;
@@ -340,7 +340,7 @@ public class Rasterization {
             while (iterator.hasNext()) {
                 int x = iterator.getX();
                 int y = iterator.getY();
-                pixelWriter.setColor(x, y, Color.BLACK);
+                fb.setPixel(x, y0, 0xFF000000);
                 iterator.next();
             }
         } else {
@@ -357,7 +357,7 @@ public class Rasterization {
             while (iterator.hasNext()) {
                 int x = iterator.getX();
                 int y = iterator.getY();
-                pixelWriter.setColor(x, y, Color.BLACK);
+                fb.setPixel(x, y0, 0xFF000000);
                 iterator.next();
             }
         }
