@@ -1,6 +1,7 @@
 package com.apex.tool.triangulator;
 
 
+import com.apex.reflection.AutoCreation;
 import com.apex.model.Model;
 import com.apex.model.Polygon;
 import com.apex.util.PolygonUtil;
@@ -10,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@AutoCreation
 public class SimpleTriangulator implements Triangulator {
     @Override
     public List<Polygon> triangulatePolygon(Model model, Polygon polygon) {

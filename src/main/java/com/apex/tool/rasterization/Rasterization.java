@@ -1,5 +1,6 @@
 package com.apex.tool.rasterization;
 
+import com.apex.model.FrameBuffer;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
@@ -11,7 +12,7 @@ import java.util.Map;
 import static java.lang.Math.*;
 
 public class Rasterization {
-    public static void drawTriangle(PixelWriter pw, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangle(FrameBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
         int tmp;
         if (y0 > y1) {
             tmp = y1;
@@ -45,7 +46,7 @@ public class Rasterization {
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
-                pw.setColor(x, y0, Color.BLACK);
+                fb.setPixel(x, y0, 0xFF000000);
             }
         }
 
@@ -80,7 +81,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                pw.setColor(x, y, Color.BLACK);
+                fb.setPixel(x, y0, 0xFF000000);
             }
 
             longSide = nextLongSide;
@@ -113,7 +114,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                pw.setColor(x, y, Color.BLACK);
+                fb.setPixel(x, y0, 0xFF000000);
             }
 
             longSide = nextLongSide;

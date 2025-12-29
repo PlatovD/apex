@@ -1,6 +1,8 @@
 package com.apex;
 
-import com.apex.render_engine.RenderEngine;
+import com.apex.reflection.AutoInject;
+import com.apex.core.Constants;
+import com.apex.render_engine.pipeline.Pipeline;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
@@ -8,9 +10,11 @@ import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
@@ -22,6 +26,8 @@ import com.apex.io.objreader.ObjReader;
 import com.apex.model.Camera;
 
 public class GuiController {
+    @AutoInject
+    private Pipeline pipeline;
 
     final private float TRANSLATION = 0.5F;
 
@@ -33,10 +39,8 @@ public class GuiController {
 
     private Model mesh = null;
 
-    private Camera camera = new Camera(
-            new Vector3f(0, 00, 100),
-            new Vector3f(0, 0, 0),
-            1.0F, 1, 0.01F, 100);
+    @AutoInject
+    private Camera camera;
 
     private Timeline timeline;
 
@@ -44,6 +48,10 @@ public class GuiController {
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
+        double scaleX = Screen.getPrimary().getOutputScaleX();
+        double scaleY = Screen.getPrimary().getOutputScaleY();
+        Constants.SCENE_WIDTH = (int) Math.round(canvas.getWidth() * scaleX);
+        Constants.SCENE_HEIGHT = (int) Math.round(canvas.getHeight() * scaleY);
 
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -56,7 +64,7 @@ public class GuiController {
             camera.setAspectRatio((float) (width / height));
 
             if (mesh != null) {
-                RenderEngine.render(canvas.getGraphicsContext2D(), camera, mesh, (int) width, (int) height);
+                pipeline.applyAll(mesh);
             }
         });
 

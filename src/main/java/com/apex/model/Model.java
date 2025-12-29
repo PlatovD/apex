@@ -7,6 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Model {
+    public List<Vector3f> vertices = new ArrayList<Vector3f>();
+    public float[] workVertices;
+    public List<Vector2f> textureVertices = new ArrayList<Vector2f>();
+    public List<Vector3f> normals = new ArrayList<Vector3f>();
+    public List<Polygon> polygons = new ArrayList<Polygon>();
+
     public Model() {
     }
 
@@ -17,8 +23,9 @@ public class Model {
         this.polygons = polygons;
     }
 
-    public List<Vector3f> vertices = new ArrayList<Vector3f>();
-    public List<Vector2f> textureVertices = new ArrayList<Vector2f>();
-    public List<Vector3f> normals = new ArrayList<Vector3f>();
-    public List<Polygon> polygons = new ArrayList<Polygon>();
+    public void initWorkVertices() {
+        if (workVertices == null || workVertices.length != vertices.size() * 3) {
+            workVertices = new float[vertices.size() * 3];
+        }
+    }
 }

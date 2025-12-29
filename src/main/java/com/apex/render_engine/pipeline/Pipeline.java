@@ -2,8 +2,12 @@ package com.apex.render_engine.pipeline;
 
 import com.apex.model.Model;
 
-public interface RenderPipeline {
-    void applyToModel(Model model);
+public interface Pipeline {
+    void applyAll(Model model);
 
-    RenderPipelineConfigurer configure();
+    void applyNext(Model model);
+
+    boolean hasNext();
+
+    PipelineConfigurer configure();
 }
