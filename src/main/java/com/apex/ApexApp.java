@@ -1,5 +1,6 @@
 package com.apex;
 
+import com.apex.bunch.ReflectionScanner;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -7,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 public class ApexApp extends Application {
@@ -26,6 +28,12 @@ public class ApexApp extends Application {
     }
 
     public static void main(String[] args) {
+        ReflectionScanner.autocreationResolver();
+        try {
+            ReflectionScanner.wireContext();
+        } catch (InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         launch();
     }
 }
