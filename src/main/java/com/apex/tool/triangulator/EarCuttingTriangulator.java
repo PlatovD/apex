@@ -7,6 +7,7 @@ import com.apex.model.Model;
 import com.apex.model.Polygon;
 import com.apex.model.Triangle;
 import com.apex.core.Constants;
+import com.apex.reflection.AutoCreation;
 import com.apex.util.PolygonUtil;
 
 import java.util.*;
@@ -14,6 +15,7 @@ import java.util.function.Function;
 
 import static java.lang.Math.*;
 
+@AutoCreation
 public class EarCuttingTriangulator implements Triangulator {
     @Override
     public List<Polygon> triangulatePolygon(Model model, Polygon polygon) {

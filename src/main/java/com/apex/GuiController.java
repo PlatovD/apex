@@ -4,6 +4,7 @@ import com.apex.model.FrameBuffer;
 import com.apex.reflection.AutoInject;
 import com.apex.core.Constants;
 import com.apex.render_engine.pipeline.Pipeline;
+import com.apex.tool.normals.NormalCalculator;
 import com.apex.tool.triangulator.Triangulator;
 import javafx.fxml.FXML;
 import javafx.animation.Animation;
@@ -36,7 +37,7 @@ public class GuiController {
     @AutoInject
     private FrameBuffer frameBuffer;
 
-    @AutoInject
+    @AutoInject(name = "SimpleTriangulator")
     private Triangulator triangulator;
 
     final private float TRANSLATION = 0.5F;
@@ -100,7 +101,7 @@ public class GuiController {
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
-        File file = fileChooser.showOpenDialog((Stage) canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
@@ -110,11 +111,12 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             mesh = ObjReader.read(fileContent);
-            triangulator.triangulateModel(mesh);
             // todo: обработка ошибок
         } catch (IOException exception) {
 
         }
+        triangulator.triangulateModel(mesh);
+        NormalCalculator.calculateVerticesNormals(mesh);
     }
 
     @FXML
