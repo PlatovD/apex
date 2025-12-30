@@ -81,7 +81,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                fb.setPixel(x, y0, 0xFF000000);
+                fb.setPixel(x, y, 0xFF000000);
             }
 
             longSide = nextLongSide;
@@ -114,7 +114,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                fb.setPixel(x, y0, 0xFF000000);
+                fb.setPixel(x, y, 0xFF000000);
             }
 
             longSide = nextLongSide;
@@ -273,7 +273,7 @@ public class Rasterization {
                 }
                 for (int x = min(borderFirst, borderLast); x <= max(borderFirst, borderLast); x++) {
 
-                    fb.setPixel(x, y0, 0xFF000000);
+                    fb.setPixel(x, y, 0xFF000000);
                 }
             }
         } else {
@@ -319,7 +319,7 @@ public class Rasterization {
                     borderLast = lineBC.get(x).get(lineBC.get(x).size() - 1);
                 }
                 for (int y = min(borderFirst, borderLast); y <= max(borderFirst, borderLast); y++) {
-                    fb.setPixel(x, y0, 0xFF000000);
+                    fb.setPixel(x, y, 0xFF000000);
                 }
             }
         }
@@ -357,7 +357,7 @@ public class Rasterization {
             while (iterator.hasNext()) {
                 int x = iterator.getX();
                 int y = iterator.getY();
-                fb.setPixel(x, y0, 0xFF000000);
+                fb.setPixel(x, y, 0xFF000000);
                 iterator.next();
             }
         }

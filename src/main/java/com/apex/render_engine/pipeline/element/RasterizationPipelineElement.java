@@ -7,6 +7,7 @@ import com.apex.model.FrameBuffer;
 import com.apex.model.Model;
 import com.apex.model.Polygon;
 import com.apex.tool.rasterization.Rasterization;
+import javafx.scene.image.PixelWriter;
 
 @AutoCreation
 public class RasterizationPipelineElement implements PipelineElement {
