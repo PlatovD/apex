@@ -5,4 +5,5 @@ public class Constants {
     public static String PACKAGE_FOR_SCAN = "com.apex";
     public static int SCENE_WIDTH = 1280;
     public static int SCENE_HEIGHT = 720;
+    public static final float TRANSLATION = 0.5F;
 }

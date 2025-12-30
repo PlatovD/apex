@@ -1,4 +1,4 @@
-package com.apex.model;
+package com.apex.model.scene;
 
 import com.apex.core.Constants;
 import com.apex.reflection.AutoCreation;

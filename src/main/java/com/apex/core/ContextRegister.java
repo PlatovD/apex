@@ -2,7 +2,7 @@ package com.apex.core;
 
 import com.apex.GuiController;
 import com.apex.reflection.ReflectionScanner;
-import com.apex.model.Camera;
+import com.apex.model.scene.Camera;
 
 import javax.vecmath.Vector3f;
 

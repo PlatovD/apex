@@ -2,7 +2,7 @@ package com.apex.render_engine.pipeline;
 
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.model.Model;
+import com.apex.model.geometry.Model;
 import com.apex.render_engine.pipeline.element.PipelineElement;
 
 import java.util.List;
@@ -28,6 +28,10 @@ public class DefaultPipeline implements Pipeline {
             elements.get(currentStep).apply(model);
             currentStep++;
         }
+    }
+
+    public void prepare() {
+        for (PipelineElement element : configurer.getElements()) element.prepare();
     }
 
     public void reset() {

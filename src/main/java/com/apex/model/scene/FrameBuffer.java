@@ -1,8 +1,7 @@
-package com.apex.model;
+package com.apex.model.scene;
 
 import com.apex.reflection.AutoCreation;
 import com.apex.core.Constants;
-import com.apex.exception.FrameBufferException;
 
 import java.util.Arrays;
 

@@ -1,6 +1,6 @@
 package com.apex.render_engine.pipeline;
 
-import com.apex.model.Model;
+import com.apex.model.geometry.Model;
 
 public interface Pipeline {
     void applyAll(Model model);
@@ -10,4 +10,6 @@ public interface Pipeline {
     boolean hasNext();
 
     PipelineConfigurer configure();
+
+    void prepare();
 }

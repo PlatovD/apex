@@ -2,6 +2,11 @@ package com.apex.render_engine;
 
 import javax.vecmath.*;
 
+/**
+ * В принципе класс, который надо чтобы заменил и переделал Свят, чтобы вся логика этого класса была
+ * отдельно в афинках и математике, и мы просто в PipeLineElement пользовались всем этим. Этот класс по хорошему просто
+ * удалить после
+ */
 public class GraphicConveyor {
     public static Matrix4f rotateScaleTranslate() {
         float[] matrix = new float[]{

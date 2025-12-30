@@ -1,10 +1,10 @@
-package com.apex.io.objwriter;
+package com.apex.io.write;
 
 import com.apex.exception.ObjWriterException;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
-import com.apex.model.Model;
-import com.apex.model.Polygon;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
 
 import java.io.FileWriter;
 import java.io.IOException;

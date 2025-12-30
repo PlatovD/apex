@@ -2,9 +2,9 @@ package com.apex.tool.triangulator;
 
 
 
-import com.apex.model.Model;
-import com.apex.model.Polygon;
-import com.apex.model.TriangulatedModel;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
+import com.apex.model.geometry.TriangulatedModel;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.apex.tool.rasterization;
 
-import com.apex.model.FrameBuffer;
-import com.apex.model.ZBuffer;
+import com.apex.model.scene.FrameBuffer;
+import com.apex.model.scene.ZBuffer;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 

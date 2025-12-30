@@ -2,8 +2,8 @@ package com.apex.util;
 
 
 import com.apex.math.Vector3f;
-import com.apex.model.Model;
-import com.apex.model.Polygon;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
 
 import java.util.ArrayList;
 import java.util.List;

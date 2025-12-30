@@ -1,10 +1,10 @@
-package com.apex.io.objreader;
+package com.apex.io.read;
 
 import com.apex.exception.ObjReaderException;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
-import com.apex.model.Model;
-import com.apex.model.Polygon;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
 
 import java.util.ArrayList;
 import java.util.Arrays;

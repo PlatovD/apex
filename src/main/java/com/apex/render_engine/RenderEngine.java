@@ -1,45 +1,41 @@
 package com.apex.render_engine;
 
-import java.util.ArrayList;
+import com.apex.model.geometry.Model;
+import com.apex.model.scene.SceneStorage;
+import com.apex.reflection.AutoCreation;
+import com.apex.reflection.AutoInject;
+import com.apex.render_engine.pipeline.Pipeline;
+import com.apex.render_engine.rasterizator.Rasterizator;
+import javafx.scene.image.PixelWriter;
 
-import com.apex.math.Vector3f;
-import com.apex.model.Camera;
-import javafx.scene.canvas.GraphicsContext;
-
-import javax.vecmath.*;
-
-import com.apex.model.Model;
-
-import static com.apex.render_engine.GraphicConveyor.*;
-
+@AutoCreation
 public class RenderEngine {
+    @AutoInject
+    private SceneStorage sceneStorage;
 
-    public static void render(
-            final Camera camera,
-            final Model mesh,
-            final int width,
-            final int height) {
-        Matrix4f modelMatrix = rotateScaleTranslate();
-        Matrix4f viewMatrix = camera.getViewMatrix();
-        Matrix4f projectionMatrix = camera.getProjectionMatrix();
+    @AutoInject
+    private Pipeline pipeline;
 
-        Matrix4f modelViewProjectionMatrix = new Matrix4f(modelMatrix);
-        modelViewProjectionMatrix.mul(viewMatrix);
-        modelViewProjectionMatrix.mul(projectionMatrix);
+    @AutoInject
+    private Rasterizator rasterizator;
 
-        final int nPolygons = mesh.polygons.size();
-        for (int polygonInd = 0; polygonInd < nPolygons; ++polygonInd) {
-            final int nVerticesInPolygon = mesh.polygons.get(polygonInd).getVertexIndices().size();
+    public void initialize(PixelWriter pixelWriter) {
+        rasterizator.getPixelWriterWrapper().setPixelWriter(pixelWriter);
+    }
 
-            ArrayList<Point2f> resultPoints = new ArrayList<>();
-            for (int vertexInPolygonInd = 0; vertexInPolygonInd < nVerticesInPolygon; ++vertexInPolygonInd) {
-                Vector3f vertex = mesh.vertices.get(mesh.polygons.get(polygonInd).getVertexIndices().get(vertexInPolygonInd));
+    public void render() {
+        preparePipeline();
+        // todo: здесь надо прокидывать уже не модель, а обертку над ней. Обертка должна знать больше, чем сама модель и позволять нам ее рисовать
+        for (Model model : sceneStorage.getModels())
+            pipeline.applyAll(model);
+        rasterizator.rasterize();
+    }
 
-                javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(vertex.getX(), vertex.getY(), vertex.getZ());
+    private void preparePipeline() {
+        pipeline.prepare();
+    }
 
-                Point2f resultPoint = vertexToPoint(multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath), width, height);
-                resultPoints.add(resultPoint);
-            }
-        }
+    public Rasterizator getRasterizator() {
+        return rasterizator;
     }
 }

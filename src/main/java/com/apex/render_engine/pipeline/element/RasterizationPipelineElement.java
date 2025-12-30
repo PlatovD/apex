@@ -1,14 +1,13 @@
 package com.apex.render_engine.pipeline.element;
 
-import com.apex.model.ZBuffer;
+import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.exception.RasterizationException;
-import com.apex.model.FrameBuffer;
-import com.apex.model.Model;
-import com.apex.model.Polygon;
+import com.apex.model.scene.FrameBuffer;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
 import com.apex.tool.rasterization.Rasterization;
-import javafx.scene.image.PixelWriter;
 
 @AutoCreation
 public class RasterizationPipelineElement implements PipelineElement {
@@ -20,8 +19,6 @@ public class RasterizationPipelineElement implements PipelineElement {
 
     @Override
     public void apply(Model model) {
-        zBuffer.clear();
-        frameBuffer.clear();
         for (Polygon polygon : model.polygons) {
             if (polygon.getVertexIndices().size() != 3)
                 throw new RasterizationException("One of polygons is not triangle");
@@ -35,5 +32,11 @@ public class RasterizationPipelineElement implements PipelineElement {
                     Math.round(rawVertices[vertex3Index * 3]), Math.round(rawVertices[vertex3Index * 3 + 1]), rawVertices[vertex3Index * 3 + 2]
             );
         }
+    }
+
+    @Override
+    public void prepare() {
+        zBuffer.clear();
+        frameBuffer.clear();
     }
 }

@@ -1,8 +1,11 @@
 package com.apex;
 
-import com.apex.model.FrameBuffer;
+import com.apex.model.geometry.Model;
+import com.apex.model.scene.FrameBuffer;
+import com.apex.model.scene.SceneStorage;
 import com.apex.reflection.AutoInject;
 import com.apex.core.Constants;
+import com.apex.render_engine.RenderEngine;
 import com.apex.render_engine.pipeline.Pipeline;
 import com.apex.tool.normals.NormalCalculator;
 import com.apex.tool.triangulator.Triangulator;
@@ -14,8 +17,6 @@ import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.layout.AnchorPane;
-import javafx.stage.Screen;
-import javafx.stage.Stage;
 import javafx.stage.FileChooser;
 import javafx.util.Duration;
 
@@ -23,24 +24,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.io.IOException;
 import java.io.File;
-import java.util.function.Supplier;
 import javax.vecmath.Vector3f;
 
-import com.apex.model.Model;
-import com.apex.io.objreader.ObjReader;
-import com.apex.model.Camera;
+import com.apex.io.read.ObjReader;
+import com.apex.model.scene.Camera;
+
+import static com.apex.core.Constants.TRANSLATION;
 
 public class GuiController {
     @AutoInject
-    private Pipeline pipeline;
+    private SceneStorage sceneStorage;
 
     @AutoInject
-    private FrameBuffer frameBuffer;
-
-    @AutoInject(name = "SimpleTriangulator")
-    private Triangulator triangulator;
-
-    final private float TRANSLATION = 0.5F;
+    private RenderEngine renderEngine;
 
     @FXML
     AnchorPane anchorPane;
@@ -48,10 +44,8 @@ public class GuiController {
     @FXML
     private Canvas canvas;
 
-    private Model mesh = null;
-
     @AutoInject
-    private Camera camera;
+    private Camera camera; // тоже плохо тут держать
 
     private Timeline timeline;
 
@@ -61,38 +55,22 @@ public class GuiController {
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
+        renderEngine.initialize(canvas.getGraphicsContext2D().getPixelWriter());
 
-        KeyFrame frame = new KeyFrame(Duration.millis(60), event -> {
+        KeyFrame frame = new KeyFrame(Duration.millis(30), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             camera.setAspectRatio((float) (width / height));
 
-            if (mesh != null) {
-                pipeline.applyAll(mesh);
-                rasterize();
+            if (sceneStorage.hasAnyModels()) {
+                renderEngine.render();
             }
         });
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
-    }
-
-    private void rasterize() {
-        int[] rawPixels = frameBuffer.getRawData();
-        int width = Constants.SCENE_WIDTH;
-        int height = Constants.SCENE_HEIGHT;
-
-
-        canvas.getGraphicsContext2D().getPixelWriter().setPixels(
-                0, 0,
-                width, height,
-                PixelFormat.getIntArgbInstance(),
-                rawPixels,
-                0,
-                rawPixels.length / height
-        );
     }
 
     @FXML
@@ -110,15 +88,15 @@ public class GuiController {
 
         try {
             String fileContent = Files.readString(fileName);
-            mesh = ObjReader.read(fileContent);
+            Model model = ObjReader.read(fileContent);
+            sceneStorage.addModel(model);
             // todo: обработка ошибок
         } catch (IOException exception) {
 
         }
-        triangulator.triangulateModel(mesh);
-        NormalCalculator.calculateVerticesNormals(mesh);
     }
 
+    // Все что дальше - прямое управление камерой. Желательно это делать не так и не внедрять камеру сюда напрямую
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, 0, -TRANSLATION));

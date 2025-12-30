@@ -1,8 +1,8 @@
 package com.apex.tool.normals;
 
 import com.apex.math.Vector3f;
-import com.apex.model.Model;
-import com.apex.model.Polygon;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
 import com.apex.reflection.AutoCreation;
 
 import java.util.HashMap;

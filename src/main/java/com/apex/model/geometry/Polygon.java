@@ -1,4 +1,4 @@
-package com.apex.model;
+package com.apex.model.geometry;
 
 import java.util.ArrayList;
 import java.util.List;

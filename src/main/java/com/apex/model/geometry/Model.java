@@ -1,4 +1,4 @@
-package com.apex.model;
+package com.apex.model.geometry;
 
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
