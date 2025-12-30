@@ -1,5 +1,6 @@
 package com.apex.render_engine.pipeline.element;
 
+import com.apex.model.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.exception.RasterizationException;
@@ -14,8 +15,12 @@ public class RasterizationPipelineElement implements PipelineElement {
     @AutoInject
     private FrameBuffer frameBuffer;
 
+    @AutoInject
+    private ZBuffer zBuffer;
+
     @Override
     public void apply(Model model) {
+        zBuffer.clear();
         frameBuffer.clear();
         for (Polygon polygon : model.polygons) {
             if (polygon.getVertexIndices().size() != 3)
@@ -24,10 +29,10 @@ public class RasterizationPipelineElement implements PipelineElement {
             int vertex2Index = polygon.getVertexIndices().get(1);
             int vertex3Index = polygon.getVertexIndices().get(2);
             float[] rawVertices = model.workVertices;
-            Rasterization.drawTriangle(frameBuffer,
-                    (int) Math.ceil(rawVertices[vertex1Index * 3]), (int) Math.ceil(rawVertices[vertex1Index * 3 + 1]),
-                    (int) Math.ceil(rawVertices[vertex2Index * 3]), (int) Math.ceil(rawVertices[vertex2Index * 3 + 1]),
-                    (int) Math.ceil(rawVertices[vertex3Index * 3]), (int) Math.ceil(rawVertices[vertex3Index * 3 + 1])
+            Rasterization.drawTriangle(frameBuffer, zBuffer,
+                    Math.round(rawVertices[vertex1Index * 3]), Math.round(rawVertices[vertex1Index * 3 + 1]), rawVertices[vertex1Index * 3 + 2],
+                    Math.round(rawVertices[vertex2Index * 3]), Math.round(rawVertices[vertex2Index * 3 + 1]), rawVertices[vertex2Index * 3 + 2],
+                    Math.round(rawVertices[vertex3Index * 3]), Math.round(rawVertices[vertex3Index * 3 + 1]), rawVertices[vertex3Index * 3 + 2]
             );
         }
     }

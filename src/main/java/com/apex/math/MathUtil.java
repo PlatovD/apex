@@ -32,4 +32,12 @@ public class MathUtil {
         double semiPerimeter = (AB + AC + BC) / 2;
         return sqrt(semiPerimeter * (semiPerimeter - AB) * (semiPerimeter - AC) * (semiPerimeter - BC));
     }
+
+    public static int findThirdOrderDeterminant(
+            int a00, int a01, int a02,
+            int a10, int a11, int a12,
+            int a20, int a21, int a22
+    ) {
+        return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
+    }
 }

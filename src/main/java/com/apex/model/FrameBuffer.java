@@ -4,6 +4,8 @@ import com.apex.reflection.AutoCreation;
 import com.apex.core.Constants;
 import com.apex.exception.FrameBufferException;
 
+import java.util.Arrays;
+
 @AutoCreation
 public class FrameBuffer {
     private int width;
@@ -14,14 +16,6 @@ public class FrameBuffer {
         this.width = Constants.SCENE_WIDTH;
         this.height = Constants.SCENE_HEIGHT;
         this.pixels = new int[width * height];
-    }
-
-    public int[] getPixels() {
-        return pixels;
-    }
-
-    public void setPixels(int[] pixels) {
-        this.pixels = pixels;
     }
 
     public int[] getRawData() {
@@ -38,6 +32,6 @@ public class FrameBuffer {
     }
 
     public void clear() {
-        java.util.Arrays.fill(pixels, 0xFFFFFFFF);
+        Arrays.fill(pixels, 0xFFFFFFFF);
     }
 }

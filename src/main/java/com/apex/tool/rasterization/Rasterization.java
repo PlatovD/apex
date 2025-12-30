@@ -1,6 +1,7 @@
 package com.apex.tool.rasterization;
 
 import com.apex.model.FrameBuffer;
+import com.apex.model.ZBuffer;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.paint.Color;
 
@@ -9,11 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.apex.math.MathUtil.findThirdOrderDeterminant;
 import static java.lang.Math.*;
 
 public class Rasterization {
-    public static void drawTriangle(FrameBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangle(FrameBuffer fb, ZBuffer zBuffer, int x0, int y0, float z0, int x1, int y1, float z1, int x2, int y2, float z2) {
         int tmp;
+        float tmpF;
         if (y0 > y1) {
             tmp = y1;
             y1 = y0;
@@ -22,6 +25,10 @@ public class Rasterization {
             tmp = x1;
             x1 = x0;
             x0 = tmp;
+
+            tmpF = z1;
+            z1 = z0;
+            z0 = tmpF;
         }
         if (y1 > y2) {
             tmp = y2;
@@ -31,6 +38,10 @@ public class Rasterization {
             tmp = x2;
             x2 = x1;
             x1 = tmp;
+
+            tmpF = z2;
+            z2 = z1;
+            z1 = tmpF;
         }
         if (y0 > y1) {
             tmp = y1;
@@ -40,13 +51,23 @@ public class Rasterization {
             tmp = x1;
             x1 = x0;
             x0 = tmp;
+
+            tmpF = z1;
+            z1 = z0;
+            z0 = tmpF;
         }
 
+        float invZ0 = 1f / z0;
+        float invZ1 = 1f / z1;
+        float invZ2 = 1f / z2;
         int minX = min(x0, min(x1, x2));
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
-                fb.setPixel(x, y0, 0xFF000000);
+                double[] barycentric = findBarycentricCords(x, y0, x0, y0, x1, y1, x2, y2);
+                float pixelZ = (float) findZFromBarycentric(barycentric, invZ0, invZ1, invZ2);
+                if (zBuffer.setPixel(x, y0, pixelZ))
+                    fb.setPixel(x, y0, 0xFF000000);
             }
         }
 
@@ -81,7 +102,10 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                fb.setPixel(x, y, 0xFF000000);
+                double[] barycentric = findBarycentricCords(x, y0, x0, y0, x1, y1, x2, y2);
+                float pixelZ = (float) findZFromBarycentric(barycentric, invZ0, invZ1, invZ2);
+                if (zBuffer.setPixel(x, y, pixelZ))
+                    fb.setPixel(x, y, 0xFF000000);
             }
 
             longSide = nextLongSide;
@@ -114,12 +138,20 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                fb.setPixel(x, y, 0xFF000000);
+                double[] barycentric = findBarycentricCords(x, y0, x0, y0, x1, y1, x2, y2);
+                float pixelZ = (float) findZFromBarycentric(barycentric, invZ0, invZ1, invZ2);
+                if (zBuffer.setPixel(x, y, pixelZ))
+                    fb.setPixel(x, y, 0xFF000000);
             }
 
             longSide = nextLongSide;
             shortSide = nextShortSide;
         }
+    }
+
+    private static double findZFromBarycentric(double[] barycentric, float invZ0, float invZ1, float invZ2) {
+        double invZ = barycentric[0] * invZ0 + barycentric[1] * invZ1 + barycentric[2] * invZ2;
+        return 1d / invZ;
     }
 
     public static Map<Integer, List<Integer>> myBresenhamOneY(int x0, int y0, int x1, int y1) {
@@ -325,44 +357,6 @@ public class Rasterization {
         }
     }
 
-    public static void drawLineBresenham(FrameBuffer fb, int x0, int y0, int x1, int y1) {
-        if (abs(x1 - x0) > abs(y1 - y0)) {
-            if (x1 < x0) {
-                int tmp = x0;
-                x0 = x1;
-                x1 = tmp;
-
-                tmp = y0;
-                y0 = y1;
-                y1 = tmp;
-            }
-            BorderIterator iterator = new BresenhamBorderIterator(x0, y0, x1, y1, true);
-            while (iterator.hasNext()) {
-                int x = iterator.getX();
-                int y = iterator.getY();
-                fb.setPixel(x, y0, 0xFF000000);
-                iterator.next();
-            }
-        } else {
-            if (y1 < y0) {
-                int tmp = y0;
-                y0 = y1;
-                y1 = tmp;
-
-                tmp = x0;
-                x0 = x1;
-                x1 = tmp;
-            }
-            BorderIterator iterator = new BresenhamBorderIterator(x0, y0, x1, y1, false);
-            while (iterator.hasNext()) {
-                int x = iterator.getX();
-                int y = iterator.getY();
-                fb.setPixel(x, y, 0xFF000000);
-                iterator.next();
-            }
-        }
-    }
-
     /**
      * Метод рисования линии. Позволяет рисовать ее из точки 1 в точку 2. Использует округление и
      * линейную интерполяцию для того, чтобы получить промежуточные значения и построить путь из 1 в 2.
@@ -443,14 +437,6 @@ public class Rasterization {
         drawLine(pixelWriter, x2, y2, x1, y1);
     }
 
-    private static int findThirdOrderDeterminant(
-            int a00, int a01, int a02,
-            int a10, int a11, int a12,
-            int a20, int a21, int a22
-    ) {
-        return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
-    }
-
     private static double[] findBarycentricCords(int xCur, int yCur, int x0, int y0, int x1, int y1, int x2, int y2) {
         int mainDet = findThirdOrderDeterminant(
                 x0, x1, x2,
@@ -475,244 +461,5 @@ public class Rasterization {
                 1, 1, 1
         );
         return new double[]{(double) detForAlpha / mainDet, (double) detForBeta / mainDet, (double) detForLambda / mainDet};
-    }
-
-    /**
-     * Метод для растеризации треугольника через scanline и алгоритм Брезенхейма для нахождения границ,
-     * реализованный в виде итератора по границам. Позволяет закрашивать треугольник тремя цветами с
-     * интерполяцией между вершинами. Использует барицентрические координаты. Работает медленнее заполнения
-     * одним цветом.
-     */
-    public static void drawInterpolatedTriangleByIterator(
-            final PixelWriter pixelWriter,
-            int x0, int y0,
-            int x1, int y1,
-            int x2, int y2,
-            Color color0,
-            Color color1,
-            Color color2
-    ) {
-        int tmp;
-        Color tmpColor;
-        if (y0 > y1) {
-            tmp = y1;
-            y1 = y0;
-            y0 = tmp;
-
-            tmp = x1;
-            x1 = x0;
-            x0 = tmp;
-
-            tmpColor = color0;
-            color0 = color1;
-            color1 = tmpColor;
-        }
-        if (y1 > y2) {
-            tmp = y2;
-            y2 = y1;
-            y1 = tmp;
-
-            tmp = x2;
-            x2 = x1;
-            x1 = tmp;
-
-            tmpColor = color1;
-            color1 = color2;
-            color2 = tmpColor;
-        }
-        if (y0 > y1) {
-            tmp = y1;
-            y1 = y0;
-            y0 = tmp;
-
-            tmp = x1;
-            x1 = x0;
-            x0 = tmp;
-
-            tmpColor = color0;
-            color0 = color1;
-            color1 = tmpColor;
-        }
-        BorderIterator borderIterator1 = new BresenhamBorderIterator(x0, y0, x1, y1, true);
-        BorderIterator borderIterator2 = new BresenhamBorderIterator(x0, y0, x2, y2, true);
-        BorderIterator borderIterator3 = new BresenhamBorderIterator(x1, y1, x2, y2, true);
-
-        double[] barycentric;
-        while (borderIterator1.hasNext() && borderIterator2.hasNext()) {
-            int y = borderIterator1.getY();
-            int xLineStart = borderIterator1.getX();
-            int xLineEnd = borderIterator2.getX();
-            for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                Color color = createColorFromBarycentric(barycentric, color0, color1, color2);
-                pixelWriter.setColor(x, y, color);
-            }
-            borderIterator1.next();
-            borderIterator2.next();
-        }
-
-        borderIterator3.next();
-        while (borderIterator2.hasNext() && borderIterator3.hasNext()) {
-            int y = borderIterator2.getY();
-            int xLineStart = borderIterator2.getX();
-            int xLineEnd = borderIterator3.getX();
-            for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                barycentric = findBarycentricCords(x, y, x0, y0, x1, y1, x2, y2);
-                Color color = createColorFromBarycentric(barycentric, color0, color1, color2);
-                pixelWriter.setColor(x, y, color);
-            }
-            borderIterator2.next();
-            borderIterator3.next();
-        }
-    }
-
-    public static void drawTriangleBresenhamByIterator(PixelWriter pw, int x0, int y0, int x1, int y1, int x2, int y2) {
-        if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) >= max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
-            int tmp;
-            if (y0 > y1) {
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-            }
-            if (y1 > y2) {
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
-
-                tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-            }
-            if (y0 > y1) {
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-            }
-            Map<Integer, Integer> it_2_out = new HashMap<>();
-            // тут хожу по x и нахожу два y и провожу линию между ними
-            BorderIterator borderIterator1 = new BresenhamBorderIterator(x0, y0, x1, y1, true);
-            BorderIterator borderIterator2 = new BresenhamBorderIterator(x0, y0, x2, y2, true);
-            BorderIterator borderIterator3 = new BresenhamBorderIterator(x1, y1, x2, y2, true);
-            while (borderIterator1.hasNext() && borderIterator2.hasNext()) {
-                int y = borderIterator1.getY();
-                int xLineStart = borderIterator1.getX();
-                int xLineEnd = borderIterator2.getX();
-                it_2_out.put(y, xLineEnd);
-                for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                    pw.setColor(x, y, Color.BLACK);
-                }
-                borderIterator1.next();
-                borderIterator2.next();
-            }
-
-            while (borderIterator2.hasNext() && borderIterator3.hasNext()) {
-                int y = borderIterator2.getY();
-                int xLineStart = borderIterator2.getX();
-                int xLineEnd = borderIterator3.getX();
-                it_2_out.put(y, xLineStart);
-                for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                    pw.setColor(x, y, Color.BLACK);
-                }
-                borderIterator2.next();
-                borderIterator3.next();
-            }
-            int y = borderIterator2.getY();
-            int xLineStart = borderIterator2.getX();
-            int xLineEnd = borderIterator3.getX();
-            it_2_out.put(y, xLineStart);
-            for (int x = min(xLineStart, xLineEnd); x <= max(xLineStart, xLineEnd); x++) {
-                pw.setColor(x, y, Color.BLACK);
-            }
-//            System.out.println(it_2_out);
-            System.out.println(it_2_out.containsKey(y0));
-            System.out.println(it_2_out.containsKey(y2));
-
-        } else {
-            int tmp;
-            if (x0 > x1) {
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-            }
-            if (x1 > x2) {
-                tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
-            }
-            if (x0 > x1) {
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-            }
-            Map<Integer, Integer> it_2_out = new HashMap<>();
-            // тут хожу по x и нахожу два y и провожу линию между ними
-            BorderIterator borderIterator1 = new BresenhamBorderIterator(x0, y0, x1, y1, false);
-            BorderIterator borderIterator2 = new BresenhamBorderIterator(x0, y0, x2, y2, false);
-            BorderIterator borderIterator3 = new BresenhamBorderIterator(x1, y1, x2, y2, false);
-            while (borderIterator1.hasNext() && borderIterator2.hasNext()) {
-                int x = borderIterator1.getX();
-                int yLineStart = borderIterator1.getY();
-                int yLineEnd = borderIterator2.getY();
-                it_2_out.put(x, yLineEnd);
-                for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    pw.setColor(x, y, Color.BLACK);
-                }
-                borderIterator1.next();
-                borderIterator2.next();
-            }
-
-            while (borderIterator2.hasNext() && borderIterator3.hasNext()) {
-                int x = borderIterator2.getX();
-                int yLineStart = borderIterator2.getY();
-                int yLineEnd = borderIterator3.getY();
-                it_2_out.put(x, yLineStart);
-                for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                    pw.setColor(x, y, Color.BLACK);
-                }
-                borderIterator2.next();
-                borderIterator3.next();
-            }
-
-            int x = borderIterator2.getX();
-            int yLineStart = borderIterator2.getY();
-            int yLineEnd = borderIterator3.getY();
-            it_2_out.put(x, yLineStart);
-            for (int y = min(yLineStart, yLineEnd); y <= max(yLineStart, yLineEnd); y++) {
-                pw.setColor(x, y, Color.BLACK);
-            }
-        }
-    }
-
-    private static Color createColorFromBarycentric(double[] barycentric, Color color1, Color color2, Color color3) {
-        double a = max(0, min(1, barycentric[0]));
-        double b = max(0, min(1, barycentric[1]));
-        double c = max(0, min(1, barycentric[2]));
-
-        return new Color(
-                color1.getRed() * a + color2.getRed() * b + color3.getRed() * c,
-                color1.getGreen() * a + color2.getGreen() * b + color3.getGreen() * c,
-                color1.getBlue() * a + color2.getBlue() * b + color3.getBlue() * c,
-                1);
-
     }
 }
