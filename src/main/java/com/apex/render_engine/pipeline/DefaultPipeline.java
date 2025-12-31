@@ -1,5 +1,6 @@
 package com.apex.render_engine.pipeline;
 
+import com.apex.model.scene.RenderObject;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.model.geometry.Model;
@@ -14,18 +15,18 @@ public class DefaultPipeline implements Pipeline {
     private int currentStep = 0;
 
     @Override
-    public void applyAll(Model model) {
+    public void applyAll(RenderObject ro) {
         reset();
         while (hasNext()) {
-            applyNext(model);
+            applyNext(ro);
         }
     }
 
     @Override
-    public void applyNext(Model model) {
+    public void applyNext(RenderObject ro) {
         List<PipelineElement> elements = configurer.getElements();
         if (currentStep < elements.size()) {
-            elements.get(currentStep).apply(model);
+            elements.get(currentStep).apply(ro);
             currentStep++;
         }
     }

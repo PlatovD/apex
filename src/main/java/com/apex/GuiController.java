@@ -1,5 +1,6 @@
 package com.apex;
 
+import com.apex.io.textureloader.TextureLoader;
 import com.apex.model.geometry.Model;
 import com.apex.model.scene.FrameBuffer;
 import com.apex.model.scene.SceneStorage;
@@ -15,6 +16,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
@@ -71,6 +73,26 @@ public class GuiController {
 
         timeline.getKeyFrames().add(frame);
         timeline.play();
+    }
+
+    @FXML
+    private void onOpenTextureMenuItemClick() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
+        );
+        fileChooser.setTitle("Load Texture");
+
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
+        if (file == null) return;
+        Path fileName = Path.of(file.getAbsolutePath());
+
+        try {
+            Image image = TextureLoader.loadTextureFromFile(fileName.toString());
+            sceneStorage.addTexture(image, 1); // пока что так для теста
+        } catch (Exception e) {
+
+        }
     }
 
     @FXML

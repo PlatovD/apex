@@ -1,6 +1,7 @@
 package com.apex.render_engine.pipeline.element;
 
 import com.apex.core.Constants;
+import com.apex.model.scene.RenderObject;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.math.Vector3f;
@@ -19,10 +20,13 @@ public class TransformPipelineElement implements PipelineElement {
     private Camera camera;
 
     @Override
-    public void apply(Model model) {
-        if (model.workVertices == null || model.workVertices.length != model.vertices.size() * 3) {
-            model.workVertices = new float[model.vertices.size() * 3];
+    public void apply(RenderObject ro) {
+        if (ro.getWorkVertices() == null || ro.getWorkVertices().length != ro.getModel().vertices.size() * 3) {
+            ro.setWorkVertices(new float[ro.getModel().vertices.size() * 3]);
         }
+
+        Model model = ro.getModel();
+        float[] workVertices = ro.getWorkVertices();
 
         Matrix4f modelMatrix = rotateScaleTranslate();
         Matrix4f viewMatrix = camera.getViewMatrix();
@@ -32,7 +36,7 @@ public class TransformPipelineElement implements PipelineElement {
         modelViewProjectionMatrix.mul(viewMatrix);
         modelViewProjectionMatrix.mul(projectionMatrix);
 
-        for (int i = 0; i < model.vertices.size(); i++) {
+        for (int i = 0; i < ro.getModel().vertices.size(); i++) {
             Vector3f v = model.vertices.get(i);
 
             javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(v.getX(), v.getY(), v.getZ());
@@ -40,9 +44,9 @@ public class TransformPipelineElement implements PipelineElement {
             Point2f resultPoint = vertexToPoint(projectionPoint, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
             int offset = i * 3;
-            model.workVertices[offset] = resultPoint.x;
-            model.workVertices[offset + 1] = resultPoint.y;
-            model.workVertices[offset + 2] = projectionPoint.z;
+            workVertices[offset] = resultPoint.x;
+            workVertices[offset + 1] = resultPoint.y;
+            workVertices[offset + 2] = projectionPoint.z;
         }
     }
 
