@@ -5,6 +5,8 @@ import com.apex.core.Constants;
 
 import java.util.Arrays;
 
+import static com.apex.core.Constants.backgroundColor;
+
 @AutoCreation
 public class FrameBuffer {
     private int width;
@@ -31,6 +33,6 @@ public class FrameBuffer {
     }
 
     public void clear() {
-        Arrays.fill(pixels, 0xFFFFFFFF);
+        Arrays.fill(pixels, backgroundColor);
     }
 }

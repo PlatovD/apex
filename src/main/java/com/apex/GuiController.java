@@ -40,6 +40,8 @@ public class GuiController {
     @AutoInject
     private RenderEngine renderEngine;
 
+    int current = 1;
+
     @FXML
     AnchorPane anchorPane;
 
@@ -77,6 +79,7 @@ public class GuiController {
 
     @FXML
     private void onOpenTextureMenuItemClick() {
+        timeline.stop();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
@@ -85,18 +88,19 @@ public class GuiController {
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) return;
-        Path fileName = Path.of(file.getAbsolutePath());
 
         try {
-            Image image = TextureLoader.loadTextureFromFile(fileName.toString());
-            sceneStorage.addTexture(image, 1); // пока что так для теста
+            Image image = TextureLoader.loadTextureFromFile(file);
+            sceneStorage.addTexture(image, current++); // пока что так для теста
         } catch (Exception e) {
-
+            System.out.println(e.getMessage());
         }
+        timeline.play();
     }
 
     @FXML
     private void onOpenModelMenuItemClick() {
+        timeline.stop();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
@@ -116,6 +120,7 @@ public class GuiController {
         } catch (IOException exception) {
 
         }
+        timeline.play();
     }
 
     // Все что дальше - прямое управление камерой. Желательно это делать не так и не внедрять камеру сюда напрямую

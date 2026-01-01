@@ -7,7 +7,7 @@
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane fx:id="anchorPane" onMouseClicked="#onOpenTextureMenuItemClick" prefHeight="524.0" prefWidth="805.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.GuiController">
+<AnchorPane fx:id="anchorPane" prefHeight="524.0" prefWidth="805.0" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.GuiController">
 
     <Canvas fx:id="canvas" />
     <MenuBar>
@@ -51,9 +51,9 @@
             </MenuItem>
         </Menu>
       <Menu mnemonicParsing="false" text="Texture">
-        <items>
-          <MenuItem mnemonicParsing="false" text="Action 1" />
-        </items>
+         <items>
+            <MenuItem mnemonicParsing="false" onAction="#onOpenTextureMenuItemClick" text="Load Texture" />
+         </items>
       </Menu>
     </MenuBar>
 </AnchorPane>

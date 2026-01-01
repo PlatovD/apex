@@ -1,4 +1,4 @@
-package com.apex.model.color;
+package com.apex.tool.colorization;
 
 import com.apex.model.texture.Texture;
 

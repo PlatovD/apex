@@ -22,4 +22,9 @@ public class SolidTexture implements Texture {
     public void setColor(int color) {
         this.color = color;
     }
+
+    @Override
+    public int getCache() {
+        return color;
+    }
 }
