@@ -1,8 +1,9 @@
 package com.apex.model.scene;
 
+import com.apex.cache.ModelCache;
+import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
 import com.apex.exception.SceneStorageException;
-import com.apex.io.util.IOProcessor;
 import com.apex.model.geometry.Polygon;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.tool.colorization.DefaultColorProvider;
@@ -18,103 +19,66 @@ import java.util.*;
 
 @AutoCreation
 public class SceneStorage {
-    static class Usage<T> {
-        int cntUsage;
-        T cached;
-
-        public Usage(int cntUsage, T cached) {
-            this.cntUsage = cntUsage;
-            this.cached = cached;
-        }
-    }
-
-    @AutoInject(name = "ReadIOProcessor")
-    private IOProcessor inputProcessor;
-    @AutoInject(name = "WriteIOProcessor")
-    private IOProcessor writeProcessor;
-
-    private int id = 1;
-    private final Map<Integer, RenderObject> renderObjectsMap = new HashMap<>();
+    private final Map<String, RenderObject> renderObjectsMap = new HashMap<>();
     private final List<Camera> cameras = new ArrayList<>();
     private final ColorProvider cp = new DefaultColorProvider();
 
-    // caches
-    private HashMap<Integer, Usage<Texture>> textureCache = new HashMap<>();
-    private HashMap<Integer, Usage<Model>> modelCache = new HashMap<>(); // todo
 
-    public void addModel(Model model) {
-        try {
-            inputProcessor.process(model);
-        } catch (Exception e) {
-            // todo здесь Лехе надо придумать, как бы обработать ошибку и сказать пользователю, что с моделью что то не то
-        }
-        Texture texture;
-        if (textureCache.containsKey(Constants.color)) {
-            texture = textureCache.get(Constants.color).cached;
-            textureCache.get(Constants.color).cntUsage++;
-        } else {
-            texture = new SolidTexture(Constants.color);
-            cacheTexture(Constants.color, texture);
-        }
-        RenderObject ro = new RenderObject(model, cp, texture);
-        renderObjectsMap.put(id++, ro);
+    @AutoInject(name = "ModelCache")
+    private ModelCache modelCache;
+
+    @AutoInject(name = "TextureCache")
+    private TextureCache textureCache;
+
+    public void addModel(String filename, Model model) {
+        model = modelCache.smartCache(filename, model);
+
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+
+        RenderObject ro = new RenderObject(filename, model, cp, defaultTexture);
+        renderObjectsMap.put(filename, ro);
     }
 
-    public void cacheTexture(int hash, Texture texture) {
-        Usage<Texture> usage = new Usage<>(1, texture);
-        textureCache.put(hash, usage);
-    }
-
-    public void addTexture(Image image, int id) {
-        if (!renderObjectsMap.containsKey(id)) throw new SceneStorageException("No render object with id=" + id);
-        Texture oldTexture = renderObjectsMap.get(id).getTexture();
-        deleteFromCache(oldTexture);
-        Texture texture;
-        if (textureCache.containsKey(image.hashCode())) {
-            texture = textureCache.get(image.hashCode()).cached;
-            textureCache.get(image.hashCode()).cntUsage++;
-        } else {
-            texture = new ImageTexture(image);
-            cacheTexture(image.hashCode(), texture);
-        }
-        RenderObject ro = renderObjectsMap.get(id);
+    public void addTexture(String fileObjName, String fileTextureName, Image image) {
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+        Texture oldTexture = renderObjectsMap.get(fileObjName).getTexture();
+        textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(oldTexture.getCache());
+        Texture texture = textureCache.smartCache(fileTextureName, new ImageTexture(fileTextureName, image));
+        RenderObject ro = renderObjectsMap.get(fileObjName);
         if (ro.getModel().textureVertices.isEmpty())
-            throw new SceneStorageException("Model has no texture vertices. id=" + id);
-        checkTextureVertices(id);
+            throw new SceneStorageException("Model has no texture vertices. name=" + fileObjName);
+        checkTextureVertices(fileObjName);
         ro.setTexture(texture);
         ro.setTextured(true);
     }
 
-    public void deleteTexture(int id) {
-        if (!renderObjectsMap.containsKey(id)) throw new SceneStorageException("No render object with id=" + id);
-        Texture oldTexture = renderObjectsMap.get(id).getTexture();
-        deleteFromCache(oldTexture);
-        Texture texture;
-        if (textureCache.containsKey(Constants.color)) {
-            texture = textureCache.get(Constants.color).cached;
-        } else {
-            texture = new SolidTexture(Constants.color);
-            cacheTexture(Constants.color, texture);
-        }
-        RenderObject ro = renderObjectsMap.get(id);
-        ro.setTexture(texture);
+    public void deleteTexture(String fileObjName) {
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+        Texture oldTexture = renderObjectsMap.get(fileObjName).getTexture();
+        textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(oldTexture.getCache());
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        ro.setTexture(defaultTexture);
         ro.setTextured(false);
     }
 
-    public void deleteModel(int id) {
+    public void deleteModel(String fileObjName) {
         if (!hasAnyModels()) throw new SceneStorageException("No models to delete");
-        if (!renderObjectsMap.containsKey(id)) throw new SceneStorageException("No render object with id=" + id);
-        RenderObject ro = renderObjectsMap.get(id);
-        deleteFromCache(ro.getTexture());
-        renderObjectsMap.remove(id);
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        renderObjectsMap.remove(ro.getFilename());
+        textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getTexture().getCache());
+        modelCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getFilename());
     }
 
-    public Model getPreparedToSaveModel(int id) {
+    public Model getPreparedToSaveModel(String fileObjName) {
         if (!hasAnyModels()) throw new SceneStorageException("No models to save");
-        if (!renderObjectsMap.containsKey(id)) throw new SceneStorageException("No render object with id=" + id);
-        Model model = renderObjectsMap.get(id).getModel();
-        writeProcessor.process(model);
-        return model;
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+        return renderObjectsMap.get(fileObjName).getModel();
     }
 
     public Collection<RenderObject> getRenderObjects() {
@@ -129,9 +93,10 @@ public class SceneStorage {
         return !renderObjectsMap.isEmpty();
     }
 
-    private void checkTextureVertices(int id) {
-        if (!renderObjectsMap.containsKey(id)) throw new SceneStorageException("No render object with id=" + id);
-        Model model = renderObjectsMap.get(id).getModel();
+    private void checkTextureVertices(String filename) {
+        if (!renderObjectsMap.containsKey(filename))
+            throw new SceneStorageException("No render object with name=" + filename);
+        Model model = renderObjectsMap.get(filename).getModel();
         for (Polygon polygon : model.polygons) {
             List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
             if (textureVertexIndices.size() != 3)
@@ -141,19 +106,6 @@ public class SceneStorage {
                     throw new SceneStorageException("Bad model texture vertices. Wrong indices");
             }
         }
-    }
-
-    /**
-     * Внимание! Не забыть вызвать при изменении цвета заливки, чтобы убрать старый из кеша. Причем это не подойдет для удаления картинки.
-     * Мы теряем ее кеш и без картинки не можем по нему обратиться. Сначала надо обновить цвет, а только потом это вызвать, иначе не удалится, тк используется
-     * @param texture - текстура
-     */
-    public void deleteFromCache(Texture texture) {
-        if (!textureCache.containsKey(texture.getCache())) return;
-        Usage<Texture> usage = textureCache.get(texture.getCache());
-        usage.cntUsage--;
-        if (usage.cntUsage != 0) return;
-        textureCache.remove(texture.getCache());
     }
 
     /**

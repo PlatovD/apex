@@ -4,7 +4,9 @@ import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class Model {
     public List<Vector3f> vertices = new ArrayList<Vector3f>();
@@ -27,5 +29,17 @@ public class Model {
         if (workVertices == null || workVertices.length != vertices.size() * 3) {
             workVertices = new float[vertices.size() * 3];
         }
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == null || getClass() != object.getClass()) return false;
+        Model model = (Model) object;
+        return Objects.equals(vertices, model.vertices) && Objects.deepEquals(workVertices, model.workVertices) && Objects.equals(textureVertices, model.textureVertices) && Objects.equals(normals, model.normals) && Objects.equals(polygons, model.polygons);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(vertices, Arrays.hashCode(workVertices), textureVertices, normals, polygons);
     }
 }

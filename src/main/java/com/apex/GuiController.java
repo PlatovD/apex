@@ -1,6 +1,7 @@
 package com.apex;
 
 import com.apex.io.textureloader.TextureLoader;
+import com.apex.io.util.IOProcessor;
 import com.apex.model.geometry.Model;
 import com.apex.model.scene.FrameBuffer;
 import com.apex.model.scene.SceneStorage;
@@ -34,13 +35,16 @@ import com.apex.model.scene.Camera;
 import static com.apex.core.Constants.TRANSLATION;
 
 public class GuiController {
+    @AutoInject(name = "ReadIOProcessor")
+    private IOProcessor inputProcessor;
+    @AutoInject(name = "WriteIOProcessor")
+    private IOProcessor writeProcessor;
+
     @AutoInject
     private SceneStorage sceneStorage;
 
     @AutoInject
     private RenderEngine renderEngine;
-
-    int current = 1;
 
     @FXML
     AnchorPane anchorPane;
@@ -91,7 +95,7 @@ public class GuiController {
 
         try {
             Image image = TextureLoader.loadTextureFromFile(file);
-            sceneStorage.addTexture(image, current++); // пока что так для теста
+            sceneStorage.addTexture(null, file.getName(), image); // пока что так для теста. Вместо null должно быть име модели для которой добавляют текстуру
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -115,10 +119,10 @@ public class GuiController {
         try {
             String fileContent = Files.readString(fileName);
             Model model = ObjReader.read(fileContent);
-            sceneStorage.addModel(model);
+            inputProcessor.process(model);
+            sceneStorage.addModel(file.getName(), model);
             // todo: обработка ошибок
         } catch (IOException exception) {
-
         }
         timeline.play();
     }

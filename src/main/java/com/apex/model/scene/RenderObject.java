@@ -6,12 +6,12 @@ import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
 
 import javax.vecmath.Matrix4f;
-import java.util.List;
 
 /**
  * Объект-обертка, содержащий все необходимые для рендеринга данные
  */
 public class RenderObject {
+    private final String filename;
     private final Model model;
     private Matrix4f worldMatrix;
     private Texture texture;
@@ -19,7 +19,8 @@ public class RenderObject {
     private ColorProvider colorProvider;
     private float[] workVertices;
 
-    public RenderObject(Model model, ColorProvider colorProvider, Texture texture) {
+    public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture) {
+        this.filename = filename;
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
@@ -67,6 +68,10 @@ public class RenderObject {
 
     public void setTextured(boolean textured) {
         this.textured = textured;
+    }
+
+    public String getFilename() {
+        return filename;
     }
 }
 

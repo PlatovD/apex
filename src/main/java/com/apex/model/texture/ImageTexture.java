@@ -8,11 +8,11 @@ public class ImageTexture implements Texture {
     private int[] pixels;
     private int width;
     private int height;
-    private int cache;
+    private String cache;
 
-    public ImageTexture(Image image) {
+    public ImageTexture(String filename, Image image) {
+        cache = filename;
         setImage(image);
-        cache = image.hashCode();
     }
 
     public void setImage(Image image) {
@@ -38,7 +38,7 @@ public class ImageTexture implements Texture {
     }
 
     @Override
-    public int getCache() {
+    public String getCache() {
         return cache;
     }
 }

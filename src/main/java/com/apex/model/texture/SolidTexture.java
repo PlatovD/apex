@@ -24,7 +24,7 @@ public class SolidTexture implements Texture {
     }
 
     @Override
-    public int getCache() {
-        return color;
+    public String getCache() {
+        return String.valueOf(color);
     }
 }
