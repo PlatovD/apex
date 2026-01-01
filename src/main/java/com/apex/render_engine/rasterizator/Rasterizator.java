@@ -20,7 +20,6 @@ public class Rasterizator {
         int width = Constants.SCENE_WIDTH;
         int height = Constants.SCENE_HEIGHT;
 
-
         pixelWriterWrapper.getPixelWriter().setPixels(
                 0, 0,
                 width, height,

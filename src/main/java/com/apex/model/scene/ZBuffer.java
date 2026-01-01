@@ -19,7 +19,7 @@ public class ZBuffer {
     }
 
     public boolean setPixel(int x, int y, float zCord) {
-        if (zCord <= 0) return false;
+        if (zCord < 0) return false;
         int bufferIndex = y * width + x;
         if (bufferIndex < 0 || bufferIndex >= width * height) return false;
         if (buffer[bufferIndex] <= zCord) return false;

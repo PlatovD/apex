@@ -1,5 +1,6 @@
 package com.apex;
 
+import com.apex.io.textureloader.TextureLoader;
 import com.apex.model.geometry.Model;
 import com.apex.model.scene.FrameBuffer;
 import com.apex.model.scene.SceneStorage;
@@ -15,6 +16,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.image.Image;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
@@ -37,6 +39,8 @@ public class GuiController {
 
     @AutoInject
     private RenderEngine renderEngine;
+
+    int current = 1;
 
     @FXML
     AnchorPane anchorPane;
@@ -74,7 +78,29 @@ public class GuiController {
     }
 
     @FXML
+    private void onOpenTextureMenuItemClick() {
+        timeline.stop();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
+        );
+        fileChooser.setTitle("Load Texture");
+
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
+        if (file == null) return;
+
+        try {
+            Image image = TextureLoader.loadTextureFromFile(file);
+            sceneStorage.addTexture(image, current++); // пока что так для теста
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        timeline.play();
+    }
+
+    @FXML
     private void onOpenModelMenuItemClick() {
+        timeline.stop();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
@@ -94,6 +120,7 @@ public class GuiController {
         } catch (IOException exception) {
 
         }
+        timeline.play();
     }
 
     // Все что дальше - прямое управление камерой. Желательно это делать не так и не внедрять камеру сюда напрямую

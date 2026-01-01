@@ -1,6 +1,6 @@
 package com.apex.render_engine;
 
-import com.apex.model.geometry.Model;
+import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.SceneStorage;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
@@ -26,8 +26,8 @@ public class RenderEngine {
     public void render() {
         preparePipeline();
         // todo: здесь надо прокидывать уже не модель, а обертку над ней. Обертка должна знать больше, чем сама модель и позволять нам ее рисовать
-        for (Model model : sceneStorage.getModels())
-            pipeline.applyAll(model);
+        for (RenderObject ro : sceneStorage.getRenderObjects())
+            pipeline.applyAll(ro);
         rasterizator.rasterize();
     }
 

@@ -1,11 +1,11 @@
 package com.apex.render_engine.pipeline;
 
-import com.apex.model.geometry.Model;
+import com.apex.model.scene.RenderObject;
 
 public interface Pipeline {
-    void applyAll(Model model);
+    void applyAll(RenderObject renderObject);
 
-    void applyNext(Model model);
+    void applyNext(RenderObject renderObject);
 
     boolean hasNext();
 
