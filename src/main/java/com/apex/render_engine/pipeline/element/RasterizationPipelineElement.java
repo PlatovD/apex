@@ -1,12 +1,12 @@
 package com.apex.render_engine.pipeline.element;
 
+import com.apex.buffer.RasterizationBuffer;
 import com.apex.math.Vector2f;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.exception.RasterizationException;
-import com.apex.model.scene.FrameBuffer;
 import com.apex.model.geometry.Model;
 import com.apex.model.geometry.Polygon;
 import com.apex.tool.rasterization.Rasterization;
@@ -17,7 +17,7 @@ import java.util.List;
 @AutoCreation
 public class RasterizationPipelineElement implements PipelineElement {
     @AutoInject
-    private FrameBuffer frameBuffer;
+    private RasterizationBuffer rb;
 
     @AutoInject
     private ZBuffer zBuffer;
@@ -67,7 +67,7 @@ public class RasterizationPipelineElement implements PipelineElement {
 
             refreshVertexAttributeForPolygon(vertex3Attribute, vertex3Index, rawVertices);
 
-            Rasterization.drawTriangle(frameBuffer, zBuffer, ro.getColorProvider(), ro.getTexture(),
+            Rasterization.drawTriangle(rb, zBuffer, ro.getColorProvider(), ro.getTexture(),
                     vertex1Attribute, vertex2Attribute, vertex3Attribute
             );
         }
@@ -82,6 +82,6 @@ public class RasterizationPipelineElement implements PipelineElement {
     @Override
     public void prepare() {
         zBuffer.clear();
-        frameBuffer.clear();
+        rb.clear();
     }
 }

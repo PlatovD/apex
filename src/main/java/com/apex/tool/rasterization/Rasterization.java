@@ -1,6 +1,7 @@
 package com.apex.tool.rasterization;
 
-import com.apex.model.scene.FrameBuffer;
+import com.apex.buffer.RasterizationBuffer;
+import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
 import com.apex.model.scene.ZBuffer;
 import com.apex.model.texture.Texture;
 import com.apex.tool.colorization.ColorData;
@@ -18,7 +19,7 @@ import static java.lang.Math.*;
 
 public class Rasterization {
     public static void drawTriangle(
-            FrameBuffer fb, ZBuffer zBuffer, ColorProvider cp, Texture texture,
+            RasterizationBuffer rb, ZBuffer zBuffer, ColorProvider cp, Texture texture,
             VertexAttribute v1A, VertexAttribute v2A, VertexAttribute v3A
     ) {
         int x0 = v1A.x;
@@ -131,7 +132,7 @@ public class Rasterization {
                     float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
                     if (zBuffer.setPixel(x, y0, pixelZ)) {
                         colorData.barycentric = barycentric;
-                        fb.setPixel(x, y0, cp.getColor(colorData, texture));
+                        rb.setPixel(x, y0, cp.getColor(colorData, texture));
                     }
                 }
             }
@@ -175,7 +176,7 @@ public class Rasterization {
                     float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.barycentric = barycentric;
-                        fb.setPixel(x, y, cp.getColor(colorData, texture));
+                        rb.setPixel(x, y, cp.getColor(colorData, texture));
                     }
                 }
             }
@@ -217,7 +218,7 @@ public class Rasterization {
                     float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.barycentric = barycentric;
-                        fb.setPixel(x, y, cp.getColor(colorData, texture));
+                        rb.setPixel(x, y, cp.getColor(colorData, texture));
                     }
                 }
 
@@ -338,7 +339,7 @@ public class Rasterization {
      * Метод для растеризации треугольника с использованием идеи scanline и нахождения границ через алгоритм
      * Брезенхейма.
      */
-    public static void drawTriangleBresenham(FrameBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangleBresenham(CustomIntArrayBasedRasterizationBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
         if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) > max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
             int tmp;
             if (y0 > y1) {
