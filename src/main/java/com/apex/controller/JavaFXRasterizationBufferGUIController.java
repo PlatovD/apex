@@ -78,7 +78,7 @@ public class JavaFXRasterizationBufferGUIController implements Controller {
 
         try {
             Image image = TextureLoader.loadTextureFromFile(file);
-            sceneStorage.addTexture(null, file.getName(), image); // пока что так для теста. Вместо null должно быть име модели для которой добавляют текстуру
+            sceneStorage.addTexture("AlexNeutralWrapped.obj", file.getName(), image); // пока что так для теста. Вместо null должно быть име модели для которой добавляют текстуру
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

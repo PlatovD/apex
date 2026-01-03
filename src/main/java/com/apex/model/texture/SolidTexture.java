@@ -1,7 +1,7 @@
 package com.apex.model.texture;
 
 public class SolidTexture implements Texture {
-    private int color = 0xFF000000;
+    private int color = 0xFF0000;
 
     public SolidTexture() {
     }

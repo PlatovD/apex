@@ -7,6 +7,7 @@ import com.apex.reflection.AutoInject;
 import com.apex.math.Vector3f;
 import com.apex.model.scene.Camera;
 import com.apex.model.geometry.Model;
+import com.apex.render_engine.GraphicConveyor;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
@@ -40,7 +41,7 @@ public class TransformPipelineElement implements PipelineElement {
             Vector3f v = model.vertices.get(i);
 
             javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(v.getX(), v.getY(), v.getZ());
-            javax.vecmath.Vector3f projectionPoint = multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath);
+            javax.vecmath.Vector3f projectionPoint = GraphicConveyor.multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath);
             Point2f resultPoint = vertexToPoint(projectionPoint, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
             int offset = i * 3;

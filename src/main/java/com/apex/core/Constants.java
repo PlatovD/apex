@@ -7,7 +7,8 @@ public class Constants {
     public static int SCENE_WIDTH = 1280;
     public static int SCENE_HEIGHT = 720;
     public static final float TRANSLATION = 1F;
-    public static int color = 0xFF000000;
+    public static int color = 0xFF0000;
     public static int backgroundColor = 0xFF1C1C1C;
     public static String PATH_TO_PROPERTIES = "/application.properties";
+    public static float MIN_LIGHT_FACTOR = 0.2f;
 }
