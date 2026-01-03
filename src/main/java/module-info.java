@@ -7,4 +7,6 @@ module com.apex {
 
     opens com.apex to javafx.fxml;
     exports com.apex;
+    exports com.apex.controller;
+    opens com.apex.controller to javafx.fxml;
 }

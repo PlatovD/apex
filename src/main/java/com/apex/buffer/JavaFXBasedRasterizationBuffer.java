@@ -11,7 +11,6 @@ import java.util.Arrays;
 
 import static com.apex.core.Constants.backgroundColor;
 
-@AutoCreation
 public class JavaFXBasedRasterizationBuffer implements RasterizationBuffer {
     private int width;
     private int height;

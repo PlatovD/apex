@@ -1,7 +1,6 @@
-package com.apex;
+package com.apex.controller;
 
 import com.apex.buffer.JavaFXBasedRasterizationBuffer;
-import com.apex.buffer.RasterizationBuffer;
 import com.apex.core.Constants;
 import com.apex.io.textureloader.TextureLoader;
 import com.apex.io.util.IOProcessor;
@@ -11,17 +10,12 @@ import com.apex.reflection.AutoInject;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.render_engine.RenderEngine;
 import javafx.fxml.FXML;
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
-import javafx.scene.CacheHint;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
-import javafx.util.Duration;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -34,7 +28,7 @@ import com.apex.model.scene.Camera;
 
 import static com.apex.core.Constants.TRANSLATION;
 
-public class GuiController {
+public class JavaFXRasterizationBufferGUIController implements Controller {
     @AutoInject(name = "ReadIOProcessor")
     private IOProcessor inputProcessor;
     @AutoInject(name = "WriteIOProcessor")
@@ -47,7 +41,10 @@ public class GuiController {
     private RenderEngine renderEngine;
 
     @FXML
-    AnchorPane anchorPane;
+    private AnchorPane anchorPane;
+
+    @FXML
+    private ImageView imageView;
 
     @FXML
     private Canvas canvas;
@@ -55,53 +52,21 @@ public class GuiController {
     @AutoInject
     private Camera camera; // тоже плохо тут держать
 
-    private Timeline timeline;
-
     @FXML
     private void initialize() {
         anchorPane.prefWidthProperty().addListener((ov, oldValue, newValue) -> canvas.setWidth(newValue.doubleValue()));
         anchorPane.prefHeightProperty().addListener((ov, oldValue, newValue) -> canvas.setHeight(newValue.doubleValue()));
-        timeline = new Timeline();
-        timeline.setCycleCount(Animation.INDEFINITE);
+        canvas.setVisible(false);
+        imageView.setFitWidth(Constants.SCENE_WIDTH);
+        imageView.setFitHeight(Constants.SCENE_HEIGHT);
+        imageView.setSmooth(true);
 
-        KeyFrame frame = new KeyFrame(Duration.millis(60), event -> {
-//            double width = canvas.getWidth();
-//            double height = canvas.getHeight();
-//
-//            canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-//            camera.setAspectRatio((float) (width / height));
-
-            if (sceneStorage.hasAnyModels()) {
-                renderEngine.render();
-            }
-        });
-        initializeRasterizationBuffer();
-
-        timeline.getKeyFrames().add(frame);
-        timeline.play();
-    }
-
-    private boolean initializeRasterizationBuffer() {
-        RasterizationBuffer rasterizationBuffer = (RasterizationBuffer) ReflectionScanner.findAssignableBeanByClass(RasterizationBuffer.class);
-        if (rasterizationBuffer instanceof JavaFXBasedRasterizationBuffer javaFXBasedRasterizationBuffer) {
-            ImageView imageView = new ImageView(javaFXBasedRasterizationBuffer.getWritableImage());
-            imageView.setFitWidth(Constants.SCENE_WIDTH);
-            imageView.setFitHeight(Constants.SCENE_HEIGHT);
-            anchorPane.getChildren().remove(canvas);
-            anchorPane.getChildren().add(imageView);
-            AnchorPane.setTopAnchor(imageView, 0.0);
-            AnchorPane.setBottomAnchor(imageView, 0.0);
-            AnchorPane.setLeftAnchor(imageView, 0.0);
-            AnchorPane.setRightAnchor(imageView, 0.0);
-            imageView.setCacheHint(CacheHint.SPEED);
-            return true;
-        }
-        return false;
+        JavaFXBasedRasterizationBuffer javaFXBasedRasterizationBuffer = (JavaFXBasedRasterizationBuffer) ReflectionScanner.findAssignableBeanByClass(JavaFXBasedRasterizationBuffer.class);
+        imageView.setImage(javaFXBasedRasterizationBuffer.getWritableImage());
     }
 
     @FXML
     private void onOpenTextureMenuItemClick() {
-        timeline.stop();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp")
@@ -117,17 +82,22 @@ public class GuiController {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        timeline.play();
+        redraw();
+    }
+
+    private void redraw() {
+        if (sceneStorage.hasAnyModels()) {
+            renderEngine.render();
+        }
     }
 
     @FXML
     private void onOpenModelMenuItemClick() {
-        timeline.stop();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
-        File file = fileChooser.showOpenDialog(anchorPane.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
         if (file == null) {
             return;
         }
@@ -142,37 +112,43 @@ public class GuiController {
             // todo: обработка ошибок
         } catch (IOException exception) {
         }
-        timeline.play();
+        redraw();
     }
 
     // Все что дальше - прямое управление камерой. Желательно это делать не так и не внедрять камеру сюда напрямую
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
+        redraw();
     }
 
     @FXML
     public void handleCameraBackward(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, 0, TRANSLATION));
+        redraw();
     }
 
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
+        redraw();
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
+        redraw();
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, TRANSLATION, 0));
+        redraw();
     }
 
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
+        redraw();
     }
 }

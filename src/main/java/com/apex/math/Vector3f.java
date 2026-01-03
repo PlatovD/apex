@@ -66,7 +66,8 @@ public class Vector3f {
         double length = this.length();
 
         if (Math.abs(length) < Constants.EPS) {
-            throw new ArithmeticException("Ошибка деления на 0. Передан нулевой вектор");
+            length = Constants.EPS;
+//            throw new ArithmeticException("Ошибка деления на 0. Передан нулевой вектор");
         }
 
         this.divide(length);

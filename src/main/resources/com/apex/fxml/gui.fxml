@@ -4,11 +4,13 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane fx:id="anchorPane" prefHeight="524.0" prefWidth="805.0" xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.GuiController">
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.controller.Controller">
+    <ImageView fx:id="imageView" fitHeight="524.0" fitWidth="805.0" pickOnBounds="true" preserveRatio="true"/>
 
     <Canvas fx:id="canvas"/>
     <MenuBar>

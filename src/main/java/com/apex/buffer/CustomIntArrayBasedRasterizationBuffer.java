@@ -1,6 +1,5 @@
 package com.apex.buffer;
 
-import com.apex.reflection.AutoCreation;
 import com.apex.core.Constants;
 import com.apex.reflection.AutoInject;
 import com.apex.util.PixelWriterWrapper;
@@ -10,9 +9,8 @@ import java.util.Arrays;
 
 import static com.apex.core.Constants.backgroundColor;
 
-//@AutoCreation
 public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuffer {
-    //    @AutoInject
+    @AutoInject
     private PixelWriterWrapper pixelWriterWrapper;
 
     private int width;

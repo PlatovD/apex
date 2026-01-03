@@ -17,7 +17,7 @@ public class ApexApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/gui.fxml"));
-        // Loader читает fxml и видит "com.apex.GuiController". После этого он передает в этот метод именно этот класс
+        // Loader читает fxml и видит "com.apex.controller.BaseGuiController". После этого он передает в этот метод именно этот класс
         loader.setControllerFactory(ReflectionScanner::findAssignableBeanByClass);
         AnchorPane viewport = loader.load();
 
