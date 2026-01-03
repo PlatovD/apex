@@ -2,6 +2,8 @@ package com.apex.tool.rasterization;
 
 import com.apex.buffer.RasterizationBuffer;
 import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
+import com.apex.core.Constants;
+import com.apex.math.Vector3f;
 import com.apex.model.scene.ZBuffer;
 import com.apex.model.texture.Texture;
 import com.apex.tool.colorization.ColorData;
@@ -19,101 +21,162 @@ import static java.lang.Math.*;
 
 public class Rasterization {
     public static void drawTriangle(
-            RasterizationBuffer rb, ZBuffer zBuffer, ColorProvider cp, Texture texture,
-            VertexAttribute v1A, VertexAttribute v2A, VertexAttribute v3A
+            RasterizationBuffer rb, ZBuffer zBuffer,
+            com.apex.math.Vector3f light, ColorData colorData, ColorProvider cp, Texture texture,
+            VertexAttribute v0A, VertexAttribute v1A, VertexAttribute v2A,
+            float[] barycentric
     ) {
-        int x0 = v1A.x;
-        int y0 = v1A.y;
-        float z0 = v1A.z;
-        float u0 = v1A.u;
-        float v0 = v1A.v;
+        int x0 = v0A.x;
+        int y0 = v0A.y;
+        float z0 = v0A.z;
+        float u0 = v0A.u;
+        float v0 = v0A.v;
+        float n_x0 = v0A.n_x;
+        float n_y0 = v0A.n_y;
+        float n_z0 = v0A.n_z;
 
-        int x1 = v2A.x;
-        int y1 = v2A.y;
-        float z1 = v2A.z;
-        float u1 = v2A.u;
-        float v1 = v2A.v;
+        int x1 = v1A.x;
+        int y1 = v1A.y;
+        float z1 = v1A.z;
+        float u1 = v1A.u;
+        float v1 = v1A.v;
+        float n_x1 = v1A.n_x;
+        float n_y1 = v1A.n_y;
+        float n_z1 = v1A.n_z;
 
-        int x2 = v3A.x;
-        int y2 = v3A.y;
-        float z2 = v3A.z;
-        float u2 = v3A.u;
-        float v2 = v3A.v;
+        int x2 = v2A.x;
+        int y2 = v2A.y;
+        float z2 = v2A.z;
+        float u2 = v2A.u;
+        float v2 = v2A.v;
+        float n_x2 = v2A.n_x;
+        float n_y2 = v2A.n_y;
+        float n_z2 = v2A.n_z;
 
         int tmp;
         float tmpF;
         if (y0 > y1) {
-
+            // Свап y
             tmp = y1;
             y1 = y0;
             y0 = tmp;
 
+            // Свап x
             tmp = x1;
             x1 = x0;
             x0 = tmp;
 
+            // Свап z
             tmpF = z1;
             z1 = z0;
             z0 = tmpF;
 
+            // Свап u
             tmpF = u1;
             u1 = u0;
             u0 = tmpF;
 
+            // Свап v
             tmpF = v1;
             v1 = v0;
             v0 = tmpF;
+
+            // Свап нормалей
+            tmpF = n_x1;
+            n_x1 = n_x0;
+            n_x0 = tmpF;
+
+            tmpF = n_y1;
+            n_y1 = n_y0;
+            n_y0 = tmpF;
+
+            tmpF = n_z1;
+            n_z1 = n_z0;
+            n_z0 = tmpF;
         }
         if (y1 > y2) {
-
+            // Свап y
             tmp = y2;
             y2 = y1;
             y1 = tmp;
 
+            // Свап x
             tmp = x2;
             x2 = x1;
             x1 = tmp;
 
+            // Свап z
             tmpF = z2;
             z2 = z1;
             z1 = tmpF;
 
+            // Свап u
             tmpF = u2;
             u2 = u1;
             u1 = tmpF;
 
+            // Свап v
             tmpF = v2;
             v2 = v1;
             v1 = tmpF;
+
+            // Свап нормалей
+            tmpF = n_x2;
+            n_x2 = n_x1;
+            n_x1 = tmpF;
+
+            tmpF = n_y2;
+            n_y2 = n_y1;
+            n_y1 = tmpF;
+
+            tmpF = n_z2;
+            n_z2 = n_z1;
+            n_z1 = tmpF;
         }
         if (y0 > y1) {
-
+            // Свап y
             tmp = y1;
             y1 = y0;
             y0 = tmp;
 
+            // Свап x
             tmp = x1;
             x1 = x0;
             x0 = tmp;
 
+            // Свап z
             tmpF = z1;
             z1 = z0;
             z0 = tmpF;
 
+            // Свап u
             tmpF = u1;
             u1 = u0;
             u0 = tmpF;
 
+            // Свап v
             tmpF = v1;
             v1 = v0;
             v0 = tmpF;
+
+            // Свап нормалей
+            tmpF = n_x1;
+            n_x1 = n_x0;
+            n_x0 = tmpF;
+
+            tmpF = n_y1;
+            n_y1 = n_y0;
+            n_y0 = tmpF;
+
+            tmpF = n_z1;
+            n_z1 = n_z0;
+            n_z0 = tmpF;
         }
 
-        float invZ1 = 1 / z0;
-        float invZ2 = 1 / z1;
-        float invZ3 = 1 / z2;
+//        float invZ1 = 1 / z0;
+//        float invZ2 = 1 / z1;
+//        float invZ3 = 1 / z2;
 
-        ColorData colorData = new ColorData();
         colorData.u0 = u0;
         colorData.u1 = u1;
         colorData.u2 = u2;
@@ -125,12 +188,12 @@ public class Rasterization {
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
-                double[] barycentric = findBarycentricCords(
-                        x + 0.5f, y0 + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f
-                );
+                findBarycentricCords(barycentric, x + 0.5f, y0 + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
-                    if (zBuffer.setPixel(x, y0, pixelZ)) {
+                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y0, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y0, cp.getColor(colorData, texture));
                     }
@@ -169,12 +232,12 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                double[] barycentric = findBarycentricCords(
-                        x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f
-                );
+                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
-                    if (zBuffer.setPixel(x, y, pixelZ)) {
+                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y, cp.getColor(colorData, texture));
                     }
@@ -211,12 +274,12 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                double[] barycentric = findBarycentricCords(
-                        x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f
-                );
+                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = (float) findZFromBarycentric(barycentric, z0, z1, z2);
-                    if (zBuffer.setPixel(x, y, pixelZ)) {
+                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y, cp.getColor(colorData, texture));
                     }
@@ -229,7 +292,17 @@ public class Rasterization {
         }
     }
 
-    private static double findZFromBarycentric(double[] barycentric, float z0, float z1, float z2) {
+    private static float findLightFactorForPixel(float n_x0, float n_x1, float n_x2,
+                                                 float n_y0, float n_y1, float n_y2,
+                                                 float n_z0, float n_z1, float n_z2,
+                                                 Vector3f light,
+                                                 float[] barycentric) {
+        return -(n_x0 * barycentric[0] + n_x1 * barycentric[1] + n_x2 * barycentric[2]) * light.getX()
+                - (n_y0 * barycentric[0] + n_y1 * barycentric[1] + n_y2 * barycentric[2]) * light.getY()
+                - (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]) * light.getZ();
+    }
+
+    private static float findZFromBarycentric(float[] barycentric, float z0, float z1, float z2) {
         return barycentric[0] * z0 + barycentric[1] * z1 + barycentric[2] * z2;
     }
 
@@ -516,13 +589,18 @@ public class Rasterization {
         drawLine(pixelWriter, x2, y2, x1, y1);
     }
 
-    private static double[] findBarycentricCords(float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
+    private static void findBarycentricCords(float[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
         float mainDet = findThirdOrderDeterminant(
                 x0, x1, x2,
                 y0, y1, y2,
                 1, 1, 1
         );
-        if (mainDet == 0) return new double[]{0, 0, 0};
+        if (mainDet == 0) {
+            barycentric[0] = 0;
+            barycentric[1] = 0;
+            barycentric[2] = 0;
+            return;
+        }
 
         float detForAlpha = findThirdOrderDeterminant(
                 xCur, x1, x2,
@@ -539,6 +617,8 @@ public class Rasterization {
                 y0, y1, yCur,
                 1, 1, 1
         );
-        return new double[]{(double) detForAlpha / mainDet, (double) detForBeta / mainDet, (double) detForLambda / mainDet};
+        barycentric[0] = detForAlpha / mainDet;
+        barycentric[1] = detForBeta / mainDet;
+        barycentric[2] = detForLambda / mainDet;
     }
 }

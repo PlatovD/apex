@@ -96,7 +96,7 @@ public class ObjReader {
 			throw new ObjReaderException("Failed to parse float value.", lineInd);
 
 		} catch(IndexOutOfBoundsException e) {
-			throw new ObjReaderException("Too few normal arguments.", lineInd);
+			throw new ObjReaderException("Too few n arguments.", lineInd);
 		}
 	}
 
