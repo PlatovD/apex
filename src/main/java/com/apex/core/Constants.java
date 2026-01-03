@@ -9,4 +9,5 @@ public class Constants {
     public static final float TRANSLATION = 1F;
     public static int color = 0xFF000000;
     public static int backgroundColor = 0xFF1C1C1C;
+    public static String PATH_TO_PROPERTIES = "/application.properties";
 }
