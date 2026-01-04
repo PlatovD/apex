@@ -11,63 +11,59 @@ import java.util.Map;
 
 @AutoCreation
 public class NormalCalculator {
+
     public static void calculateVerticesNormals(Model model) {
         List<Vector3f> vertices = model.vertices;
-        model.normals.clear();
-
         List<Vector3f> normals = model.normals;
-        Map<Integer, Vector3f> sumNormals = new HashMap<>();
+        normals.clear();
 
+        Map<Integer, Vector3f> sumNormals = new HashMap<>();
         for (int i = 0; i < vertices.size(); i++) {
             sumNormals.put(i, new Vector3f());
         }
 
         for (Polygon polygon : model.polygons) {
             List<Integer> indices = polygon.getVertexIndices();
-
-            List<Integer> normalIndices = polygon.getNormalIndices();
-            normalIndices.clear();
-            normalIndices.addAll(indices);
-
-
             if (indices.size() < 3) continue;
 
             Vector3f v0 = vertices.get(indices.get(0));
             Vector3f v1 = vertices.get(indices.get(1));
             Vector3f v2 = vertices.get(indices.get(2));
 
-            Vector3f edge1 = Vector3f.subtract(v1, v0);
-            Vector3f edge2 = Vector3f.subtract(v2, v0);
+            Vector3f edge1 = v1.subtract(v0);
+            Vector3f edge2 = v2.subtract(v0);
 
-            Vector3f faceNormal = Vector3f.cross(edge1, edge2);
+            Vector3f faceNormal = edge1.cross(edge2);
+
+            if (faceNormal.lengthSquared() < 1e-12) continue;
+
+            faceNormal = faceNormal.normalize();
 
             for (int idx : indices) {
-                sumNormals.get(idx).sum(faceNormal);
+                sumNormals.get(idx).addLocal(faceNormal);
             }
         }
 
+        normals.clear();
         for (int i = 0; i < vertices.size(); i++) {
-            Vector3f n = sumNormals.get(i);
-
-            if (n.length() == 0) {
+            Vector3f sumNormal = sumNormals.get(i);
+            if (sumNormal.lengthSquared() < 1e-12) {
                 normals.add(new Vector3f(0, 0, 0));
             } else {
-                n.normalize();
-                normals.add(n);
+                normals.add(sumNormal.normalize());
             }
         }
     }
 
-    public static Vector3f calculatePolygonNormal(
-            Vector3f v0, Vector3f v1, Vector3f v2) {
+    public static Vector3f calculatePolygonNormal(Vector3f v0, Vector3f v1, Vector3f v2) {
+        Vector3f edge1 = v1.subtract(v0);
+        Vector3f edge2 = v2.subtract(v0);
+        Vector3f normal = edge1.cross(edge2);
 
-        Vector3f edge1 = Vector3f.subtract(v1, v0);
-        Vector3f edge2 = Vector3f.subtract(v2, v0);
+        if (normal.lengthSquared() < 1e-12) {
+            return new Vector3f(0, 0, 0);
+        }
 
-        Vector3f normal = Vector3f.cross(edge1, edge2);
-        normal.normalize();
-
-        return normal;
+        return normal.normalize();
     }
 }
-
