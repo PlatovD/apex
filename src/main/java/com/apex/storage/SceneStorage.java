@@ -7,6 +7,7 @@ import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
+import com.apex.model.util.RenderObjectStatus;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.tool.colorization.DefaultColorProvider;
 import com.apex.model.geometry.Model;
@@ -22,7 +23,7 @@ import java.util.*;
 @AutoCreation
 public class SceneStorage {
     private final Map<String, RenderObject> renderObjectsMap = new HashMap<>();
-    private final List<Camera> cameras = new ArrayList<>();
+    private final List<RenderObject> visibleRenderObjects = new ArrayList<>();
     private final ColorProvider cp = new DefaultColorProvider();
 
     @AutoInject(name = "ModelCache")
@@ -39,6 +40,7 @@ public class SceneStorage {
 
         RenderObject ro = new RenderObject(filename, model, cp, defaultTexture);
         renderObjectsMap.put(filename, ro);
+        visibleRenderObjects.add(ro);
     }
 
     public void addTexture(String fileObjName, String fileTextureName, Image image) {
@@ -76,6 +78,7 @@ public class SceneStorage {
         renderObjectsMap.remove(ro.getFilename());
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getTexture().getCache());
         modelCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getFilename());
+        visibleRenderObjects.remove(ro); // могу удалять тк ссылка одна и та же
     }
 
     public Model getPreparedToSaveModel(String fileObjName) {
@@ -94,12 +97,65 @@ public class SceneStorage {
         return renderObjectsMap.get(name);
     }
 
-    public List<Camera> getCameras() {
-        return cameras;
-    }
-
     public boolean hasAnyModels() {
         return !renderObjectsMap.isEmpty();
+    }
+
+    public List<RenderObject> getActiveRenderObjects() {
+        List<RenderObject> renderObjects = new ArrayList<>();
+        for (RenderObject ro : renderObjectsMap.values()) {
+            if (!Objects.equals(ro.getStatus(), RenderObjectStatus.ACTIVE)) continue;
+            renderObjects.add(ro);
+        }
+        return renderObjects;
+    }
+
+    public void makeActive(String fileObjName) {
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to update status");
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        ro.setStatus(RenderObjectStatus.ACTIVE);
+    }
+
+    public void makeUnactive(String fileObjName) {
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to update status");
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        ro.setStatus(RenderObjectStatus.UNACTIVE);
+    }
+
+    public void makeVisible(String fileObjName) {
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to make visible");
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        if (ro.isVisible()) return;
+        ro.setVisibility(true);
+        visibleRenderObjects.add(ro);
+    }
+
+    public void makeUnVisible(String fileObjName) {
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to make visible");
+        if (!renderObjectsMap.containsKey(fileObjName))
+            throw new SceneStorageException("No render object with name=" + fileObjName);
+
+        RenderObject ro = renderObjectsMap.get(fileObjName);
+        if (!ro.isVisible()) return;
+        ro.setVisibility(false);
+        visibleRenderObjects.remove(ro);
+    }
+
+    public List<RenderObject> getVisibleRenderObjects() {
+        return visibleRenderObjects; // мог бы тут делать как в getActiveRenderObjects, но этот метод вызывается чаще и он вызывается при отрисовке, так что оптимизирую
     }
 
     private void checkTextureVertices(String filename) {
