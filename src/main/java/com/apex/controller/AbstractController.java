@@ -3,6 +3,7 @@ package com.apex.controller;
 import com.apex.io.textureloader.TextureLoader;
 import com.apex.io.util.IOProcessor;
 import com.apex.model.geometry.Model;
+import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.SceneStorage;
 import com.apex.reflection.AutoInject;
 import com.apex.render_engine.RenderEngine;
@@ -123,7 +124,7 @@ public abstract class AbstractController implements Controller {
         if (selected == null)
             return;
 
-        com.apex.model.scene.RenderObject ro = sceneStorage.getRenderObject(selected);
+        RenderObject ro = sceneStorage.getRenderObject(selected);
         if (ro == null)
             return;
 

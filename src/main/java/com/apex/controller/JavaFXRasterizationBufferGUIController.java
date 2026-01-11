@@ -30,9 +30,7 @@ public class JavaFXRasterizationBufferGUIController extends AbstractController {
 
     @Override
     protected void refresh() {
-        if (sceneStorage.hasAnyModels()) {
-            renderEngine.render();
-        }
+        renderEngine.render();
     }
 
     @Override

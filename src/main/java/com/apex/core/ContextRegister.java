@@ -19,13 +19,13 @@ public class ContextRegister {
         Camera camera = new Camera(
                 new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, 1, 0.01F, 1000);
+                1.0F, 1, 0.01F, 100);
         ReflectionScanner.registerBean("", camera.getClass(), camera);
 
         registerController();
     }
 
-    private static void registerController() {
+    public static void registerController() {
         String val = PropertiesReader.getProperty(ConstantsPropertiesNames.BUFFER_TYPE, null);
         if (val == null)
             throw new BadPropertiesFileException("Undefined property: " + ConstantsPropertiesNames.BUFFER_TYPE);

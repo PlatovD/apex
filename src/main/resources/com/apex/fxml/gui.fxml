@@ -1,22 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.TitledPane?>
-
-<AnchorPane fx:id="anchorPane" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/23.0.1"
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane fx:controller="com.apex.controller.Controller" fx:id="anchorPane" prefHeight="600.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/23.0.1"
             xmlns:fx="http://javafx.com/fxml/1">
     <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                 AnchorPane.topAnchor="0.0">
@@ -74,7 +64,7 @@
                   style="-fx-padding: 10; -fx-background-color: #f4f4f4; -fx-border-color: #ccc; -fx-border-width: 0 0 0 1;">
                 <javafx.scene.control.Label text="Scene Objects" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
                 <javafx.scene.control.ListView fx:id="objectsList" VBox.vgrow="ALWAYS" prefHeight="200.0"/>
-                
+
                 <javafx.scene.layout.HBox spacing="5.0" alignment="CENTER">
                     <javafx.scene.control.Button text="Delete" onAction="#onDeleteModel" style="-fx-text-fill: red;"/>
                     <javafx.scene.control.Button text="+ Texture" onAction="#onOpenTextureMenuItemClick"/>
@@ -85,23 +75,32 @@
                     <javafx.scene.layout.VBox spacing="8.0">
                         <javafx.scene.control.Label text="Translation (X, Y, Z)"/>
                         <javafx.scene.layout.HBox spacing="5.0">
-                            <javafx.scene.control.TextField fx:id="transX" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="transY" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="transZ" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="transX" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="transY" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="transZ" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
                         </javafx.scene.layout.HBox>
-                        
+
                         <javafx.scene.control.Label text="Rotation (X, Y, Z)"/>
                         <javafx.scene.layout.HBox spacing="5.0">
-                            <javafx.scene.control.TextField fx:id="rotX" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="rotY" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="rotZ" promptText="0.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="rotX" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="rotY" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="rotZ" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
                         </javafx.scene.layout.HBox>
 
                         <javafx.scene.control.Label text="Scale (X, Y, Z)"/>
                         <javafx.scene.layout.HBox spacing="5.0">
-                            <javafx.scene.control.TextField fx:id="scaleX" promptText="1.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="scaleY" promptText="1.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
-                            <javafx.scene.control.TextField fx:id="scaleZ" promptText="1.0" HBox.hgrow="ALWAYS" focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="scaleX" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="scaleY" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="scaleZ" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
                         </javafx.scene.layout.HBox>
                     </javafx.scene.layout.VBox>
                 </javafx.scene.control.TitledPane>
