@@ -28,11 +28,18 @@ public class ImageTexture implements Texture {
 
     @Override
     public int getPixelColor(float u, float v) {
-        int x = (int) (1 - (u * (width - 1)) % width);
-        int y = (int) (1 - (v * (height - 1)) % height);
+        // Standard UV wrapping: wrap coordinates to [0, 1] range
+        float wrappedU = u - (float) Math.floor(u);
+        float wrappedV = v - (float) Math.floor(v);
 
-        if (x < 0) x += width;
-        if (y < 0) y += height;
+        // Map to pixel coordinates [0, width-1] and [0, height-1]
+        // Note: conventional texture mapping often flips V axis (1-V)
+        int x = (int) (wrappedU * (width - 1));
+        int y = (int) ((1 - wrappedV) * (height - 1));
+
+        // Final bounds protection
+        x = Math.max(0, Math.min(width - 1, x));
+        y = Math.max(0, Math.min(height - 1, y));
 
         return pixels[y * width + x];
     }
@@ -42,4 +49,3 @@ public class ImageTexture implements Texture {
         return cache;
     }
 }
-

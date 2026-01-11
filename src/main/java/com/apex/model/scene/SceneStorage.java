@@ -23,7 +23,6 @@ public class SceneStorage {
     private final List<Camera> cameras = new ArrayList<>();
     private final ColorProvider cp = new DefaultColorProvider();
 
-
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
 
@@ -33,7 +32,8 @@ public class SceneStorage {
     public void addModel(String filename, Model model) {
         model = modelCache.smartCache(filename, model);
 
-        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
+                new SolidTexture(Constants.color));
 
         RenderObject ro = new RenderObject(filename, model, cp, defaultTexture);
         renderObjectsMap.put(filename, ro);
@@ -58,14 +58,16 @@ public class SceneStorage {
             throw new SceneStorageException("No render object with name=" + fileObjName);
         Texture oldTexture = renderObjectsMap.get(fileObjName).getTexture();
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(oldTexture.getCache());
-        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
+                new SolidTexture(Constants.color));
         RenderObject ro = renderObjectsMap.get(fileObjName);
         ro.setTexture(defaultTexture);
         ro.setTextured(false);
     }
 
     public void deleteModel(String fileObjName) {
-        if (!hasAnyModels()) throw new SceneStorageException("No models to delete");
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to delete");
         if (!renderObjectsMap.containsKey(fileObjName))
             throw new SceneStorageException("No render object with name=" + fileObjName);
         RenderObject ro = renderObjectsMap.get(fileObjName);
@@ -75,7 +77,8 @@ public class SceneStorage {
     }
 
     public Model getPreparedToSaveModel(String fileObjName) {
-        if (!hasAnyModels()) throw new SceneStorageException("No models to save");
+        if (!hasAnyModels())
+            throw new SceneStorageException("No models to save");
         if (!renderObjectsMap.containsKey(fileObjName))
             throw new SceneStorageException("No render object with name=" + fileObjName);
         return renderObjectsMap.get(fileObjName).getModel();
@@ -83,6 +86,10 @@ public class SceneStorage {
 
     public Collection<RenderObject> getRenderObjects() {
         return renderObjectsMap.values();
+    }
+
+    public RenderObject getRenderObject(String name) {
+        return renderObjectsMap.get(name);
     }
 
     public List<Camera> getCameras() {
@@ -109,7 +116,8 @@ public class SceneStorage {
     }
 
     /**
-     * todo Вызывается тогда, когда пользователь захочет поменять цвет сплошной заливки
+     * todo Вызывается тогда, когда пользователь захочет поменять цвет сплошной
+     * заливки
      */
     public void updateColors() {
     }

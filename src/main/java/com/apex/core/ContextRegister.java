@@ -19,7 +19,7 @@ public class ContextRegister {
         Camera camera = new Camera(
                 new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, 1, 0.01F, 100);
+                1.0F, 1, 0.01F, 1000);
         ReflectionScanner.registerBean("", camera.getClass(), camera);
 
         registerController();
@@ -47,8 +47,13 @@ public class ContextRegister {
                 ReflectionScanner.registerBean("", controller.getClass(), controller);
                 break;
             }
-            default:
-                throw new ContextRegisterException("Wrong property type: " + ConstantsPropertiesNames.BUFFER_TYPE);
+            default: {
+                RasterizationBuffer buffer = new CustomIntArrayBasedRasterizationBuffer();
+                ReflectionScanner.registerBean("", buffer.getClass(), buffer);
+
+                BaseGuiController controller = new BaseGuiController();
+                ReflectionScanner.registerBean("", controller.getClass(), controller);
+            }
         }
     }
 }
