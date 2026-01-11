@@ -1,9 +1,7 @@
-package com.apex.render_engine.util;
+package com.apex.render;
 
 
 public class ScreenSpaceUtils {
-
-
     public static Point2f toScreenSpace(double x, double y, int width, int height) {
         float screenX = (float) ((x + 1.0) * 0.5 * width);
         float screenY = (float) ((1.0 - (y + 1.0) * 0.5) * height);

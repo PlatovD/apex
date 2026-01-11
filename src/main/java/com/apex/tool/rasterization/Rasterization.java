@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.apex.math.MathUtil.findThirdOrderDeterminant;
+import static com.apex.math.MathUtil.findBarycentricCords;
 import static java.lang.Math.*;
 
 public class Rasterization {
@@ -587,38 +587,5 @@ public class Rasterization {
         drawLine(pixelWriter, x0, y0, x1, y1);
         drawLine(pixelWriter, x0, y0, x2, y2);
         drawLine(pixelWriter, x2, y2, x1, y1);
-    }
-
-    private static void findBarycentricCords(float[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
-        float mainDet = findThirdOrderDeterminant(
-                x0, x1, x2,
-                y0, y1, y2,
-                1, 1, 1
-        );
-        if (mainDet == 0) {
-            barycentric[0] = 0;
-            barycentric[1] = 0;
-            barycentric[2] = 0;
-            return;
-        }
-
-        float detForAlpha = findThirdOrderDeterminant(
-                xCur, x1, x2,
-                yCur, y1, y2,
-                1, 1, 1
-        );
-        float detForBeta = findThirdOrderDeterminant(
-                x0, xCur, x2,
-                y0, yCur, y2,
-                1, 1, 1
-        );
-        float detForLambda = findThirdOrderDeterminant(
-                x0, x1, xCur,
-                y0, y1, yCur,
-                1, 1, 1
-        );
-        barycentric[0] = detForAlpha / mainDet;
-        barycentric[1] = detForBeta / mainDet;
-        barycentric[2] = detForLambda / mainDet;
     }
 }
