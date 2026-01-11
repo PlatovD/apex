@@ -1,5 +1,6 @@
 package com.apex;
 
+import com.apex.controller.Controller;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.core.Constants;
 import com.apex.core.ContextRegister;
@@ -28,14 +29,15 @@ public class ApexApp extends Application {
         stage.show();
     }
 
-
     public static void main(String[] args) {
-        // регистрация хардово заданных руками бинов, которые не можем собрать из-за того,
+        // регистрация хардово заданных руками бинов, которые не можем собрать из-за
+        // того,
         // что большой конструктор и много параметров
         ContextRegister.register();
         // Авто создание бинов, тех, что можем
         ReflectionScanner.autocreationResolver();
-        // поиск полей с аннотацией @AutoInject и внедрение зависимостей + вызов функций у которых @AutoInject для аргумента
+        // поиск полей с аннотацией @AutoInject и внедрение зависимостей + вызов функций
+        // у которых @AutoInject для аргумента
         try {
             ReflectionScanner.wireContext();
         } catch (InvocationTargetException | IllegalAccessException e) {

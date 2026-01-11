@@ -1,62 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.canvas.Canvas?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.input.KeyCodeCombination?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.input.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane fx:controller="com.apex.controller.Controller" fx:id="anchorPane" prefHeight="600.0" prefWidth="1000.0"
+            xmlns="http://javafx.com/javafx/23.0.1"
+            xmlns:fx="http://javafx.com/fxml/1">
+    <BorderPane AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+                AnchorPane.topAnchor="0.0">
+        <top>
+            <MenuBar BorderPane.alignment="CENTER">
+                <Menu mnemonicParsing="false" text="File">
+                    <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                </Menu>
+                <Menu mnemonicParsing="false" text="Camera Options">
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Forward">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="UP" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraBackward" text="Backward">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="DOWN" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraLeft" text="Left">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="LEFT" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraRight" text="Right">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="RIGHT" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraUp" text="Up">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                    <MenuItem mnemonicParsing="false" onAction="#handleCameraDown" text="Down">
+                        <accelerator>
+                            <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="UP"/>
+                        </accelerator>
+                    </MenuItem>
+                </Menu>
+            </MenuBar>
+        </top>
+        <center>
+            <AnchorPane fx:id="renderPane" style="-fx-background-color: #333;">
+                <ImageView fx:id="imageView" pickOnBounds="true" preserveRatio="true"/>
+                <Canvas fx:id="canvas"/>
+            </AnchorPane>
+        </center>
+        <right>
+            <VBox prefWidth="280.0" spacing="10.0"
+                  style="-fx-padding: 10; -fx-background-color: #f4f4f4; -fx-border-color: #ccc; -fx-border-width: 0 0 0 1;">
+                <javafx.scene.control.Label text="Scene Objects" style="-fx-font-weight: bold; -fx-font-size: 14px;"/>
+                <javafx.scene.control.ListView fx:id="objectsList" VBox.vgrow="ALWAYS" prefHeight="200.0"/>
 
-<AnchorPane fx:id="anchorPane" prefHeight="524.0" prefWidth="805.0" xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.controller.Controller">
-    <ImageView fx:id="imageView" fitHeight="524.0" fitWidth="805.0" pickOnBounds="true" preserveRatio="true"/>
+                <javafx.scene.layout.HBox spacing="5.0" alignment="CENTER">
+                    <javafx.scene.control.Button text="Delete" onAction="#onDeleteModel" style="-fx-text-fill: red;"/>
+                    <javafx.scene.control.Button text="+ Texture" onAction="#onOpenTextureMenuItemClick"/>
+                    <javafx.scene.control.Button text="- Texture" onAction="#onRemoveTexture"/>
+                </javafx.scene.layout.HBox>
 
-    <Canvas fx:id="canvas"/>
-    <MenuBar>
-        <Menu mnemonicParsing="false" text="File">
-            <MenuItem mnemonicParsing="false" onAction="#onOpenModelMenuItemClick" text="Load Model">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="F" control="DOWN" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Camera Options">
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraForward" text="Forward">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="UP" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraBackward" text="Backward">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="DOWN" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraLeft" text="Left">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="LEFT" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraRight" text="Right">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="RIGHT" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraUp" text="Up">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="W" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-            <MenuItem mnemonicParsing="false" onAction="#handleCameraDown" text="Down">
-                <accelerator>
-                    <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="UP" shortcut="UP"/>
-                </accelerator>
-            </MenuItem>
-        </Menu>
-        <Menu mnemonicParsing="false" text="Texture">
-            <items>
-                <MenuItem mnemonicParsing="false" onAction="#onOpenTextureMenuItemClick" text="Load Texture"/>
-            </items>
-        </Menu>
-    </MenuBar>
+                <javafx.scene.control.TitledPane text="Transformation" collapsible="false" animated="false">
+                    <javafx.scene.layout.VBox spacing="8.0">
+                        <javafx.scene.control.Label text="Translation (X, Y, Z)"/>
+                        <javafx.scene.layout.HBox spacing="5.0">
+                            <javafx.scene.control.TextField fx:id="transX" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="transY" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="transZ" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                        </javafx.scene.layout.HBox>
+
+                        <javafx.scene.control.Label text="Rotation (X, Y, Z)"/>
+                        <javafx.scene.layout.HBox spacing="5.0">
+                            <javafx.scene.control.TextField fx:id="rotX" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="rotY" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="rotZ" promptText="0.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                        </javafx.scene.layout.HBox>
+
+                        <javafx.scene.control.Label text="Scale (X, Y, Z)"/>
+                        <javafx.scene.layout.HBox spacing="5.0">
+                            <javafx.scene.control.TextField fx:id="scaleX" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="scaleY" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                            <javafx.scene.control.TextField fx:id="scaleZ" promptText="1.0" HBox.hgrow="ALWAYS"
+                                                            focusTraversable="false"/>
+                        </javafx.scene.layout.HBox>
+                    </javafx.scene.layout.VBox>
+                </javafx.scene.control.TitledPane>
+            </VBox>
+        </right>
+    </BorderPane>
 </AnchorPane>

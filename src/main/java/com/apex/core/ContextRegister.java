@@ -25,7 +25,7 @@ public class ContextRegister {
         registerController();
     }
 
-    private static void registerController() {
+    public static void registerController() {
         String val = PropertiesReader.getProperty(ConstantsPropertiesNames.BUFFER_TYPE, null);
         if (val == null)
             throw new BadPropertiesFileException("Undefined property: " + ConstantsPropertiesNames.BUFFER_TYPE);
@@ -47,8 +47,13 @@ public class ContextRegister {
                 ReflectionScanner.registerBean("", controller.getClass(), controller);
                 break;
             }
-            default:
-                throw new ContextRegisterException("Wrong property type: " + ConstantsPropertiesNames.BUFFER_TYPE);
+            default: {
+                RasterizationBuffer buffer = new CustomIntArrayBasedRasterizationBuffer();
+                ReflectionScanner.registerBean("", buffer.getClass(), buffer);
+
+                BaseGuiController controller = new BaseGuiController();
+                ReflectionScanner.registerBean("", controller.getClass(), controller);
+            }
         }
     }
 }

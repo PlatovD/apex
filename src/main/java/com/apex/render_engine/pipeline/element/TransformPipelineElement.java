@@ -12,7 +12,7 @@ import com.apex.render_engine.GraphicConveyor;
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Point2f;
 
-import static com.apex.render_engine.GraphicConveyor.*;
+import static com.apex.render_engine.GraphicConveyor.vertexToPoint;
 
 @AutoCreation
 public class TransformPipelineElement implements PipelineElement {
@@ -29,7 +29,7 @@ public class TransformPipelineElement implements PipelineElement {
         Model model = ro.getModel();
         float[] workVertices = ro.getWorkVertices();
 
-        Matrix4f modelMatrix = rotateScaleTranslate();
+        Matrix4f modelMatrix = ro.getWorldMatrix();
         Matrix4f viewMatrix = camera.getViewMatrix();
         Matrix4f projectionMatrix = camera.getProjectionMatrix();
 
@@ -41,7 +41,8 @@ public class TransformPipelineElement implements PipelineElement {
             Vector3f v = model.vertices.get(i);
 
             javax.vecmath.Vector3f vertexVecmath = new javax.vecmath.Vector3f(v.getX(), v.getY(), v.getZ());
-            javax.vecmath.Vector3f projectionPoint = GraphicConveyor.multiplyMatrix4ByVector3(modelViewProjectionMatrix, vertexVecmath);
+            javax.vecmath.Vector3f projectionPoint = GraphicConveyor.multiplyMatrix4ByVector3(modelViewProjectionMatrix,
+                    vertexVecmath);
             Point2f resultPoint = vertexToPoint(projectionPoint, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
             int offset = i * 3;
@@ -55,4 +56,3 @@ public class TransformPipelineElement implements PipelineElement {
     public void prepare() {
     }
 }
-

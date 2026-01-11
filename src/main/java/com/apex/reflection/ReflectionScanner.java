@@ -37,7 +37,8 @@ public class ReflectionScanner {
 
         @Override
         public boolean equals(Object object) {
-            if (object == null || getClass() != object.getClass()) return false;
+            if (object == null || getClass() != object.getClass())
+                return false;
             BeanKey beanKey = (BeanKey) object;
             return Objects.equals(name, beanKey.name) && Objects.equals(clazz, beanKey.clazz);
         }
@@ -59,11 +60,10 @@ public class ReflectionScanner {
                     bean = clazz.getDeclaredConstructor().newInstance();
                     AutoCreation annotation = clazz.getAnnotation(AutoCreation.class);
                     registerBean(annotation.name(), clazz, bean);
-                } catch (InvocationTargetException | InstantiationException | IllegalAccessException |
-                         NoSuchMethodException e) {
-                    throw
-                            new ReflectionException("Unable to create obj of class " + clazz.getSimpleName() +
-                                    ". Make sure it's contains no args constructor");
+                } catch (InvocationTargetException | InstantiationException | IllegalAccessException
+                        | NoSuchMethodException e) {
+                    throw new ReflectionException("Unable to create obj of class " + clazz.getSimpleName() +
+                            ". Make sure it's contains no args constructor");
                 }
             }
         }
@@ -98,16 +98,21 @@ public class ReflectionScanner {
 
     public static void fieldsInjectionResolver(Object object) throws IllegalAccessException {
         Class<?> clazz = object.getClass();
-        for (Field field : clazz.getDeclaredFields()) {
-            if (!field.isAnnotationPresent(AutoInject.class)) continue;
-            field.setAccessible(true);
-            AutoInject annotation = field.getAnnotation(AutoInject.class);
-            Object bean = findCompatibleBean(annotation.name(), field.getType());
-            field.set(object, bean);
+        while (clazz != null && clazz != Object.class) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (!field.isAnnotationPresent(AutoInject.class))
+                    continue;
+                field.setAccessible(true);
+                AutoInject annotation = field.getAnnotation(AutoInject.class);
+                Object bean = findCompatibleBean(annotation.name(), field.getType());
+                field.set(object, bean);
+            }
+            clazz = clazz.getSuperclass();
         }
     }
 
-    public static void parametersInjectionResolver(Object object) throws InvocationTargetException, IllegalAccessException {
+    public static void parametersInjectionResolver(Object object)
+            throws InvocationTargetException, IllegalAccessException {
         Class<?> clazz = object.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
             Parameter[] parameters = method.getParameters();
@@ -130,17 +135,21 @@ public class ReflectionScanner {
 
     public static Object findCompatibleBean(String name, Class<?> paramClass) {
         Object found = findBeanByNameAndClass(name, paramClass);
-        if (found != null) return found;
+        if (found != null)
+            return found;
         if (!name.isBlank())
-            throw new ReflectionException("Bean of type " + paramClass.getSimpleName() + " with name " + name + " not found");
+            throw new ReflectionException(
+                    "Bean of type " + paramClass.getSimpleName() + " with name " + name + " not found");
 
         found = findAssignableBeanByClass(paramClass);
-        if (found == null) throw new ReflectionException("Not found bean with type " + paramClass.getSimpleName());
+        if (found == null)
+            throw new ReflectionException("Not found bean with type " + paramClass.getSimpleName());
         return found;
     }
 
     public static Object findBeanByNameAndClass(String name, Class<?> paramClass) {
-        if (name.isBlank()) name = paramClass.getSimpleName();
+        if (name.isBlank())
+            name = paramClass.getSimpleName();
         BeanKey k = new BeanKey(name, paramClass);
         if (classObjectMap.containsKey(k)) {
             return classObjectMap.get(k);
@@ -155,14 +164,18 @@ public class ReflectionScanner {
                 if (assignable == null) {
                     assignable = eK;
                 } else {
-                    if (Objects.equals(classObjectMap.get(assignable), classObjectMap.get(eK))) continue;
+                    if (Objects.equals(classObjectMap.get(assignable), classObjectMap.get(eK)))
+                        continue;
                     throw new ReflectionException(
-                            String.format("Found more than 1 candidates to become injected into field with type %s. It's %s and %s ",
-                                    paramClass.getSimpleName(), assignable.getClazz().getSimpleName(), eK.getClazz().getSimpleName()));
+                            String.format(
+                                    "Found more than 1 candidates to become injected into field with type %s. It's %s and %s ",
+                                    paramClass.getSimpleName(), assignable.getClazz().getSimpleName(),
+                                    eK.getClazz().getSimpleName()));
                 }
             }
         }
-        if (assignable == null) return null;
+        if (assignable == null)
+            return null;
         return classObjectMap.get(assignable);
     }
 
@@ -170,8 +183,8 @@ public class ReflectionScanner {
         BeanKey k = new BeanKey(name, clazz);
         if (classObjectMap.containsKey(k))
             throw new ReflectionException(
-                    "Collision exception. Bean of this type and name already exists: " + name + " - name " + clazz.getSimpleName() + " - class"
-            );
+                    "Collision exception. Bean of this type and name already exists: " + name + " - name "
+                            + clazz.getSimpleName() + " - class");
         classObjectMap.put(k, bean);
     }
 }
