@@ -1,10 +1,12 @@
-package com.apex.model.scene;
+package com.apex.storage;
 
 import com.apex.cache.ModelCache;
 import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
 import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
+import com.apex.model.scene.Camera;
+import com.apex.model.scene.RenderObject;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.tool.colorization.DefaultColorProvider;
 import com.apex.model.geometry.Model;
