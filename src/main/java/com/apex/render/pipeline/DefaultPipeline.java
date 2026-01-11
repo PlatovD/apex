@@ -1,10 +1,9 @@
-package com.apex.render_engine.pipeline;
+package com.apex.render.pipeline;
 
 import com.apex.model.scene.RenderObject;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.model.geometry.Model;
-import com.apex.render_engine.pipeline.element.PipelineElement;
+import com.apex.render.pipeline.element.PipelineElement;
 
 import java.util.List;
 

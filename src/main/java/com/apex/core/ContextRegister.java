@@ -9,6 +9,9 @@ import com.apex.exception.BadPropertiesFileException;
 import com.apex.exception.ContextRegisterException;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.model.scene.Camera;
+import com.apex.tool.triangulator.EarCuttingTriangulator;
+import com.apex.tool.triangulator.SimpleTriangulator;
+import com.apex.tool.triangulator.Triangulator;
 import com.apex.util.PropertiesReader;
 
 import javax.vecmath.Vector3f;
@@ -23,6 +26,29 @@ public class ContextRegister {
         ReflectionScanner.registerBean("", camera.getClass(), camera);
 
         registerController();
+        registerTriangulator();
+    }
+
+    public static void registerTriangulator() {
+        String val = PropertiesReader.getProperty(ConstantsPropertiesNames.TRIANGULATOR_TYPE, null);
+        if (val == null)
+            throw new BadPropertiesFileException("Undefined property: " + ConstantsPropertiesNames.TRIANGULATOR_TYPE);
+        switch (val.strip()) {
+            case "EarCuttingTriangulator": {
+                Triangulator triangulator = new EarCuttingTriangulator();
+                ReflectionScanner.registerBean("", Triangulator.class, triangulator);
+                break;
+            }
+            case "SimpleTriangulator": {
+                Triangulator triangulator = new SimpleTriangulator();
+                ReflectionScanner.registerBean("", Triangulator.class, triangulator);
+                break;
+            }
+            default: {
+                Triangulator triangulator = new SimpleTriangulator();
+                ReflectionScanner.registerBean("", Triangulator.class, triangulator);
+            }
+        }
     }
 
     public static void registerController() {

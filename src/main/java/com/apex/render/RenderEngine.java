@@ -1,11 +1,11 @@
-package com.apex.render_engine;
+package com.apex.render;
 
 import com.apex.model.scene.RenderObject;
 import com.apex.storage.SceneStorage;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.render_engine.pipeline.Pipeline;
-import com.apex.render_engine.rasterizator.Rasterizator;
+import com.apex.render.pipeline.Pipeline;
+import com.apex.render.rasterizator.Rasterizator;
 
 @AutoCreation
 public class RenderEngine {

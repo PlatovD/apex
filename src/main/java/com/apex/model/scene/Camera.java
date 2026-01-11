@@ -1,6 +1,6 @@
 package com.apex.model.scene;
 
-import com.apex.render_engine.GraphicConveyor;
+import com.apex.render.GraphicConveyor;
 
 import javax.vecmath.Vector3f;
 import javax.vecmath.Matrix4f;

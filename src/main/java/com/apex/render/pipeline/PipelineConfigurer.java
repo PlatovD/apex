@@ -1,8 +1,8 @@
-package com.apex.render_engine.pipeline;
+package com.apex.render.pipeline;
 
 import com.apex.reflection.AutoCreation;
 import com.apex.exception.PipelineException;
-import com.apex.render_engine.pipeline.element.PipelineElement;
+import com.apex.render.pipeline.element.PipelineElement;
 
 import java.util.ArrayList;
 import java.util.List;

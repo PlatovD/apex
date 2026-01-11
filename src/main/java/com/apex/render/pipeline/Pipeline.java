@@ -1,4 +1,4 @@
-package com.apex.render_engine.pipeline;
+package com.apex.render.pipeline;
 
 import com.apex.model.scene.RenderObject;
 

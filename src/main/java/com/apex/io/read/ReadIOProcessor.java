@@ -9,7 +9,7 @@ import com.apex.tool.triangulator.Triangulator;
 
 @AutoCreation
 public class ReadIOProcessor implements IOProcessor {
-    @AutoInject(name = "SimpleTriangulator")
+    @AutoInject
     private Triangulator triangulator;
 
     @Override

@@ -3,8 +3,8 @@ package com.apex.core;
 import com.apex.model.scene.Camera;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.render_engine.pipeline.Pipeline;
-import com.apex.render_engine.pipeline.element.PipelineElement;
+import com.apex.render.pipeline.Pipeline;
+import com.apex.render.pipeline.element.PipelineElement;
 import com.apex.storage.CameraStorage;
 
 @AutoCreation
