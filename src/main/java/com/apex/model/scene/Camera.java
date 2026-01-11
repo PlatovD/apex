@@ -1,10 +1,14 @@
 package com.apex.model.scene;
+
 import com.apex.render_engine.GraphicConveyor;
 
 import javax.vecmath.Vector3f;
 import javax.vecmath.Matrix4f;
 
 public class Camera {
+
+    public Camera() {
+    }
 
     public Camera(
             final Vector3f position,

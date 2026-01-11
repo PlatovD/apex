@@ -11,4 +11,5 @@ public class Constants {
     public static int backgroundColor = 0xFF1C1C1C;
     public static String PATH_TO_PROPERTIES = "/application.properties";
     public static float MIN_LIGHT_FACTOR = 0.2f;
+    public static String DEFAULT_CAMERA_NAME = "Default";
 }

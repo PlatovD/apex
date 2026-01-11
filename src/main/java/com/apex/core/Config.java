@@ -1,9 +1,11 @@
 package com.apex.core;
 
+import com.apex.model.scene.Camera;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.render_engine.pipeline.Pipeline;
 import com.apex.render_engine.pipeline.element.PipelineElement;
+import com.apex.storage.CameraStorage;
 
 @AutoCreation
 public class Config {
@@ -13,5 +15,12 @@ public class Config {
             @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl
     ) {
         pipeline.configure().addElement(transformEl).addElement(rasterizationEl);
+    }
+
+    public void initialCameraConfig(
+            @AutoInject Camera camera,
+            @AutoInject CameraStorage storage
+    ) {
+        storage.addCamera(Constants.DEFAULT_CAMERA_NAME, camera);
     }
 }
