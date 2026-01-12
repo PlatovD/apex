@@ -1,6 +1,7 @@
 package com.apex.model.scene;
 
 import com.apex.model.util.RenderObjectStatus;
+import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
@@ -17,6 +18,7 @@ public class RenderObject {
     private Texture texture;
     private boolean textured = false;
     private ColorProvider colorProvider;
+    private final ColorData colorData = new ColorData();
     private float[] workVertices;
 
     private com.apex.math.Vector3f position;
@@ -122,5 +124,13 @@ public class RenderObject {
             this.isVisible = isVisible;
             this.status = status;
         }
+    }
+
+    public void setColorProvider(ColorProvider colorProvider) {
+        this.colorProvider = colorProvider;
+    }
+
+    public ColorData getColorData() {
+        return colorData;
     }
 }

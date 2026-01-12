@@ -5,7 +5,6 @@ import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
 import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
-import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.tool.colorization.ColorProvider;
@@ -16,6 +15,7 @@ import com.apex.model.texture.SolidTexture;
 import com.apex.model.texture.Texture;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
+import com.apex.tool.colorization.WireFrameColorProvider;
 import javafx.scene.image.Image;
 
 import java.util.*;
@@ -24,7 +24,7 @@ import java.util.*;
 public class SceneStorage {
     private final Map<String, RenderObject> renderObjectsMap = new HashMap<>();
     private final List<RenderObject> visibleRenderObjects = new ArrayList<>();
-    private final ColorProvider cp = new DefaultColorProvider();
+    private ColorProvider cp = new DefaultColorProvider();
 
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
@@ -79,6 +79,32 @@ public class SceneStorage {
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getTexture().getCache());
         modelCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getFilename());
         visibleRenderObjects.remove(ro); // могу удалять тк ссылка одна и та же
+    }
+
+    public void enableWireframeForAll() {
+        cp = new WireFrameColorProvider();
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.setColorProvider(cp);
+        }
+    }
+
+    public void disableWireframeAll() {
+        cp = new DefaultColorProvider();
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.setColorProvider(cp);
+        }
+    }
+
+    public void enableLightingForAll() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.getColorData().MIN_LIGHT_FACTOR = Constants.MIN_LIGHT_FACTOR;
+        }
+    }
+
+    public void disableLightingForAll() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.getColorData().MIN_LIGHT_FACTOR = 1;
+        }
     }
 
     public Model getPreparedToSaveModel(String fileObjName) {

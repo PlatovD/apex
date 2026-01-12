@@ -43,7 +43,7 @@ public class RasterizationPipelineElement implements PipelineElement {
         Vector3f normalVertex2;
 
         // инициализирую то, что будет переиспользоваться. Уменьшаю нагрузку на сборщик мусора
-        ColorData colorData = new ColorData();
+        ColorData colorData = ro.getColorData();
         float[] barycentric = new float[3];
 
         List<Integer> textureIndices;
