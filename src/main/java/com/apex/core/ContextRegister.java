@@ -14,7 +14,7 @@ import com.apex.tool.triangulator.SimpleTriangulator;
 import com.apex.tool.triangulator.Triangulator;
 import com.apex.util.PropertiesReader;
 
-import javax.vecmath.Vector3f;
+import com.apex.math.Vector3f;
 
 public class ContextRegister {
     public static void register() {

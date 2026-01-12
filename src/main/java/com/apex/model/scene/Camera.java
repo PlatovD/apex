@@ -1,10 +1,7 @@
 package com.apex.model.scene;
 
 import com.apex.math.Matrix4x4;
-import com.apex.render.GraphicConveyor;
-
-import javax.vecmath.Vector3f;
-import javax.vecmath.Matrix4f;
+import com.apex.math.Vector3f;
 
 public class Camera {
 
@@ -54,12 +51,12 @@ public class Camera {
         this.target.add(target);
     }
 
-    public Matrix4f getViewMatrix() {
-        return GraphicConveyor.lookAt(position, target);
+    public Matrix4x4 getViewMatrix() {
+        return Matrix4x4.lookAt(position, target);
     }
 
-    public Matrix4f getProjectionMatrix() {
-        return GraphicConveyor.perspective(fov, aspectRatio, nearPlane, farPlane);
+    public Matrix4x4 getProjectionMatrix() {
+        return Matrix4x4.perspective(fov, aspectRatio, nearPlane, farPlane);
     }
 
     private Vector3f position;

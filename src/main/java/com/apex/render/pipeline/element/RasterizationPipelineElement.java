@@ -52,9 +52,9 @@ public class RasterizationPipelineElement implements PipelineElement {
         Model model = ro.getModel();
         float[] rawVertices = ro.getWorkVertices();
         Vector3f light = new Vector3f(
-                activeCamera.getTarget().x - activeCamera.getPosition().x,
-                activeCamera.getTarget().y - activeCamera.getPosition().y,
-                activeCamera.getTarget().z - activeCamera.getPosition().z
+                activeCamera.getTarget().getX() - activeCamera.getPosition().getX(),
+                activeCamera.getTarget().getY() - activeCamera.getPosition().getY(),
+                activeCamera.getTarget().getZ() - activeCamera.getPosition().getZ()
         );
         light.normalize();
         for (Polygon polygon : ro.getModel().polygons) {

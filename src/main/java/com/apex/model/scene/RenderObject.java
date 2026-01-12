@@ -3,8 +3,8 @@ package com.apex.model.scene;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
-
-import javax.vecmath.Matrix4f;
+import com.apex.math.Matrix4x4;
+import com.apex.math.Vector3f;
 
 /**
  * Объект-обертка, содержащий все необходимые для рендеринга данные
@@ -12,73 +12,46 @@ import javax.vecmath.Matrix4f;
 public class RenderObject {
     private final String filename;
     private final Model model;
-    private Matrix4f worldMatrix;
+    private Matrix4x4 worldMatrix;
     private Texture texture;
     private boolean textured = false;
     private ColorProvider colorProvider;
     private float[] workVertices;
 
-    private com.apex.math.Vector3f position;
-    private com.apex.math.Vector3f rotation;
-    private com.apex.math.Vector3f scale;
+    private Vector3f position;
+    private Vector3f rotation;
+    private Vector3f scale;
 
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture) {
         this.filename = filename;
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
-        this.worldMatrix = new Matrix4f();
-        this.worldMatrix.setIdentity();
+        this.worldMatrix = new Matrix4x4();
         this.workVertices = new float[model.vertices.size() * 3];
 
-        this.position = new com.apex.math.Vector3f(0f, 0f, 0f);
-        this.rotation = new com.apex.math.Vector3f(0f, 0f, 0f);
-        this.scale = new com.apex.math.Vector3f(1f, 1f, 1f);
+        this.position = new Vector3f(0f, 0f, 0f);
+        this.rotation = new Vector3f(0f, 0f, 0f);
+        this.scale = new Vector3f(1f, 1f, 1f);
     }
 
+    /**
+     * Обновляет мировую матрицу объекта на основе позиции, вращения и масштаба.
+     * Использует предварительно определённый метод transform.
+     */
     public void updateWorldMatrix() {
-        Matrix4f t = new Matrix4f();
-        t.setIdentity();
-        t.setTranslation(new javax.vecmath.Vector3f(position.getX(), position.getY(), position.getZ()));
-
-        Matrix4f rX = new Matrix4f();
-        rX.rotX((float) Math.toRadians(rotation.getX()));
-
-        Matrix4f rY = new Matrix4f();
-        rY.rotY((float) Math.toRadians(rotation.getY()));
-
-        Matrix4f rZ = new Matrix4f();
-        rZ.rotZ((float) Math.toRadians(rotation.getZ()));
-
-        Matrix4f s = new Matrix4f();
-        s.setIdentity();
-        s.m00 = scale.getX();
-        s.m11 = scale.getY();
-        s.m22 = scale.getZ();
-
-        // Order: T * R * S
-        Matrix4f rot = new Matrix4f();
-        rot.setIdentity();
-        rot.mul(rZ); // Z
-        rot.mul(rY); // Y
-        rot.mul(rX); // X - convention varies, but this is a reasonable start
-
-        // Final = T * R * S
-        this.worldMatrix.setIdentity();
-        this.worldMatrix.mul(t);
-        this.worldMatrix.mul(rot);
-        this.worldMatrix.mul(s);
+        this.worldMatrix = Matrix4x4.transform(position, rotation, scale);
     }
 
-    public com.apex.math.Vector3f getPosition() {
+    public Vector3f getPosition() {
         return position;
     }
 
-    public com.apex.math.Vector3f getRotation() {
+    public Vector3f getRotation() {
         return rotation;
     }
 
-    public com.apex.math.Vector3f getScale() {
+    public Vector3f getScale() {
         return scale;
     }
 
@@ -86,11 +59,11 @@ public class RenderObject {
         return model;
     }
 
-    public Matrix4f getWorldMatrix() {
+    public Matrix4x4 getWorldMatrix() {
         return worldMatrix;
     }
 
-    public void setWorldMatrix(Matrix4f worldMatrix) {
+    public void setWorldMatrix(Matrix4x4 worldMatrix) {
         this.worldMatrix = worldMatrix;
     }
 

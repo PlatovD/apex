@@ -1,5 +1,7 @@
-package com.apex.render_engine.util;
+package com.apex.render;
 
+
+import com.apex.math.Vector3f;
 
 public class ScreenSpaceUtils {
 
@@ -15,6 +17,15 @@ public class ScreenSpaceUtils {
         float screenX = (float) ((x + 1.0) * 0.5 * width);
         float screenY = (float) ((1.0 - (y + 1.0) * 0.5) * height);
         return new ScreenPoint(screenX, screenY, (float) z);
+    }
+
+    public static class ScreenSpace {
+        public static Point2f project(Vector3f vertex, int width, int height) {
+            return new Point2f(
+                    vertex.getX() * width + width / 2.0f,
+                    -vertex.getY() * height + height / 2.0f
+            );
+        }
     }
 
 
