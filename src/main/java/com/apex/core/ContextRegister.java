@@ -22,7 +22,7 @@ public class ContextRegister {
         Camera camera = new Camera(
                 new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, 1, 0.01F, 100);
+                1.0F, (float) Constants.SCENE_WIDTH / Constants.SCENE_HEIGHT, 0.01F, 100);
         ReflectionScanner.registerBean("", camera.getClass(), camera);
 
         registerController();

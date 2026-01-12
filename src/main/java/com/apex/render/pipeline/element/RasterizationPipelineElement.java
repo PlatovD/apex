@@ -56,7 +56,7 @@ public class RasterizationPipelineElement implements PipelineElement {
                 activeCamera.getTarget().getY() - activeCamera.getPosition().getY(),
                 activeCamera.getTarget().getZ() - activeCamera.getPosition().getZ()
         );
-        light.normalize();
+        light.normalizeLocal();
         for (Polygon polygon : ro.getModel().polygons) {
             if (polygon.getVertexIndices().size() != 3)
                 throw new RasterizationException("One of polygons is not triangle");

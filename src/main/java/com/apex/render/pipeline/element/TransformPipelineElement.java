@@ -53,7 +53,7 @@ public class TransformPipelineElement implements PipelineElement {
                     ScreenSpaceUtils.toScreenPoint(xNdc, yNdc, zNdc, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
             int offset = i * 3;
-            workVertices[offset]     = screenPoint.x;
+            workVertices[offset] = screenPoint.x;
             workVertices[offset + 1] = screenPoint.y;
             workVertices[offset + 2] = screenPoint.z;
         }

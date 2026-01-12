@@ -212,44 +212,26 @@ public class Matrix4x4 {
     }
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
-        float zx = target.getX() - eye.getX();
-        float zy = target.getY() - eye.getY();
-        float zz = target.getZ() - eye.getZ();
+        Vector3f resultZ;
+        Vector3f resultX;
+        Vector3f resultY;
 
-        float invLenZ = 1.0f / (float) Math.sqrt(zx * zx + zy * zy + zz * zz);
-        zx *= invLenZ;
-        zy *= invLenZ;
-        zz *= invLenZ;
+        resultZ = target.subtract(eye);
+        resultY = up.cross(resultZ);
+        resultX = resultY.cross(resultZ);
 
-        // Вектор X: up × Z
-        float ux = up.getX(), uy = up.getY(), uz = up.getZ();
-        float xx = uy * zz - uz * zy;
-        float xy = uz * zx - ux * zz;
-        float xz = ux * zy - uy * zx;
+        resultX.normalizeLocal();
+        resultY.normalizeLocal();
+        resultZ.normalizeLocal();
 
-        float invLenX = 1.0f / (float) Math.sqrt(xx * xx + xy * xy + xz * xz);
-        xx *= invLenX;
-        xy *= invLenX;
-        xz *= invLenX;
-
-        // Вектор Y: Z × X
-        float yx = zy * xz - zz * xy;
-        float yy = zz * xx - zx * xz;
-        float yz = zx * xy - zy * xx;
-
-        // Вычисляем смещение (перенос обратно)
-        float tx = -(xx * eye.getX() + xy * eye.getY() + xz * eye.getZ());
-        float ty = -(yx * eye.getX() + yy * eye.getY() + yz * eye.getZ());
-        float tz = -(zx * eye.getX() + zy * eye.getY() + zz * eye.getZ());
-
-        // Создаём матрицу напрямую
-        Matrix4x4 result = new Matrix4x4();
-        result.data[0][0] = xx; result.data[0][1] = yx; result.data[0][2] = zx; result.data[0][3] = 0;
-        result.data[1][0] = xy; result.data[1][1] = yy; result.data[1][2] = zy; result.data[1][3] = 0;
-        result.data[2][0] = xz; result.data[2][1] = yz; result.data[2][2] = zz; result.data[2][3] = 0;
-        result.data[3][0] = tx; result.data[3][1] = ty; result.data[3][2] = tz; result.data[3][3] = 1;
-
-        return result;
+        return new Matrix4x4(
+                new float[][]{
+                        {resultX.getX(), resultX.getY(), resultX.getZ(), -eye.dot(resultX)},
+                        {resultY.getX(), resultY.getY(), resultY.getZ(), -eye.dot(resultY)},
+                        {resultZ.getX(), resultZ.getY(), resultZ.getZ(), -eye.dot(resultZ)},
+                        {0, 0, 0, 1}
+                }
+        );
     }
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target) {
@@ -269,11 +251,9 @@ public class Matrix4x4 {
         Matrix4x4 result = new Matrix4x4();
         result.data[0][0] = f / aspectRatio;
         result.data[1][1] = f;
-        result.data[2][2] = -(farPlane + nearPlane) / (farPlane - nearPlane);
-        result.data[2][3] = -1.0f;
-        result.data[3][2] = -2.0f * farPlane * nearPlane / (farPlane - nearPlane);
-        result.data[3][3] = 0.0f;
-
+        result.data[2][2] = (farPlane + nearPlane) / (farPlane - nearPlane);
+        result.data[2][3] = (2.0f * farPlane * nearPlane) / (nearPlane - farPlane);
+        result.data[3][2] = 1f;
         return result;
     }
 
