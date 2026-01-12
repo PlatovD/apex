@@ -1,7 +1,6 @@
 package com.apex.tool.rasterization;
 
 import com.apex.buffer.RasterizationBuffer;
-import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
 import com.apex.core.Constants;
 import com.apex.math.Vector3f;
 import com.apex.model.scene.ZBuffer;
@@ -16,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.apex.math.MathUtil.findThirdOrderDeterminant;
+import static com.apex.math.MathUtil.findBarycentricCords;
 import static java.lang.Math.*;
 
 public class Rasterization {
@@ -188,15 +187,13 @@ public class Rasterization {
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y0 + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
-                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
-                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y0, pixelZ)) {
-                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
-                        colorData.barycentric = barycentric;
-                        rb.setPixel(x, y0, cp.getColor(colorData, texture));
-                    }
+                findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
+                float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                if (lightFactor > Constants.EPS + 0.02 && zBuffer.setPixel(x, y0, pixelZ)) {
+                    colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
+                    colorData.barycentric = barycentric;
+                    rb.setPixel(x, y0, cp.getColor(colorData, texture));
                 }
             }
         }
@@ -232,15 +229,13 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
-                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
-                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
-                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
-                        colorData.barycentric = barycentric;
-                        rb.setPixel(x, y, cp.getColor(colorData, texture));
-                    }
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                if (lightFactor > Constants.EPS + 0.02 && zBuffer.setPixel(x, y, pixelZ)) {
+                    colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
+                    colorData.barycentric = barycentric;
+                    rb.setPixel(x, y, cp.getColor(colorData, texture));
                 }
             }
 
@@ -274,17 +269,14 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
-                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
-                    float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
-                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
-                        colorData.barycentric = barycentric;
-                        rb.setPixel(x, y, cp.getColor(colorData, texture));
-                    }
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                float pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                float lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                if (lightFactor > Constants.EPS + 0.02 && zBuffer.setPixel(x, y, pixelZ)) {
+                    colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
+                    colorData.barycentric = barycentric;
+                    rb.setPixel(x, y, cp.getColor(colorData, texture));
                 }
-
             }
 
             longSide = nextLongSide;
@@ -409,107 +401,6 @@ public class Rasterization {
     }
 
     /**
-     * Метод для растеризации треугольника с использованием идеи scanline и нахождения границ через алгоритм
-     * Брезенхейма.
-     */
-    public static void drawTriangleBresenham(CustomIntArrayBasedRasterizationBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
-        if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) > max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
-            int tmp;
-            if (y0 > y1) {
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-            }
-            if (y1 > y2) {
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
-
-                tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-            }
-            if (y0 > y1) {
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-            }
-
-            Map<Integer, List<Integer>> lineAC = myBresenhamOneY(x0, y0, x2, y2);
-            Map<Integer, List<Integer>> lineAB = myBresenhamOneY(x0, y0, x1, y1);
-            Map<Integer, List<Integer>> lineBC = myBresenhamOneY(x1, y1, x2, y2);
-
-            for (int y = y0; y <= y2; y++) {
-                int borderFirst = lineAC.get(y).get(lineAC.get(y).size() - 1);
-                int borderLast;
-                if (lineAB.containsKey(y)) {
-                    borderLast = lineAB.get(y).get(lineAB.get(y).size() - 1);
-                } else {
-                    borderLast = lineBC.get(y).get(lineBC.get(y).size() - 1);
-                }
-                for (int x = min(borderFirst, borderLast); x <= max(borderFirst, borderLast); x++) {
-
-                    fb.setPixel(x, y, 0xFF000000);
-                }
-            }
-        } else {
-            int tmp;
-            if (x0 > x1) {
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-            }
-            if (x1 > x2) {
-                tmp = x2;
-                x2 = x1;
-                x1 = tmp;
-
-                tmp = y2;
-                y2 = y1;
-                y1 = tmp;
-            }
-            if (x0 > x1) {
-                tmp = x1;
-                x1 = x0;
-                x0 = tmp;
-
-                tmp = y1;
-                y1 = y0;
-                y0 = tmp;
-            }
-
-            Map<Integer, List<Integer>> lineAC = myBresenhamOneX(x0, y0, x2, y2);
-            Map<Integer, List<Integer>> lineAB = myBresenhamOneX(x0, y0, x1, y1);
-            Map<Integer, List<Integer>> lineBC = myBresenhamOneX(x1, y1, x2, y2);
-
-            for (int x = x0; x <= x2; x++) {
-                int borderFirst = lineAC.get(x).get(lineAC.get(x).size() - 1);
-                int borderLast;
-                if (lineAB.containsKey(x)) {
-                    borderLast = lineAB.get(x).get(lineAB.get(x).size() - 1);
-                } else {
-                    borderLast = lineBC.get(x).get(lineBC.get(x).size() - 1);
-                }
-                for (int y = min(borderFirst, borderLast); y <= max(borderFirst, borderLast); y++) {
-                    fb.setPixel(x, y, 0xFF000000);
-                }
-            }
-        }
-    }
-
-    /**
      * Метод рисования линии. Позволяет рисовать ее из точки 1 в точку 2. Использует округление и
      * линейную интерполяцию для того, чтобы получить промежуточные значения и построить путь из 1 в 2.
      *
@@ -587,38 +478,5 @@ public class Rasterization {
         drawLine(pixelWriter, x0, y0, x1, y1);
         drawLine(pixelWriter, x0, y0, x2, y2);
         drawLine(pixelWriter, x2, y2, x1, y1);
-    }
-
-    private static void findBarycentricCords(float[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
-        float mainDet = findThirdOrderDeterminant(
-                x0, x1, x2,
-                y0, y1, y2,
-                1, 1, 1
-        );
-        if (mainDet == 0) {
-            barycentric[0] = 0;
-            barycentric[1] = 0;
-            barycentric[2] = 0;
-            return;
-        }
-
-        float detForAlpha = findThirdOrderDeterminant(
-                xCur, x1, x2,
-                yCur, y1, y2,
-                1, 1, 1
-        );
-        float detForBeta = findThirdOrderDeterminant(
-                x0, xCur, x2,
-                y0, yCur, y2,
-                1, 1, 1
-        );
-        float detForLambda = findThirdOrderDeterminant(
-                x0, x1, xCur,
-                y0, y1, yCur,
-                1, 1, 1
-        );
-        barycentric[0] = detForAlpha / mainDet;
-        barycentric[1] = detForBeta / mainDet;
-        barycentric[2] = detForLambda / mainDet;
     }
 }

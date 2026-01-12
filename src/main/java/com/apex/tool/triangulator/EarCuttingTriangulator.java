@@ -17,13 +17,17 @@ import static java.lang.Math.*;
 
 @AutoCreation
 public class EarCuttingTriangulator implements Triangulator {
+    private final static int MAX_LOOP_SIZE = 1000000;
+
     @Override
     public List<Polygon> triangulatePolygon(Model model, Polygon polygon) {
+        float[] barycentric = new float[3];
         // когда 3 и менее вершины изначально. Возвращаю deep копию полигона
         if (polygon.getVertexIndices().size() < 4) {
             return List.of(PolygonUtil.deepCopyOfPolygon(polygon));
         }
 
+        int indexOfVertexInPolygon = 0;
         // получаю данные из оригинального объекта
         Queue<Integer> verticesIndexes = new LinkedList<>(polygon.getVertexIndices());
         // создаю ассоциативные коллекции, которые связывают индексы, используемые в полигонах с объектами меша
@@ -34,11 +38,12 @@ public class EarCuttingTriangulator implements Triangulator {
         List<Vector3f> verticesList = new ArrayList<>();
         for (Integer vertexIndex : verticesIndexes) {
             vertices.put(vertexIndex, model.vertices.get(vertexIndex));
-            if (vertexIndex < polygon.getTextureVertexIndices().size())
-                textureIndexesMap.put(vertexIndex, polygon.getTextureVertexIndices().get(vertexIndex));
-            if (vertexIndex < polygon.getNormalIndices().size())
-                normalsIndexesMap.put(vertexIndex, polygon.getNormalIndices().get(vertexIndex));
+            if (indexOfVertexInPolygon < polygon.getTextureVertexIndices().size())
+                textureIndexesMap.put(vertexIndex, polygon.getTextureVertexIndices().get(indexOfVertexInPolygon));
+            if (indexOfVertexInPolygon < polygon.getNormalIndices().size())
+                normalsIndexesMap.put(vertexIndex, polygon.getNormalIndices().get(indexOfVertexInPolygon));
             verticesList.add(model.vertices.get(vertexIndex));
+            indexOfVertexInPolygon++;
         }
 
         // Подготовка. Подбираю оси, по которым буду триангулировать
@@ -53,12 +58,13 @@ public class EarCuttingTriangulator implements Triangulator {
         int leftPointIndex = verticesIndexes.poll();
         int middlePointIndex = verticesIndexes.poll();
         int rightPointIndex = verticesIndexes.poll();
+        int iterationsCount = 0;
         while (!verticesIndexes.isEmpty()) {
             // есть два условия, когда я не могу отрезать ухо:
             // 1)одна из оставшихся вершин в треугольнике
             // 2)направления обхода полигона и текущего треугольника не совпадают
             if (
-                    isVerticesInsideTriangleByGeroneSquare(leftPointIndex, middlePointIndex, rightPointIndex, vertices,
+                    isAnyVertexInsideTriangleByBarycentric(barycentric, leftPointIndex, middlePointIndex, rightPointIndex, vertices,
                             axes.get(0), axes.get(1))
                             || findDirection(
                             List.of(
@@ -72,6 +78,9 @@ public class EarCuttingTriangulator implements Triangulator {
                 leftPointIndex = middlePointIndex;
                 middlePointIndex = rightPointIndex;
                 rightPointIndex = verticesIndexes.poll();
+                iterationsCount++;
+                if (iterationsCount > MAX_LOOP_SIZE)
+                    throw new RuntimeException("Bad polygons model. Unable to triangulate. Try SimpleTriangulator");
                 continue;
             }
             newPolygons.add(PolygonUtil.createNewPolygon(
@@ -81,6 +90,7 @@ public class EarCuttingTriangulator implements Triangulator {
             ));
             middlePointIndex = rightPointIndex;
             rightPointIndex = verticesIndexes.poll();
+            iterationsCount = 0;
         }
         newPolygons.add(new Polygon(List.of(leftPointIndex, middlePointIndex, rightPointIndex)));
         return newPolygons;
@@ -106,6 +116,40 @@ public class EarCuttingTriangulator implements Triangulator {
         return false;
     }
 
+    protected boolean isAnyVertexInsideTriangleByBarycentric(
+            float[] barycentric,
+            int leftPointIndex, int rightPointIndex, int middlePointIndex, Map<Integer, Vector3f> vertices,
+            Function<Vector3f, Float> getterFirst, Function<Vector3f, Float> getterSecond
+    ) {
+        for (int i : vertices.keySet()) {
+            if (i == leftPointIndex || i == rightPointIndex || i == middlePointIndex) continue;
+            float point0cord0 = getterFirst.apply(vertices.get(leftPointIndex));
+            float point0cord1 = getterSecond.apply(vertices.get(leftPointIndex));
+
+            float point1cord0 = getterFirst.apply(vertices.get(middlePointIndex));
+            float point1cord1 = getterSecond.apply(vertices.get(middlePointIndex));
+
+            float point2cord0 = getterFirst.apply(vertices.get(rightPointIndex));
+            float point2cord1 = getterSecond.apply(vertices.get(rightPointIndex));
+
+            float pointCurrentCord0 = getterFirst.apply(vertices.get(i));
+            float pointCurrentCord1 = getterSecond.apply(vertices.get(i));
+
+            MathUtil.findBarycentricCords(
+                    barycentric, pointCurrentCord0, pointCurrentCord1,
+                    point0cord0, point0cord1,
+                    point1cord0, point1cord1,
+                    point2cord0, point2cord1
+            );
+
+            if (barycentric[0] < 0 || barycentric[1] < 0 || barycentric[2] < 0) continue;
+            if (abs(1 - barycentric[0] + barycentric[1] + barycentric[2]) > Constants.EPS) continue;
+            return true;
+        }
+        return false;
+    }
+
+    @Deprecated
     protected boolean isVerticesInsideTriangleByGeroneSquare(
             int leftPointIndex, int rightPointIndex, int middlePointIndex, Map<Integer, Vector3f> vertices,
             Function<Vector3f, Float> getterFirst, Function<Vector3f, Float> getterSecond
@@ -257,7 +301,9 @@ public class EarCuttingTriangulator implements Triangulator {
                 vertices.get(rightVertexIndex).getY() - bottomLeftVertex.getY(),
                 vertices.get(rightVertexIndex).getZ() - bottomLeftVertex.getZ()
         );
-        return getterFirst.apply(vectorA) * getterSecond.apply(vectorB) - getterSecond.apply(vectorA) * getterFirst.apply(vectorB) > 0 ?
+
+        float cross = getterFirst.apply(vectorA) * getterSecond.apply(vectorB) - getterSecond.apply(vectorA) * getterFirst.apply(vectorB);
+        return cross > 0 ?
                 ByPassDirection.SECOND : ByPassDirection.FIRST;
     }
 }

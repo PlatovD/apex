@@ -5,6 +5,7 @@ import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.render.pipeline.Pipeline;
 import com.apex.render.pipeline.element.PipelineElement;
+import com.apex.render.rasterizator.Rasterizator;
 import com.apex.storage.CameraStorage;
 
 @AutoCreation
@@ -22,5 +23,8 @@ public class Config {
             @AutoInject CameraStorage storage
     ) {
         storage.addCamera(Constants.DEFAULT_CAMERA_NAME, camera);
+    }
+
+    public void initialRasterizationConfig(@AutoInject Rasterizator rasterizator) {
     }
 }

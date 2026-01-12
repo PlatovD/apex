@@ -1,7 +1,6 @@
 package com.apex.tool.triangulator;
 
 
-import com.apex.reflection.AutoCreation;
 import com.apex.model.geometry.Model;
 import com.apex.model.geometry.Polygon;
 import com.apex.util.PolygonUtil;

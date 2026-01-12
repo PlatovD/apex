@@ -43,6 +43,39 @@ public class MathUtil {
         return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
     }
 
+    public static void findBarycentricCords(float[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
+        float mainDet = findThirdOrderDeterminant(
+                x0, x1, x2,
+                y0, y1, y2,
+                1, 1, 1
+        );
+        if (mainDet == 0) {
+            barycentric[0] = 0;
+            barycentric[1] = 0;
+            barycentric[2] = 0;
+            return;
+        }
+
+        float detForAlpha = findThirdOrderDeterminant(
+                xCur, x1, x2,
+                yCur, y1, y2,
+                1, 1, 1
+        );
+        float detForBeta = findThirdOrderDeterminant(
+                x0, xCur, x2,
+                y0, yCur, y2,
+                1, 1, 1
+        );
+        float detForLambda = findThirdOrderDeterminant(
+                x0, x1, xCur,
+                y0, y1, yCur,
+                1, 1, 1
+        );
+        barycentric[0] = detForAlpha / mainDet;
+        barycentric[1] = detForBeta / mainDet;
+        barycentric[2] = detForLambda / mainDet;
+    }
+
     public static boolean equals(double a, double b) {
         return Math.abs(a - b) < EPSILON;
     }

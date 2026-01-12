@@ -1,5 +1,7 @@
 package com.apex.model.scene;
 
+import com.apex.model.util.RenderObjectStatus;
+import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
@@ -10,12 +12,13 @@ import com.apex.math.Vector3f;
  * Объект-обертка, содержащий все необходимые для рендеринга данные
  */
 public class RenderObject {
-    private final String filename;
+    private final RenderObjectMetadata metadata;
     private final Model model;
     private Matrix4x4 worldMatrix;
     private Texture texture;
     private boolean textured = false;
     private ColorProvider colorProvider;
+    private final ColorData colorData = new ColorData();
     private float[] workVertices;
 
     private Vector3f position;
@@ -23,7 +26,7 @@ public class RenderObject {
     private Vector3f scale;
 
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture) {
-        this.filename = filename;
+        metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
@@ -96,6 +99,45 @@ public class RenderObject {
     }
 
     public String getFilename() {
-        return filename;
+        return metadata.name;
+    }
+
+    public RenderObjectStatus getStatus() {
+        return metadata.status;
+    }
+
+    public void setStatus(RenderObjectStatus newStatus) {
+        metadata.status = newStatus;
+    }
+
+    public void setVisibility(boolean visibility) {
+        metadata.isVisible = visibility;
+    }
+
+    public boolean isVisible() {
+        return metadata.isVisible;
+    }
+
+    public static class RenderObjectMetadata {
+        public String name;
+        public boolean isVisible;
+        public RenderObjectStatus status;
+
+        public RenderObjectMetadata() {
+        }
+
+        public RenderObjectMetadata(String name, boolean isVisible, RenderObjectStatus status) {
+            this.name = name;
+            this.isVisible = isVisible;
+            this.status = status;
+        }
+    }
+
+    public void setColorProvider(ColorProvider colorProvider) {
+        this.colorProvider = colorProvider;
+    }
+
+    public ColorData getColorData() {
+        return colorData;
     }
 }

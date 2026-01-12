@@ -7,6 +7,7 @@ import com.apex.model.scene.RenderObject;
 import com.apex.reflection.AutoInject;
 import com.apex.render.RenderEngine;
 import com.apex.storage.SceneStorage;
+import com.apex.storage.transformation.TransformationController;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
@@ -27,6 +28,8 @@ import com.apex.model.scene.Camera;
 import static com.apex.core.Constants.TRANSLATION;
 
 public abstract class AbstractController implements Controller {
+    @AutoInject
+    protected TransformationController transformationController;
 
     @AutoInject(name = "ReadIOProcessor")
     protected IOProcessor inputProcessor;
@@ -141,7 +144,7 @@ public abstract class AbstractController implements Controller {
             ro.getScale().setY(Float.parseFloat(scaleY.getText()));
             ro.getScale().setZ(Float.parseFloat(scaleZ.getText()));
 
-            ro.updateWorldMatrix();
+            transformationController.updateWorldMatrixForObject(ro);
             refresh();
         } catch (NumberFormatException e) {
             // Ignore invalid input while typing
