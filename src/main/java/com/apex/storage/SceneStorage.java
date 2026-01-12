@@ -185,18 +185,19 @@ public class SceneStorage {
     }
 
     private void checkTextureVertices(String filename) {
-        if (!renderObjectsMap.containsKey(filename))
-            throw new SceneStorageException("No render object with name=" + filename);
-        Model model = renderObjectsMap.get(filename).getModel();
-        for (Polygon polygon : model.polygons) {
-            List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
-            if (textureVertexIndices.size() != 3)
-                throw new SceneStorageException("Bad model texture vertices. Unable to add texture");
-            for (Integer textureVertexIndex : textureVertexIndices) {
-                if (textureVertexIndex < 0 || textureVertexIndex >= model.textureVertices.size())
-                    throw new SceneStorageException("Bad model texture vertices. Wrong indices");
-            }
-        }
+        return;
+//        if (!renderObjectsMap.containsKey(filename))
+//            throw new SceneStorageException("No render object with name=" + filename);
+//        Model model = renderObjectsMap.get(filename).getModel();
+//        for (Polygon polygon : model.polygons) {
+//            List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
+//            if (textureVertexIndices.size() != 3)
+//                throw new SceneStorageException("Bad model texture vertices. Unable to add texture");
+//            for (Integer textureVertexIndex : textureVertexIndices) {
+//                if (textureVertexIndex < 0 || textureVertexIndex >= model.textureVertices.size())
+//                    throw new SceneStorageException("Bad model texture vertices. Wrong indices");
+//            }
+//        }
     }
 
     /**

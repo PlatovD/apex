@@ -9,7 +9,7 @@ import com.apex.math.Vector4f;
 import com.apex.math.Matrix4x4;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.render.ScreenSpaceUtils;
+import com.apex.util.ScreenSpaceUtils;
 
 @AutoCreation
 public class TransformPipelineElement implements PipelineElement {
@@ -55,7 +55,7 @@ public class TransformPipelineElement implements PipelineElement {
             int offset = i * 3;
             workVertices[offset] = screenPoint.x;
             workVertices[offset + 1] = screenPoint.y;
-            workVertices[offset + 2] = screenPoint.z;
+            workVertices[offset + 2] = w;
         }
     }
 

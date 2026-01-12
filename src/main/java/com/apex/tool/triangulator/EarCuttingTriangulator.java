@@ -37,20 +37,20 @@ public class EarCuttingTriangulator implements Triangulator {
         // вспомогательный список вершин, хранимый для определения направления задания полигона
         List<Vector3f> verticesList = new ArrayList<>();
         for (Integer vertexIndex : verticesIndexes) {
-            vertices.put(vertexIndex, model.vertices.get(vertexIndex));
             if (indexOfVertexInPolygon < polygon.getTextureVertexIndices().size())
                 textureIndexesMap.put(vertexIndex, polygon.getTextureVertexIndices().get(indexOfVertexInPolygon));
             if (indexOfVertexInPolygon < polygon.getNormalIndices().size())
                 normalsIndexesMap.put(vertexIndex, polygon.getNormalIndices().get(indexOfVertexInPolygon));
-            verticesList.add(model.vertices.get(vertexIndex));
             indexOfVertexInPolygon++;
+            vertices.put(vertexIndex, model.vertices.get(vertexIndex));
+            verticesList.add(model.vertices.get(vertexIndex));
         }
 
         // Подготовка. Подбираю оси, по которым буду триангулировать
         List<Function<Vector3f, Float>> axes = chooseAxes(verticesList);
         // если невозможно триангулировать
         if (axes == null) {
-            System.err.println("Unenviable triangulate polygon");
+            System.err.println("Unable triangulate polygon");
             return List.of(PolygonUtil.deepCopyOfPolygon(polygon));
         }
         ByPassDirection polygonDirection = findDirection(verticesList, axes.get(0), axes.get(1));
@@ -92,7 +92,7 @@ public class EarCuttingTriangulator implements Triangulator {
             rightPointIndex = verticesIndexes.poll();
             iterationsCount = 0;
         }
-        newPolygons.add(new Polygon(List.of(leftPointIndex, middlePointIndex, rightPointIndex)));
+        newPolygons.add(PolygonUtil.createNewPolygon(List.of(leftPointIndex, middlePointIndex, rightPointIndex), textureIndexesMap, normalsIndexesMap));
         return newPolygons;
     }
 

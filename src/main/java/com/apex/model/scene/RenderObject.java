@@ -38,14 +38,6 @@ public class RenderObject {
         this.scale = new Vector3f(1f, 1f, 1f);
     }
 
-    /**
-     * Обновляет мировую матрицу объекта на основе позиции, вращения и масштаба.
-     * Использует предварительно определённый метод transform.
-     */
-    public void updateWorldMatrix() {
-        this.worldMatrix = Matrix4x4.transform(position, rotation, scale);
-    }
-
     public Vector3f getPosition() {
         return position;
     }

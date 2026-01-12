@@ -32,8 +32,8 @@ public class FaceNormalCalculator implements NormalCalculator {
     public Vector3f calculateTriangleNormal(Vector3f v0, Vector3f v1, Vector3f v2) {
         Vector3f u = v1.subtract(v0);
         Vector3f v = v2.subtract(v0);
-        Vector3f n = Vector3f.crossProduct(u, v);
-        n.normalize();
+        Vector3f n = u.cross(v);
+        n.normalizeLocal();
         return n;
     }
 }
