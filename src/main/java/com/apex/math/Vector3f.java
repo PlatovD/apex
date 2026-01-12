@@ -16,6 +16,14 @@ public class Vector3f {
         this.z = z;
     }
 
+    public static Vector3f crossProduct(Vector3f vec1, Vector3f vec2) {
+        return cross(vec1, vec2);
+    }
+
+    public Vector3f subtract(Vector3f vector3f) {
+        return subtract(this, vector3f);
+    }
+
     public boolean equals(Vector3f other) {
         return Math.abs(x - other.x) < Constants.EPS && Math.abs(y - other.y) < Constants.EPS && Math.abs(z - other.z) < Constants.EPS;
     }

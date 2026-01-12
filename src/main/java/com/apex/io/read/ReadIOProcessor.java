@@ -12,9 +12,12 @@ public class ReadIOProcessor implements IOProcessor {
     @AutoInject
     private Triangulator triangulator;
 
+    @AutoInject
+    private NormalCalculator normalCalculator;
+
     @Override
     public void process(Model model) {
         triangulator.triangulateModel(model);
-        NormalCalculator.calculateVerticesNormals(model);
+        normalCalculator.calculateNormals(model);
     }
 }
