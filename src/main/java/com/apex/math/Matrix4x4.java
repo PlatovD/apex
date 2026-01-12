@@ -2,6 +2,9 @@ package com.apex.math;
 
 import com.apex.exception.MathException;
 
+import static com.apex.core.Constants.DEFAULT_UP;
+import static com.apex.math.MathUtil.EPSILON;
+
 public class Matrix4x4 {
     private final float[][] data;
 
@@ -208,6 +211,129 @@ public class Matrix4x4 {
         return this;
     }
 
+    public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
+        Vector3f resultZ;
+        Vector3f resultX;
+        Vector3f resultY;
+
+        resultZ = target.subtract(eye);
+        resultY = up.cross(resultZ);
+        resultX = resultY.cross(resultZ);
+
+        resultX.normalizeLocal();
+        resultY.normalizeLocal();
+        resultZ.normalizeLocal();
+
+        return new Matrix4x4(
+                new float[][]{
+                        {resultX.getX(), resultX.getY(), resultX.getZ(), -eye.dot(resultX)},
+                        {resultY.getX(), resultY.getY(), resultY.getZ(), -eye.dot(resultY)},
+                        {resultZ.getX(), resultZ.getY(), resultZ.getZ(), -eye.dot(resultZ)},
+                        {0, 0, 0, 1}
+                }
+        );
+    }
+
+    public static Matrix4x4 lookAt(Vector3f eye, Vector3f target) {
+        return lookAt(eye, target, DEFAULT_UP);
+    }
+
+    public static Matrix4x4 perspective(float fov, float aspectRatio, float nearPlane, float farPlane) {
+        if (nearPlane <= 0.0f || farPlane <= 0.0f || fov <= 0.0f) {
+            throw new MathException("Near, far and fov must be positive");
+        }
+        if (Math.abs(farPlane - nearPlane) < EPSILON) {
+            throw new MathException("Near and far planes are too close");
+        }
+
+        float f = (float) (1.0 / Math.tan(Math.toRadians(fov * 0.5)));
+
+        Matrix4x4 result = new Matrix4x4();
+        result.data[0][0] = f / aspectRatio;
+        result.data[1][1] = f;
+        result.data[2][2] = (farPlane + nearPlane) / (farPlane - nearPlane);
+        result.data[2][3] = (2.0f * farPlane * nearPlane) / (nearPlane - farPlane);
+        result.data[3][2] = 1f;
+        return result;
+    }
+
+    public Vector3f transformPerspective(Vector3f vertex) {
+        float x = vertex.getX() * data[0][0] +
+                vertex.getY() * data[1][0] +
+                vertex.getZ() * data[2][0] +
+                data[3][0];
+
+        float y = vertex.getX() * data[0][1] +
+                vertex.getY() * data[1][1] +
+                vertex.getZ() * data[2][1] +
+                data[3][1];
+
+        float z = vertex.getX() * data[0][2] +
+                vertex.getY() * data[1][2] +
+                vertex.getZ() * data[2][2] +
+                data[3][2];
+
+        float w = vertex.getX() * data[0][3] +
+                vertex.getY() * data[1][3] +
+                vertex.getZ() * data[2][3] +
+                data[3][3];
+
+        if (Math.abs(w) < EPSILON) {
+            throw new IllegalArgumentException("Divide by zero in perspective division");
+        }
+
+        return new Vector3f(x / w, y / w, z / w);
+    }
+
+    public static Matrix4x4 translation(Vector3f t) {
+        Matrix4x4 result = identity();
+        result.data[0][3] = t.getX();
+        result.data[1][3] = t.getY();
+        result.data[2][3] = t.getZ();
+        return result;
+    }
+
+    public static Matrix4x4 rotationX(float angleRad) {
+        Matrix4x4 result = identity();
+        float cos = (float) Math.cos(angleRad);
+        float sin = (float) Math.sin(angleRad);
+        result.data[1][1] = cos;
+        result.data[1][2] = -sin;
+        result.data[2][1] = sin;
+        result.data[2][2] = cos;
+        return result;
+    }
+
+    public static Matrix4x4 rotationY(float angleRad) {
+        Matrix4x4 result = identity();
+        float cos = (float) Math.cos(angleRad);
+        float sin = (float) Math.sin(angleRad);
+        result.data[0][0] = cos;
+        result.data[0][2] = sin;
+        result.data[2][0] = -sin;
+        result.data[2][2] = cos;
+        return result;
+    }
+
+    public static Matrix4x4 rotationZ(float angleRad) {
+        Matrix4x4 result = identity();
+        float cos = (float) Math.cos(angleRad);
+        float sin = (float) Math.sin(angleRad);
+        result.data[0][0] = cos;
+        result.data[0][1] = -sin;
+        result.data[1][0] = sin;
+        result.data[1][1] = cos;
+        return result;
+    }
+
+    public static Matrix4x4 scale(Vector3f s) {
+        Matrix4x4 result = identity();
+        result.data[0][0] = s.getX();
+        result.data[1][1] = s.getY();
+        result.data[2][2] = s.getZ();
+        return result;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -215,12 +341,38 @@ public class Matrix4x4 {
         Matrix4x4 other = (Matrix4x4) obj;
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
-                if (!MathUtils.equals(this.data[i][j], other.data[i][j])) {
+                if (!MathUtil.equals(this.data[i][j], other.data[i][j])) {
                     return false;
                 }
             }
         }
         return true;
+    }
+
+    /**
+     * Создаёт матрицу трансформации: T * R * S
+     * Порядок: сначала масштаб, потом поворот, потом перенос.
+     *
+     * @param position Позиция (вектор переноса)
+     * @param rotation Углы поворота в градусах по осям X, Y, Z
+     * @param scale    Вектор масштабирования
+     * @return Новая матрица 4x4
+     */
+    public static Matrix4x4 transform(Vector3f position, Vector3f rotation, Vector3f scale) {
+        // Масштабирование
+        Matrix4x4 S = scale(scale);
+
+        // Повороты (в порядке Z -> Y -> X, умножение справа)
+        Matrix4x4 Rz = rotationZ((float) Math.toRadians(rotation.getZ()));
+        Matrix4x4 Ry = rotationY((float) Math.toRadians(rotation.getY()));
+        Matrix4x4 Rx = rotationX((float) Math.toRadians(rotation.getX()));
+        Matrix4x4 R = Rx.multiply(Ry.multiply(Rz)); // R = Rx * Ry * Rz
+
+        // Перенос
+        Matrix4x4 T = translation(position);
+
+        // Итог: T * R * S
+        return T.multiply(R.multiply(S));
     }
 
     @Override

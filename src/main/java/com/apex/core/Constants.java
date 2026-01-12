@@ -1,5 +1,7 @@
 package com.apex.core;
 
+import com.apex.math.Vector3f;
+
 public class Constants {
     // todo вынести динамически меняющиеся настройки в отдельный класс по типу States
     public static float EPS = 1e-5F;
@@ -12,4 +14,5 @@ public class Constants {
     public static String PATH_TO_PROPERTIES = "/application.properties";
     public static float MIN_LIGHT_FACTOR = 0.2f;
     public static String DEFAULT_CAMERA_NAME = "Default";
+    public static final Vector3f DEFAULT_UP = new Vector3f(0.0f, 1.0f, 0.0f);
 }

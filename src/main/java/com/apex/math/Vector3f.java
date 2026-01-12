@@ -1,6 +1,8 @@
 package com.apex.math;
 
-import com.apex.core.Constants;
+import com.apex.exception.MathException;
+
+import static com.apex.math.MathUtil.EPSILON;
 
 public class Vector3f {
     private float x;
@@ -8,6 +10,7 @@ public class Vector3f {
     private float z;
 
     public Vector3f() {
+        this(0.0f, 0.0f, 0.0f);
     }
 
     public Vector3f(float x, float y, float z) {
@@ -16,95 +19,161 @@ public class Vector3f {
         this.z = z;
     }
 
-    public boolean equals(Vector3f other) {
-        return Math.abs(x - other.x) < Constants.EPS && Math.abs(y - other.y) < Constants.EPS && Math.abs(z - other.z) < Constants.EPS;
-    }
-
-    public static Vector3f cross(Vector3f vector1, Vector3f vector2) {
-        float x = vector1.y * vector2.z - vector1.z * vector2.y;
-        float y = vector1.z * vector2.x - vector1.x * vector2.z;
-        float z = vector1.x * vector2.y - vector1.y * vector2.x;
-
-        return new Vector3f(x, y, z);
-    }
-
-    public static float dot(Vector3f vector1, Vector3f vector2) {
-        return vector1.x * vector2.x +
-                vector1.y * vector2.y +
-                vector1.z * vector2.z;
-    }
-
-    public static Vector3f subtract(Vector3f vector1, Vector3f vector2) {
-        float x = vector1.x - vector2.x;
-        float y = vector1.y - vector2.y;
-        float z = vector1.z - vector2.z;
-        return new Vector3f(x, y, z);
-    }
-
-    public void sum(Vector3f vector) {
-        x += vector.x;
-        y += vector.y;
-        z += vector.z;
-    }
-
-    public void divide(double scalar) {
-        if (Math.abs(scalar) < Constants.EPS) {
-            throw new ArithmeticException("Деление на 0. Скаляр близок к нулю");
-        }
-
-        float invScalar = (float) (1 / scalar);
-        x *= invScalar;
-        y *= invScalar;
-        z *= invScalar;
-    }
-
-    public double length() {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
-    }
-
-    public void normalize() {
-        double length = this.length();
-
-        if (Math.abs(length) < Constants.EPS) {
-            length = Constants.EPS;
-//            throw new ArithmeticException("Ошибка деления на 0. Передан нулевой вектор");
-        }
-
-        this.divide(length);
-    }
-
-    public void multiply(int scalar) {
-        x *= scalar;
-        y *= scalar;
-        z *= scalar;
-    }
-
-    @Override
-    public String toString() {
-        return x + " " + y + " " + z;
+    public Vector3f(Vector3f other) {
+        this(other.x, other.y, other.z);
     }
 
     public float getX() {
         return x;
     }
 
-    public void setX(float x) {
-        this.x = x;
-    }
-
     public float getY() {
         return y;
-    }
-
-    public void setY(float y) {
-        this.y = y;
     }
 
     public float getZ() {
         return z;
     }
 
+    public void setX(float x) {
+        this.x = x;
+    }
+
+    public void setY(float y) {
+        this.y = y;
+    }
+
     public void setZ(float z) {
         this.z = z;
+    }
+
+    public Vector3f add(Vector3f other) {
+        return new Vector3f(this.x + other.x, this.y + other.y, this.z + other.z);
+    }
+
+    public Vector3f subtract(Vector3f other) {
+        return new Vector3f(this.x - other.x, this.y - other.y, this.z - other.z);
+    }
+
+    public Vector3f multiply(float scalar) {
+        return new Vector3f(this.x * scalar, this.y * scalar, this.z * scalar);
+    }
+
+    public Vector3f divide(float scalar) {
+        if (Math.abs(scalar) < EPSILON) {
+            throw new MathException("Division by zero");
+        }
+        return new Vector3f(this.x / scalar, this.y / scalar, this.z / scalar);
+    }
+
+    public Vector3f addLocal(Vector3f other) {
+        this.x += other.x;
+        this.y += other.y;
+        this.z += other.z;
+        return this;
+    }
+
+    public Vector3f subtractLocal(Vector3f other) {
+        this.x -= other.x;
+        this.y -= other.y;
+        this.z -= other.z;
+        return this;
+    }
+
+    public Vector3f multiplyLocal(float scalar) {
+        this.x *= scalar;
+        this.y *= scalar;
+        this.z *= scalar;
+        return this;
+    }
+
+    public Vector3f divideLocal(float scalar) {
+        if (Math.abs(scalar) < EPSILON) {
+            throw new MathException("Division by zero");
+        }
+        this.x /= scalar;
+        this.y /= scalar;
+        this.z /= scalar;
+        return this;
+    }
+
+    public Vector3f normalizeLocal() {
+        float len = length();
+        if (len < EPSILON) {
+            throw new MathException("Cannot normalize zero-length vector");
+        }
+        return divideLocal(len);
+    }
+
+    public Vector3f set(Vector3f other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.z = other.z;
+        return this;
+    }
+
+    public Vector3f set(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        return this;
+    }
+
+    public float length() {
+        return (float) Math.sqrt(x * x + y * y + z * z);
+    }
+
+    public float lengthSquared() {
+        return x * x + y * y + z * z;
+    }
+
+    public Vector3f normalize() {
+        float len = length();
+        if (len < EPSILON) {
+            throw new MathException("Cannot normalize zero-length vector");
+        }
+        return divide(len);
+    }
+
+    public float dot(Vector3f other) {
+        return this.x * other.x + this.y * other.y + this.z * other.z;
+    }
+
+    public Vector3f cross(Vector3f other) {
+        return new Vector3f(
+                this.y * other.z - this.z * other.y,
+                this.z * other.x - this.x * other.z,
+                this.x * other.y - this.y * other.x
+        );
+    }
+
+    public Vector3f crossLocal(Vector3f other) {
+        float nx = this.y * other.z - this.z * other.y;
+        float ny = this.z * other.x - this.x * other.z;
+        float nz = this.x * other.y - this.y * other.x;
+
+        this.x = nx;
+        this.y = ny;
+        this.z = nz;
+        return this;
+    }
+
+    public Vector3f copy() {
+        return new Vector3f(this.x, this.y, this.z);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Vector3f other = (Vector3f) obj;
+        return MathUtil.equals(this.x, other.x) &&
+                MathUtil.equals(this.y, other.y) &&
+                MathUtil.equals(this.z, other.z);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Vector3(%.4f, %.4f, %.4f)", x, y, z);
     }
 }

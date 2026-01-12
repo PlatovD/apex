@@ -15,7 +15,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 
-import javax.vecmath.Vector3f;
+import com.apex.math.Vector3f;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

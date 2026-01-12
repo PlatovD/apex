@@ -208,7 +208,7 @@ public class Matrix3x3 {
         Matrix3x3 other = (Matrix3x3) obj;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (!MathUtils.equals(this.data[i][j], other.data[i][j])) {
+                if (!MathUtil.equals(this.data[i][j], other.data[i][j])) {
                     return false;
                 }
             }

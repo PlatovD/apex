@@ -2,6 +2,8 @@ package com.apex.math;
 
 import com.apex.exception.MathException;
 
+import static com.apex.math.MathUtil.EPSILON;
+
 public class Vector4f {
     private float x;
     private float y;
@@ -83,7 +85,7 @@ public class Vector4f {
     }
 
     public Vector4f divide(float scalar) {
-        if (Math.abs(scalar) < MathUtils.EPSILON) {
+        if (Math.abs(scalar) < EPSILON) {
             throw new MathException("Division by zero");
         }
         return new Vector4f(
@@ -119,7 +121,7 @@ public class Vector4f {
     }
 
     public Vector4f divideLocal(float scalar) {
-        if (Math.abs(scalar) < MathUtils.EPSILON) {
+        if (Math.abs(scalar) < EPSILON) {
             throw new MathException("Division by zero");
         }
         this.x /= scalar;
@@ -131,7 +133,7 @@ public class Vector4f {
 
     public Vector4f normalizeLocal() {
         float len = length();
-        if (len < MathUtils.EPSILON) {
+        if (len < EPSILON) {
             throw new MathException("Cannot normalize zero-length vector");
         }
         return divideLocal(len);
@@ -173,21 +175,21 @@ public class Vector4f {
     }
 
     public Vector3f toVector3Projected() {
-        if (Math.abs(w) < MathUtils.EPSILON) {
+        if (Math.abs(w) < EPSILON) {
             throw new IllegalArgumentException("Cannot project Vector4 with w = 0 (division by zero)");
         }
         return new Vector3f(x / w, y / w, z / w);
     }
 
     public Vector4f divideByW() {
-        if (Math.abs(w) < MathUtils.EPSILON) {
+        if (Math.abs(w) < EPSILON) {
             throw new IllegalArgumentException("Cannot divide by w: w = 0");
         }
         return new Vector4f(x / w, y / w, z / w, 1.0f);
     }
 
     public Vector4f divideByWLocal() {
-        if (Math.abs(w) < MathUtils.EPSILON) {
+        if (Math.abs(w) < EPSILON) {
             throw new IllegalArgumentException("Cannot divide by w: w = 0");
         }
         this.x /= this.w;
@@ -199,7 +201,7 @@ public class Vector4f {
 
     public Vector4f normalize() {
         float len = length();
-        if (len < MathUtils.EPSILON) {
+        if (len < EPSILON) {
             throw new MathException("Cannot normalize zero-length vector");
         }
         return divide(len);
@@ -219,10 +221,10 @@ public class Vector4f {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         Vector4f other = (Vector4f) obj;
-        return MathUtils.equals(this.x, other.x) &&
-                MathUtils.equals(this.y, other.y) &&
-                MathUtils.equals(this.z, other.z) &&
-                MathUtils.equals(this.w, other.w);
+        return MathUtil.equals(this.x, other.x) &&
+                MathUtil.equals(this.y, other.y) &&
+                MathUtil.equals(this.z, other.z) &&
+                MathUtil.equals(this.w, other.w);
     }
 
     @Override

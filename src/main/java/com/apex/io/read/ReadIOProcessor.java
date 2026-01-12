@@ -15,6 +15,6 @@ public class ReadIOProcessor implements IOProcessor {
     @Override
     public void process(Model model) {
         triangulator.triangulateModel(model);
-        NormalCalculator.calculateVerticesNormals(model);
+//        NormalCalculator.calculateVerticesNormals(model);
     }
 }

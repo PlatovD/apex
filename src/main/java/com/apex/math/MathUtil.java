@@ -4,6 +4,8 @@ import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
 public class MathUtil {
+    public static final double EPSILON = 1e-10;
+
     public static double[] solveByKramer(double a, double b, double c, double d, double v1, double v2) {
         double deltaMain = calcDetermination(
                 a, b,
@@ -39,5 +41,13 @@ public class MathUtil {
             float a20, float a21, float a22
     ) {
         return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
+    }
+
+    public static boolean equals(double a, double b) {
+        return Math.abs(a - b) < EPSILON;
+    }
+
+    public static double clamp(double value, double min, double max) {
+        return Math.max(min, Math.min(max, value));
     }
 }
