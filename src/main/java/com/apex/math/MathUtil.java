@@ -35,16 +35,16 @@ public class MathUtil {
         return sqrt(semiPerimeter * (semiPerimeter - AB) * (semiPerimeter - AC) * (semiPerimeter - BC));
     }
 
-    public static float findThirdOrderDeterminant(
-            float a00, float a01, float a02,
-            float a10, float a11, float a12,
-            float a20, float a21, float a22
+    public static double findThirdOrderDeterminant(
+            double a00, double a01, double a02,
+            double a10, double a11, double a12,
+            double a20, double a21, double a22
     ) {
         return ((a00 * a11 * a22) + (a10 * a21 * a02) + (a01 * a12 * a20)) - ((a02 * a11 * a20) + (a01 * a10 * a22) + (a12 * a21 * a00));
     }
 
-    public static void findBarycentricCords(float[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
-        float mainDet = findThirdOrderDeterminant(
+    public static void findBarycentricCords(double[] barycentric, float xCur, float yCur, float x0, float y0, float x1, float y1, float x2, float y2) {
+        double mainDet = findThirdOrderDeterminant(
                 x0, x1, x2,
                 y0, y1, y2,
                 1, 1, 1
@@ -56,17 +56,17 @@ public class MathUtil {
             return;
         }
 
-        float detForAlpha = findThirdOrderDeterminant(
+        double detForAlpha = findThirdOrderDeterminant(
                 xCur, x1, x2,
                 yCur, y1, y2,
                 1, 1, 1
         );
-        float detForBeta = findThirdOrderDeterminant(
+        double detForBeta = findThirdOrderDeterminant(
                 x0, xCur, x2,
                 y0, yCur, y2,
                 1, 1, 1
         );
-        float detForLambda = findThirdOrderDeterminant(
+        double detForLambda = findThirdOrderDeterminant(
                 x0, x1, xCur,
                 y0, y1, yCur,
                 1, 1, 1

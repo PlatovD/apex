@@ -44,18 +44,14 @@ public class RasterizationPipelineElement implements PipelineElement {
 
         // инициализирую то, что будет переиспользоваться. Уменьшаю нагрузку на сборщик мусора
         ColorData colorData = ro.getColorData();
-        float[] barycentric = new float[3];
+        double[] barycentric = new double[3];
 
         List<Integer> textureIndices;
         List<Integer> normalIndices;
 
         Model model = ro.getModel();
         float[] rawVertices = ro.getWorkVertices();
-        Vector3f light = new Vector3f(
-                activeCamera.getTarget().getX() - activeCamera.getPosition().getX(),
-                activeCamera.getTarget().getY() - activeCamera.getPosition().getY(),
-                activeCamera.getTarget().getZ() - activeCamera.getPosition().getZ()
-        );
+        Vector3f light = activeCamera.getTarget().subtract(activeCamera.getPosition());
         light.normalizeLocal();
         for (Polygon polygon : ro.getModel().polygons) {
             if (polygon.getVertexIndices().size() != 3)

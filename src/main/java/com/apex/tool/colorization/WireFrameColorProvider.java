@@ -6,12 +6,12 @@ import com.apex.model.texture.Texture;
 public class WireFrameColorProvider extends DefaultColorProvider {
     @Override
     public int getColor(ColorData colorData, Texture texture) {
-        float[] barycentric = colorData.barycentric;
+        double[] barycentric = colorData.barycentric;
         if (isOnBorderByBarycentric(barycentric)) return Constants.WIREFRAME_COLOR;
         return super.getColor(colorData, texture);
     }
 
-    private boolean isOnBorderByBarycentric(float[] barycentric) {
+    private boolean isOnBorderByBarycentric(double[] barycentric) {
         return
                 (barycentric[0] < Constants.EPS + 0.01)
                         || (barycentric[1] < Constants.EPS + 0.01)

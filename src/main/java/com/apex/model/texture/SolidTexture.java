@@ -11,7 +11,7 @@ public class SolidTexture implements Texture {
     }
 
     @Override
-    public int getPixelColor(float u, float v) {
+    public int getPixelColor(double u, double v) {
         return color;
     }
 

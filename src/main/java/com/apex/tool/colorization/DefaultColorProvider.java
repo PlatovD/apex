@@ -5,9 +5,9 @@ import com.apex.model.texture.Texture;
 public class DefaultColorProvider implements ColorProvider {
     @Override
     public int getColor(ColorData colorData, Texture texture) {
-        float[] barycentric = colorData.barycentric;
-        float u = colorData.u0 * barycentric[0] + colorData.u1 * barycentric[1] + colorData.u2 * barycentric[2];
-        float v = colorData.v0 * barycentric[0] + colorData.v1 * barycentric[1] + colorData.v2 * barycentric[2];
+        double[] barycentric = colorData.barycentric;
+        double u = colorData.u0 * barycentric[0] + colorData.u1 * barycentric[1] + colorData.u2 * barycentric[2];
+        double v = colorData.v0 * barycentric[0] + colorData.v1 * barycentric[1] + colorData.v2 * barycentric[2];
 
         int textureColor = texture.getPixelColor(u, v);
 

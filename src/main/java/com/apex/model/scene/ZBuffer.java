@@ -9,16 +9,16 @@ import java.util.Arrays;
 public class ZBuffer {
     private int width;
     private int height;
-    private float[] buffer;
+    private double[] buffer;
 
     public ZBuffer() {
         this.width = Constants.SCENE_WIDTH;
         this.height = Constants.SCENE_HEIGHT;
-        buffer = new float[width * height];
+        buffer = new double[width * height];
         clear();
     }
 
-    public boolean setPixel(int x, int y, float zCord) {
+    public boolean setPixel(int x, int y, double zCord) {
         if (zCord < 0) return false;
         int bufferIndex = y * width + x;
         if (bufferIndex < 0 || bufferIndex >= width * height) return false;

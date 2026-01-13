@@ -55,7 +55,7 @@ public class TransformPipelineElement implements PipelineElement {
             int offset = i * 3;
             workVertices[offset] = screenPoint.x;
             workVertices[offset + 1] = screenPoint.y;
-            workVertices[offset + 2] = w;
+            workVertices[offset + 2] = screenPoint.z;
         }
     }
 

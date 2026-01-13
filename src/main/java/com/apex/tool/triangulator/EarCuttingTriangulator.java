@@ -21,7 +21,7 @@ public class EarCuttingTriangulator implements Triangulator {
 
     @Override
     public List<Polygon> triangulatePolygon(Model model, Polygon polygon) {
-        float[] barycentric = new float[3];
+        double[] barycentric = new double[3];
         // когда 3 и менее вершины изначально. Возвращаю deep копию полигона
         if (polygon.getVertexIndices().size() < 4) {
             return List.of(PolygonUtil.deepCopyOfPolygon(polygon));
@@ -117,7 +117,7 @@ public class EarCuttingTriangulator implements Triangulator {
     }
 
     protected boolean isAnyVertexInsideTriangleByBarycentric(
-            float[] barycentric,
+            double[] barycentric,
             int leftPointIndex, int rightPointIndex, int middlePointIndex, Map<Integer, Vector3f> vertices,
             Function<Vector3f, Float> getterFirst, Function<Vector3f, Float> getterSecond
     ) {

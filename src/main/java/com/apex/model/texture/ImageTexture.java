@@ -27,7 +27,7 @@ public class ImageTexture implements Texture {
     }
 
     @Override
-    public int getPixelColor(float u, float v) {
+    public int getPixelColor(double u, double v) {
         int x = (int) (1 - (u * (width - 1)) % width);
         int y = (int) (1 - (v * (height - 1)) % height);
 
