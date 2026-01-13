@@ -2,20 +2,20 @@ package com.apex.render.pipeline.element;
 
 import com.apex.core.Constants;
 import com.apex.model.scene.RenderObject;
-import com.apex.model.scene.Camera;
 import com.apex.model.geometry.Model;
 import com.apex.math.Vector3f;
 import com.apex.math.Vector4f;
 import com.apex.math.Matrix4x4;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
+import com.apex.util.ActiveCameraWrapper;
 import com.apex.util.ScreenSpaceUtils;
 
 @AutoCreation
 public class TransformPipelineElement implements PipelineElement {
 
     @AutoInject
-    private Camera camera;
+    private ActiveCameraWrapper activeCameraWrapper;
 
     @Override
     public void apply(RenderObject ro) {
@@ -28,8 +28,8 @@ public class TransformPipelineElement implements PipelineElement {
         float[] workVertices = ro.getWorkVertices();
 
         Matrix4x4 worldMatrix = ro.getWorldMatrix();
-        Matrix4x4 viewMatrix = camera.getViewMatrix();
-        Matrix4x4 projMatrix = camera.getProjectionMatrix();
+        Matrix4x4 viewMatrix = activeCameraWrapper.getActiveCamera().getViewMatrix();
+        Matrix4x4 projMatrix = activeCameraWrapper.getActiveCamera().getProjectionMatrix();
 
         Matrix4x4 mvpMatrix = projMatrix.multiply(viewMatrix).multiply(worldMatrix);
 

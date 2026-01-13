@@ -4,6 +4,8 @@ import com.apex.core.Constants;
 import com.apex.exception.CameraStorageException;
 import com.apex.model.scene.Camera;
 import com.apex.reflection.AutoCreation;
+import com.apex.reflection.AutoInject;
+import com.apex.util.ActiveCameraWrapper;
 
 import java.util.HashMap;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.Objects;
 public class CameraStorage {
     private final Map<String, Camera> cameras = new HashMap<>();
     private String activeCamera = Constants.DEFAULT_CAMERA_NAME;
+    @AutoInject
+    private ActiveCameraWrapper activeCameraWrapper;
 
     public void addCamera(String name, Camera camera) {
         if (Objects.isNull(camera)) throw new CameraStorageException("Camera can't be null");
@@ -26,7 +30,8 @@ public class CameraStorage {
     public void deleteCamera(String name) {
         if (cameras.isEmpty()) return;
         if (Objects.equals(name, Constants.DEFAULT_CAMERA_NAME)) return;
-        if (name.equals(activeCamera)) activeCamera = Constants.DEFAULT_CAMERA_NAME;
+        if (name.equals(activeCamera))
+            setActiveCamera(Constants.DEFAULT_CAMERA_NAME);
         cameras.remove(name);
     }
 
@@ -41,12 +46,12 @@ public class CameraStorage {
     public void setActiveCamera(String name) {
         if (!cameras.containsKey(name)) return;
         activeCamera = name;
+        activeCameraWrapper.setActiveCamera(cameras.get(name));
     }
 
     public Camera getActiveCamera() {
-        if (!cameras.containsKey(activeCamera)) activeCamera = Constants.DEFAULT_CAMERA_NAME;
-        Camera camera = cameras.get(activeCamera);
-        if (camera == null) throw new CameraStorageException("Active camera not found in cameras storage");
-        return camera;
+        if (!cameras.containsKey(activeCamera))
+            setActiveCamera(Constants.DEFAULT_CAMERA_NAME);
+        return activeCameraWrapper.getActiveCamera();
     }
 }

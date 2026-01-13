@@ -14,6 +14,7 @@ import com.apex.model.geometry.Polygon;
 import com.apex.tool.colorization.ColorData;
 import com.apex.tool.rasterization.Rasterization;
 import com.apex.tool.rasterization.VertexAttribute;
+import com.apex.util.ActiveCameraWrapper;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class RasterizationPipelineElement implements PipelineElement {
     private ZBuffer zBuffer;
 
     @AutoInject
-    private Camera activeCamera;
+    private ActiveCameraWrapper activeCameraWrapper;
 
     @Override
     public void apply(RenderObject ro) {
@@ -51,7 +52,7 @@ public class RasterizationPipelineElement implements PipelineElement {
 
         Model model = ro.getModel();
         float[] rawVertices = ro.getWorkVertices();
-        Vector3f light = activeCamera.getTarget().subtract(activeCamera.getPosition());
+        Vector3f light = activeCameraWrapper.getActiveCamera().getTarget().subtract(activeCameraWrapper.getActiveCamera().getPosition());
         light.normalizeLocal();
         for (Polygon polygon : ro.getModel().polygons) {
             if (polygon.getVertexIndices().size() != 3)
