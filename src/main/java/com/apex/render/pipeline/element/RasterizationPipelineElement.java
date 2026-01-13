@@ -118,7 +118,7 @@ public class RasterizationPipelineElement implements PipelineElement {
     private void refreshVertexAttributeForPolygon(VertexAttribute vertexAttribute, int vertexIndex, float[] rawVertices) {
         vertexAttribute.x = Math.round(rawVertices[vertexIndex * 3]);
         vertexAttribute.y = Math.round(rawVertices[vertexIndex * 3 + 1]);
-        vertexAttribute.z = Math.round(rawVertices[vertexIndex * 3 + 2]);
+        vertexAttribute.z = rawVertices[vertexIndex * 3 + 2];
     }
 
     @Override

@@ -28,7 +28,7 @@ public class Rasterization {
     ) {
         int x0 = v0A.x;
         int y0 = v0A.y;
-        float z0 = v0A.z;
+        double z0 = v0A.z;
         float u0 = v0A.u;
         float v0 = v0A.v;
         float n_x0 = v0A.n_x;
@@ -37,7 +37,7 @@ public class Rasterization {
 
         int x1 = v1A.x;
         int y1 = v1A.y;
-        float z1 = v1A.z;
+        double z1 = v1A.z;
         float u1 = v1A.u;
         float v1 = v1A.v;
         float n_x1 = v1A.n_x;
@@ -46,7 +46,7 @@ public class Rasterization {
 
         int x2 = v2A.x;
         int y2 = v2A.y;
-        float z2 = v2A.z;
+        double z2 = v2A.z;
         float u2 = v2A.u;
         float v2 = v2A.v;
         float n_x2 = v2A.n_x;
@@ -54,120 +54,95 @@ public class Rasterization {
         float n_z2 = v2A.n_z;
 
         int tmp;
+        double tmpD;
         float tmpF;
+
         if (y0 > y1) {
-            // Свап y
+            // Свап int
             tmp = y1;
             y1 = y0;
             y0 = tmp;
-
-            // Свап x
             tmp = x1;
             x1 = x0;
             x0 = tmp;
 
-            // Свап z
-            tmpF = z1;
+            // Свап double
+            tmpD = z1;
             z1 = z0;
-            z0 = tmpF;
+            z0 = tmpD;
 
-            // Свап u
+            // Свап float
             tmpF = u1;
             u1 = u0;
             u0 = tmpF;
-
-            // Свап v
             tmpF = v1;
             v1 = v0;
             v0 = tmpF;
 
-            // Свап нормалей
             tmpF = n_x1;
             n_x1 = n_x0;
             n_x0 = tmpF;
-
             tmpF = n_y1;
             n_y1 = n_y0;
             n_y0 = tmpF;
-
             tmpF = n_z1;
             n_z1 = n_z0;
             n_z0 = tmpF;
         }
         if (y1 > y2) {
-            // Свап y
             tmp = y2;
             y2 = y1;
             y1 = tmp;
-
-            // Свап x
             tmp = x2;
             x2 = x1;
             x1 = tmp;
 
-            // Свап z
-            tmpF = z2;
+            tmpD = z2;
             z2 = z1;
-            z1 = tmpF;
+            z1 = tmpD;
 
-            // Свап u
             tmpF = u2;
             u2 = u1;
             u1 = tmpF;
-
-            // Свап v
             tmpF = v2;
             v2 = v1;
             v1 = tmpF;
 
-            // Свап нормалей
             tmpF = n_x2;
             n_x2 = n_x1;
             n_x1 = tmpF;
-
             tmpF = n_y2;
             n_y2 = n_y1;
             n_y1 = tmpF;
-
             tmpF = n_z2;
             n_z2 = n_z1;
             n_z1 = tmpF;
         }
         if (y0 > y1) {
-            // Свап y
             tmp = y1;
             y1 = y0;
             y0 = tmp;
-
-            // Свап x
             tmp = x1;
             x1 = x0;
             x0 = tmp;
 
-            // Свап z
-            tmpF = z1;
+            tmpD = z1;
             z1 = z0;
-            z0 = tmpF;
+            z0 = tmpD;
 
-            // Свап u
             tmpF = u1;
             u1 = u0;
             u0 = tmpF;
-
-            // Свап v
             tmpF = v1;
             v1 = v0;
             v0 = tmpF;
 
-            // Свап нормалей
             tmpF = n_x1;
             n_x1 = n_x0;
             n_x0 = tmpF;
-
             tmpF = n_y1;
             n_y1 = n_y0;
             n_y0 = tmpF;
-
             tmpF = n_z1;
             n_z1 = n_z0;
             n_z0 = tmpF;
@@ -188,7 +163,7 @@ public class Rasterization {
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y0 + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
+                findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
@@ -232,7 +207,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
@@ -274,7 +249,7 @@ public class Rasterization {
             xStart = max(xStart, minX);
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
-                findBarycentricCords(barycentric, x + 0.5f, y + 0.5f, x0 + 0.5f, y0 + 0.5f, x1 + 0.5f, y1 + 0.5f, x2 + 0.5f, y2 + 0.5f);
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
@@ -293,16 +268,16 @@ public class Rasterization {
     }
 
     private static double findLightFactorForPixel(float n_x0, float n_x1, float n_x2,
-                                                 float n_y0, float n_y1, float n_y2,
-                                                 float n_z0, float n_z1, float n_z2,
-                                                 Vector3f light,
-                                                 double[] barycentric) {
+                                                  float n_y0, float n_y1, float n_y2,
+                                                  float n_z0, float n_z1, float n_z2,
+                                                  Vector3f light,
+                                                  double[] barycentric) {
         return -(n_x0 * barycentric[0] + n_x1 * barycentric[1] + n_x2 * barycentric[2]) * light.getX()
                 - (n_y0 * barycentric[0] + n_y1 * barycentric[1] + n_y2 * barycentric[2]) * light.getY()
                 - (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]) * light.getZ();
     }
 
-    private static double findZFromBarycentric(double[] barycentric, float z0, float z1, float z2) {
+    private static double findZFromBarycentric(double[] barycentric, double z0, double z1, double z2) {
         return barycentric[0] * z0 + barycentric[1] * z1 + barycentric[2] * z2;
     }
 

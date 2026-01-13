@@ -20,9 +20,9 @@ public class ContextRegister {
     public static void register() {
         PropertiesReader.load();
         Camera camera = new Camera(
-                new Vector3f(0, 0, 1000),
+                new Vector3f(0, 0, 100),
                 new Vector3f(0, 0, 0),
-                1.0F, (float) Constants.SCENE_WIDTH / Constants.SCENE_HEIGHT, 0.01F, 100);
+                60.0F, (float) Constants.SCENE_WIDTH / Constants.SCENE_HEIGHT, 0.01F, 1000);
         ReflectionScanner.registerBean("", camera.getClass(), camera);
 
         registerController();

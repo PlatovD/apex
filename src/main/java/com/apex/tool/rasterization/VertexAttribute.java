@@ -1,7 +1,8 @@
 package com.apex.tool.rasterization;
 
 public class VertexAttribute {
-    public int x, y, z;
+    public int x, y;
+    public double z;
     public float u = 0, v = 0;
     public float n_x, n_y, n_z;
 

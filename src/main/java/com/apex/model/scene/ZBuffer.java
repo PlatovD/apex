@@ -22,7 +22,7 @@ public class ZBuffer {
         if (zCord < 0) return false;
         int bufferIndex = y * width + x;
         if (bufferIndex < 0 || bufferIndex >= width * height) return false;
-        if (buffer[bufferIndex] <= zCord) return false;
+        if (buffer[bufferIndex] < zCord) return false;
         buffer[bufferIndex] = zCord;
         return true;
     }
