@@ -21,33 +21,18 @@ public class RenderObject {
     private final ColorData colorData = new ColorData();
     private float[] workVertices;
 
-    private Vector3f position;
-    private Vector3f rotation;
-    private Vector3f scale;
-
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
-        this.worldMatrix = new Matrix4x4();
+        this.worldMatrix = new Matrix4x4(new float[][]{
+                {1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, 0},
+                {0, 0, 0, 1},
+        });
         this.workVertices = new float[model.vertices.size() * 3];
-
-        this.position = new Vector3f(0f, 0f, 0f);
-        this.rotation = new Vector3f(0f, 0f, 0f);
-        this.scale = new Vector3f(1f, 1f, 1f);
-    }
-
-    public Vector3f getPosition() {
-        return position;
-    }
-
-    public Vector3f getRotation() {
-        return rotation;
-    }
-
-    public Vector3f getScale() {
-        return scale;
     }
 
     public Model getModel() {

@@ -12,11 +12,13 @@ import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import javafx.event.ActionEvent;
 
 import com.apex.math.Vector3f;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -108,18 +110,6 @@ public abstract class AbstractController implements Controller {
         com.apex.model.scene.RenderObject ro = sceneStorage.getRenderObject(modelName);
         if (ro == null)
             return;
-
-        transX.setText(String.valueOf(ro.getPosition().getX()));
-        transY.setText(String.valueOf(ro.getPosition().getY()));
-        transZ.setText(String.valueOf(ro.getPosition().getZ()));
-
-        rotX.setText(String.valueOf(ro.getRotation().getX()));
-        rotY.setText(String.valueOf(ro.getRotation().getY()));
-        rotZ.setText(String.valueOf(ro.getRotation().getZ()));
-
-        scaleX.setText(String.valueOf(ro.getScale().getX()));
-        scaleY.setText(String.valueOf(ro.getScale().getY()));
-        scaleZ.setText(String.valueOf(ro.getScale().getZ()));
     }
 
     private void updateModelFromUI() {
@@ -132,19 +122,22 @@ public abstract class AbstractController implements Controller {
             return;
 
         try {
-            ro.getPosition().setX(Float.parseFloat(transX.getText()));
-            ro.getPosition().setY(Float.parseFloat(transY.getText()));
-            ro.getPosition().setZ(Float.parseFloat(transZ.getText()));
 
-            ro.getRotation().setX(Float.parseFloat(rotX.getText()));
-            ro.getRotation().setY(Float.parseFloat(rotY.getText()));
-            ro.getRotation().setZ(Float.parseFloat(rotZ.getText()));
+            float posX = Float.parseFloat(transX.getText());
+            float posY = Float.parseFloat(transY.getText());
+            float posZ = Float.parseFloat(transZ.getText());
+            float rotationX = Float.parseFloat(rotX.getText());
+            float rotationY = Float.parseFloat(rotY.getText());
+            float rotationZ = Float.parseFloat(rotZ.getText());
+            float scaleXVal = Float.parseFloat(scaleX.getText());
+            float scaleYVal = Float.parseFloat(scaleY.getText());
+            float scaleZVal = Float.parseFloat(scaleZ.getText());
 
-            ro.getScale().setX(Float.parseFloat(scaleX.getText()));
-            ro.getScale().setY(Float.parseFloat(scaleY.getText()));
-            ro.getScale().setZ(Float.parseFloat(scaleZ.getText()));
-
-            transformationController.updateWorldMatrixForObject(ro);
+            transformationController.updateWorldMatrixForActiveObjects(
+                    scaleXVal, scaleYVal, scaleZVal,
+                    rotationX, rotationY, rotationZ,
+                    posX, posY, posZ
+            );
             refresh();
         } catch (NumberFormatException e) {
             // Ignore invalid input while typing
@@ -248,38 +241,44 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    public void handleCameraForward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
-        refresh();
+    public void handleCameraMove(MouseEvent mouseEvent) {
+        // todo: как то исходя из движения мыши надо билдить вектор
+        transformationController.moveCameraOnVector(null);
     }
 
-    @FXML
-    public void handleCameraBackward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, TRANSLATION));
-        refresh();
-    }
-
-    @FXML
-    public void handleCameraLeft(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
-        refresh();
-    }
-
-    @FXML
-    public void handleCameraRight(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
-        refresh();
-    }
-
-    @FXML
-    public void handleCameraUp(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, TRANSLATION, 0));
-        refresh();
-    }
-
-    @FXML
-    public void handleCameraDown(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
-        refresh();
-    }
+//    @FXML
+//    public void handleCameraForward(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(0, 0, -TRANSLATION));
+//        refresh();
+//    }
+//
+//    @FXML
+//    public void handleCameraBackward(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(0, 0, TRANSLATION));
+//        refresh();
+//    }
+//
+//    @FXML
+//    public void handleCameraLeft(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(TRANSLATION, 0, 0));
+//        refresh();
+//    }
+//
+//    @FXML
+//    public void handleCameraRight(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(-TRANSLATION, 0, 0));
+//        refresh();
+//    }
+//
+//    @FXML
+//    public void handleCameraUp(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(0, TRANSLATION, 0));
+//        refresh();
+//    }
+//
+//    @FXML
+//    public void handleCameraDown(ActionEvent actionEvent) {
+//        camera.movePosition(new Vector3f(0, -TRANSLATION, 0));
+//        refresh();
+//    }
 }
