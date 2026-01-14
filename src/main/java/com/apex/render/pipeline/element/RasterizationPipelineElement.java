@@ -3,7 +3,6 @@ package com.apex.render.pipeline.element;
 import com.apex.buffer.RasterizationBuffer;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
-import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
@@ -117,9 +116,10 @@ public class RasterizationPipelineElement implements PipelineElement {
     }
 
     private void refreshVertexAttributeForPolygon(VertexAttribute vertexAttribute, int vertexIndex, float[] rawVertices) {
-        vertexAttribute.x = Math.round(rawVertices[vertexIndex * 3]);
-        vertexAttribute.y = Math.round(rawVertices[vertexIndex * 3 + 1]);
-        vertexAttribute.z = rawVertices[vertexIndex * 3 + 2];
+        vertexAttribute.x = Math.round(rawVertices[vertexIndex * 4]);
+        vertexAttribute.y = Math.round(rawVertices[vertexIndex * 4 + 1]);
+        vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
+        vertexAttribute.invW = 1 / rawVertices[vertexIndex * 4 + 3];
     }
 
     @Override

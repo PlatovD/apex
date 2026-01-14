@@ -24,6 +24,7 @@ import java.util.*;
 public class SceneStorage {
     private final Map<String, RenderObject> renderObjectsMap = new HashMap<>();
     private final List<RenderObject> visibleRenderObjects = new ArrayList<>();
+    private final Map<String, String> savedTextures = new HashMap<>();
     private ColorProvider cp = new DefaultColorProvider();
 
     @AutoInject(name = "ModelCache")
@@ -50,6 +51,7 @@ public class SceneStorage {
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(oldTexture.getCache());
         Texture texture = textureCache.smartCache(fileTextureName, new ImageTexture(fileTextureName, image));
         RenderObject ro = renderObjectsMap.get(fileObjName);
+        savedTextures.remove(ro.getFilename());
         if (ro.getModel().textureVertices.isEmpty())
             throw new SceneStorageException("Model has no texture vertices. name=" + fileObjName);
         checkTextureVertices(fileObjName);
@@ -65,6 +67,7 @@ public class SceneStorage {
         Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
                 new SolidTexture(Constants.color));
         RenderObject ro = renderObjectsMap.get(fileObjName);
+        savedTextures.remove(ro.getFilename());
         ro.setTexture(defaultTexture);
         ro.setTextured(false);
     }
@@ -75,10 +78,34 @@ public class SceneStorage {
         if (!renderObjectsMap.containsKey(fileObjName))
             throw new SceneStorageException("No render object with name=" + fileObjName);
         RenderObject ro = renderObjectsMap.get(fileObjName);
+        savedTextures.remove(ro.getFilename());
         renderObjectsMap.remove(ro.getFilename());
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getTexture().getCache());
         modelCache.deleteFromCacheIfNotUsedElseDecreaseUsage(ro.getFilename());
         visibleRenderObjects.remove(ro); // могу удалять тк ссылка одна и та же
+    }
+
+    public void offTextures() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            if (!ro.isTextured()) continue;
+            String textureFilename = ro.getTexture().getCache();
+            savedTextures.put(ro.getFilename(), textureFilename);
+            Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+            ro.setTexture(defaultTexture);
+            ro.setTextured(false);
+        }
+    }
+
+    public void onTextures() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            if (!savedTextures.containsKey(ro.getFilename())) continue;
+            String savedTextureFilename = savedTextures.get(ro.getFilename());
+            if (!textureCache.existsInCache(savedTextureFilename)) continue;
+            Texture texture = textureCache.getFromCache(savedTextureFilename);
+            textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(String.valueOf(Constants.color));
+            ro.setTexture(texture);
+            ro.setTextured(true);
+        }
     }
 
     public void enableWireframeForAll() {

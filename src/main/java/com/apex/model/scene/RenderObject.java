@@ -32,7 +32,7 @@ public class RenderObject {
                 {0, 0, 1, 0},
                 {0, 0, 0, 1},
         });
-        this.workVertices = new float[model.vertices.size() * 3];
+        this.workVertices = new float[model.vertices.size() * 4];
     }
 
     public Model getModel() {

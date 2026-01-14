@@ -176,21 +176,21 @@ public class Vector4f {
 
     public Vector3f toVector3Projected() {
         if (Math.abs(w) < EPSILON) {
-            throw new IllegalArgumentException("Cannot project Vector4 with w = 0 (division by zero)");
+            throw new IllegalArgumentException("Cannot project Vector4 with invW = 0 (division by zero)");
         }
         return new Vector3f(x / w, y / w, z / w);
     }
 
     public Vector4f divideByW() {
         if (Math.abs(w) < EPSILON) {
-            throw new IllegalArgumentException("Cannot divide by w: w = 0");
+            throw new IllegalArgumentException("Cannot divide by invW: invW = 0");
         }
         return new Vector4f(x / w, y / w, z / w, 1.0f);
     }
 
     public Vector4f divideByWLocal() {
         if (Math.abs(w) < EPSILON) {
-            throw new IllegalArgumentException("Cannot divide by w: w = 0");
+            throw new IllegalArgumentException("Cannot divide by invW: invW = 0");
         }
         this.x /= this.w;
         this.y /= this.w;

@@ -23,7 +23,7 @@ public class TransformPipelineElement implements PipelineElement {
         int vertexCount = model.vertices.size();
 
         if (ro.getWorkVertices() == null || ro.getWorkVertices().length != vertexCount * 3) {
-            ro.setWorkVertices(new float[vertexCount * 3]);
+            ro.setWorkVertices(new float[vertexCount * 4]);
         }
         float[] workVertices = ro.getWorkVertices();
 
@@ -52,10 +52,11 @@ public class TransformPipelineElement implements PipelineElement {
             ScreenSpaceUtils.ScreenPoint screenPoint =
                     ScreenSpaceUtils.toScreenPoint(xNdc, yNdc, zNdc, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
-            int offset = i * 3;
+            int offset = i * 4;
             workVertices[offset] = screenPoint.x;
             workVertices[offset + 1] = screenPoint.y;
             workVertices[offset + 2] = screenPoint.z;
+            workVertices[offset + 3] = w;
         }
     }
 
