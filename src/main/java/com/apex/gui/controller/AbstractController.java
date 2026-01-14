@@ -16,6 +16,7 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
@@ -209,6 +210,7 @@ public abstract class AbstractController implements Controller {
         if (renderObject.getStatus().equals(RenderObjectStatus.ACTIVE))
             sceneStorage.makeUnactive(filename);
         else sceneStorage.makeActive(filename);
+        refreshGui();
 
         endOperation();
     }
