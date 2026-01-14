@@ -212,26 +212,20 @@ public class Matrix4x4 {
     }
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
-        Vector3f resultZ;
-        Vector3f resultX;
-        Vector3f resultY;
+        Vector3f z = target.subtract(eye).normalize();
+        Vector3f x = up.cross(z).normalize();
+        Vector3f y = z.cross(x);
 
-        resultZ = target.subtract(eye);
-        resultY = up.cross(resultZ);
-        resultX = resultY.cross(resultZ);
+        float tx = -x.dot(eye);
+        float ty = -y.dot(eye);
+        float tz = -z.dot(eye);
 
-        resultX.normalizeLocal();
-        resultY.normalizeLocal();
-        resultZ.normalizeLocal();
-
-        return new Matrix4x4(
-                new float[][]{
-                        {resultX.getX(), resultX.getY(), resultX.getZ(), -eye.dot(resultX)},
-                        {resultY.getX(), resultY.getY(), resultY.getZ(), -eye.dot(resultY)},
-                        {resultZ.getX(), resultZ.getY(), resultZ.getZ(), -eye.dot(resultZ)},
-                        {0, 0, 0, 1}
-                }
-        );
+        return new Matrix4x4(new float[][]{
+                { x.getX(), x.getY(), x.getZ(), tx },
+                { y.getX(), y.getY(), y.getZ(), ty },
+                { z.getX(), z.getY(), z.getZ(), tz },
+                { 0, 0, 0, 1 }
+        });
     }
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target) {
