@@ -117,4 +117,8 @@ public class RenderObject {
     public ColorData getColorData() {
         return colorData;
     }
+
+    public RenderObjectMetadata getMetadata() {
+        return metadata;
+    }
 }

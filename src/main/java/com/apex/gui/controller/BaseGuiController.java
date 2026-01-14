@@ -1,20 +1,29 @@
-package com.apex.controller;
+package com.apex.gui.controller;
 
+import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
+import com.apex.reflection.AutoInject;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.util.PixelWriterWrapper;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.util.Duration;
 
+import java.net.URL;
+import java.util.ResourceBundle;
+
 public class BaseGuiController extends AbstractController {
+    @AutoInject
+    private CustomIntArrayBasedRasterizationBuffer buffer;
 
     private Timeline timeline;
 
     @FXML
-    protected void initialize() {
-        super.initialize();
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        super.initialize(url, resourceBundle);
         timeline = new Timeline();
         timeline.setCycleCount(Animation.INDEFINITE);
         PixelWriterWrapper pixelWriterWrapper = (PixelWriterWrapper) ReflectionScanner
@@ -33,28 +42,27 @@ public class BaseGuiController extends AbstractController {
                 renderEngine.render();
             }
         });
-
+        Platform.runLater(canvas::requestFocus);
         timeline.getKeyFrames().add(frame);
         timeline.play();
     }
 
     @Override
-    protected void startOperation() {
+    public void startOperation() {
         timeline.stop();
     }
 
     @Override
-    protected void endOperation() {
+    public void endOperation() {
         timeline.play();
     }
 
     @Override
-    protected void refresh() {
-        // Handled by timeline, nothing to do here
+    public void refreshBuffer(int newWidth, int newHeight) {
+        buffer.updateBufferForNewScreenSizes(newWidth, newHeight);
     }
 
     @Override
-    protected String getTargetModelName() {
-        return lastLoadedModelName;
+    public void refreshRender() {
     }
 }

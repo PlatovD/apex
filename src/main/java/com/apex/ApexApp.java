@@ -1,6 +1,5 @@
 package com.apex;
 
-import com.apex.controller.Controller;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.core.Constants;
 import com.apex.core.ContextRegister;
@@ -21,7 +20,6 @@ public class ApexApp extends Application {
         // Loader читает fxml и видит "com.apex.controller.BaseGuiController". После этого он передает в этот метод именно этот класс
         loader.setControllerFactory(ReflectionScanner::findAssignableBeanByClass);
         AnchorPane viewport = loader.load();
-
         viewport.setPrefSize(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
         Scene scene = new Scene(viewport, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);

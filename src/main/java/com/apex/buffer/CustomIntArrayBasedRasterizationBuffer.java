@@ -29,6 +29,13 @@ public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuff
     }
 
     @Override
+    public void updateBufferForNewScreenSizes(int newWidth, int newHeight) {
+        width = Constants.SCENE_WIDTH;
+        height = Constants.SCENE_HEIGHT;
+        pixels = new int[width * height];
+    }
+
+    @Override
     public void setPixel(int x, int y, int rgbColor) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             pixels[y * width + x] = rgbColor;
