@@ -1,6 +1,7 @@
 package com.apex.gui.util;
 
 import com.apex.model.scene.RenderObject;
+import com.apex.model.util.RenderObjectStatus;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -17,56 +18,38 @@ public class GuiElementsBuilder {
             Consumer<String> onChangeVisibility,
             Consumer<String> onChangeActiveStatus) {
 
-        HBox hbox = new HBox();
+        HBox hbox = new HBox(4);
+
+        hbox.getStyleClass().add("model-node");
+        hbox.getStyleClass().add(metadata.status.name().toLowerCase());
+        if (!metadata.isVisible) {
+            hbox.getStyleClass().add("hidden");
+        }
+
+        Button visibilityBtn = new Button(metadata.isVisible ? "✓" : "✕");
+        visibilityBtn.getStyleClass().addAll("model-btn", "visibility");
+        visibilityBtn.setOnAction(e -> onChangeVisibility.accept(metadata.name));
 
         Button selectBtn = new Button(metadata.name);
-        selectBtn.setFont(Font.font(10));
-        selectBtn.setOnAction(e -> {
-            if (onChangeVisibility != null) {
-                onChangeVisibility.accept(metadata.name);
-            }
-        });
+        selectBtn.getStyleClass().addAll("model-btn", "name");
+        if (metadata.status == RenderObjectStatus.UNACTIVE) {
+            selectBtn.getStyleClass().add("inactive");
+        }
+        selectBtn.setOnAction(e -> onChangeActiveStatus.accept(metadata.name));
 
-        Button activityButton = new Button("A");
-        activityButton.setFont(Font.font(10));
-        activityButton.setOnAction(e -> {
-            if (onChangeActiveStatus != null) {
-                onChangeActiveStatus.accept(metadata.name);
-            }
-        });
+        Button addTextureBtn = new Button("+");
+        addTextureBtn.getStyleClass().addAll("model-btn", "texture-add");
+        addTextureBtn.setOnAction(e -> onAddTexture.accept(metadata.name));
 
-        Button addTextureBtn = new Button("+T");
-        addTextureBtn.setFont(Font.font(10));
-        addTextureBtn.setOnAction(e -> {
-            if (onAddTexture != null) {
-                onAddTexture.accept(metadata.name);
-            }
-        });
+        Button removeTextureBtn = new Button("-");
+        removeTextureBtn.getStyleClass().addAll("model-btn", "texture-remove");
+        removeTextureBtn.setOnAction(e -> onRemoveTexture.accept(metadata.name));
 
-        Button removeTextureBtn = new Button("-T");
-        removeTextureBtn.setFont(Font.font(10));
-        removeTextureBtn.setOnAction(e -> {
-            if (onRemoveTexture != null) {
-                onRemoveTexture.accept(metadata.name);
-            }
-        });
+        Button deleteBtn = new Button("×");
+        deleteBtn.getStyleClass().addAll("model-btn", "delete");
+        deleteBtn.setOnAction(e -> onDelete.accept(metadata.name));
 
-        Button deleteBtn = new Button("D");
-        deleteBtn.setFont(Font.font(10));
-        deleteBtn.setOnAction(e -> {
-            if (onDelete != null) {
-                onDelete.accept(metadata.name);
-            }
-        });
-
-        hbox.getChildren().addAll(
-                activityButton,
-                selectBtn,
-                addTextureBtn,
-                removeTextureBtn,
-                deleteBtn
-        );
-
+        hbox.getChildren().addAll(visibilityBtn, selectBtn, addTextureBtn, removeTextureBtn, deleteBtn);
         hbox.setUserData(metadata.name);
         return hbox;
     }

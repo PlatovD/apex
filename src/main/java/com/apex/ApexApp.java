@@ -24,6 +24,7 @@ public class ApexApp extends Application {
 
         Scene scene = new Scene(viewport, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
         stage.setScene(scene);
+        stage.setFullScreen(true);
         stage.show();
     }
 

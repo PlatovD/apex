@@ -1,0 +1,46 @@
+.model-node {
+    -fx-spacing: 4;
+    -fx-padding: 3;
+    -fx-border-color: #aaa;
+    -fx-border-width: 1;
+}
+
+.model-node.active {
+    -fx-background-color: #f8f8f8;
+}
+
+.model-node.hidden {
+    -fx-opacity: 0.4;
+}
+
+.model-btn {
+    -fx-font-size: 12;
+    -fx-padding: 3 6;
+    -fx-background-color: white;
+    -fx-border-color: #ccc;
+    -fx-border-width: 1;
+    -fx-min-height: 24;
+    -fx-min-width: 24;
+}
+
+.model-btn.name {
+    -fx-min-width: 100;
+    -fx-text-fill: #333;
+}
+
+.model-btn.name.inactive {
+    -fx-opacity: 0.6;
+}
+
+.model-btn.visibility {
+    -fx-border-color: #777;
+}
+
+.model-btn.delete:hover {
+    -fx-text-fill: #c00;
+    -fx-border-color: #c00;
+}
+
+.render-objects-box {
+    -fx-background-color: #fafafa;
+}

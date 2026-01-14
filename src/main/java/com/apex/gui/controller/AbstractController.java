@@ -105,6 +105,7 @@ public abstract class AbstractController implements Controller {
         KeyCombination dKey = new KeyCodeCombination(KeyCode.D);
         KeyCombination upKey = new KeyCodeCombination(KeyCode.UP);
         KeyCombination downKey = new KeyCodeCombination(KeyCode.DOWN);
+        KeyCombination ctrlF = new KeyCodeCombination(KeyCode.F, KeyCombination.CONTROL_DOWN);
 
         scene.getAccelerators().put(wKey, () -> handleCameraForward(new ActionEvent()));
         scene.getAccelerators().put(upKey, () -> handleCameraUp(new ActionEvent()));
@@ -112,6 +113,7 @@ public abstract class AbstractController implements Controller {
         scene.getAccelerators().put(downKey, () -> handleCameraDown(new ActionEvent()));
         scene.getAccelerators().put(aKey, () -> handleCameraLeft(new ActionEvent()));
         scene.getAccelerators().put(dKey, () -> handleCameraRight(new ActionEvent()));
+        scene.getAccelerators().put(ctrlF, () -> onOpenModelHandler(null));
     }
 
     @FXML

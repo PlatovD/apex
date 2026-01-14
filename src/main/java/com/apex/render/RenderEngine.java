@@ -20,7 +20,6 @@ public class RenderEngine {
 
     public void render() {
         preparePipeline();
-        // todo: здесь надо прокидывать уже не модель, а обертку над ней. Обертка должна знать больше, чем сама модель и позволять нам ее рисовать
         for (RenderObject ro : sceneStorage.getVisibleRenderObjects())
             pipeline.applyAll(ro);
         rasterizator.rasterize();
