@@ -2,6 +2,7 @@ package com.apex.gui.controller;
 
 import com.apex.core.Constants;
 import com.apex.gui.util.GuiElementsBuilder;
+import com.apex.io.textureloader.TextureLoader;
 import com.apex.io.util.IOProcessor;
 import com.apex.math.Vector3f;
 import com.apex.model.geometry.Model;
@@ -18,6 +19,7 @@ import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
@@ -94,7 +96,7 @@ public abstract class AbstractController implements Controller {
         Platform.runLater(this::setupKeyBindings);
     }
 
-    private void setupKeyBindings(){
+    private void setupKeyBindings() {
         Scene scene = rootPane.getScene();
 
         KeyCombination wKey = new KeyCodeCombination(KeyCode.W);
@@ -152,7 +154,26 @@ public abstract class AbstractController implements Controller {
 
     @Override
     public void onAddTextureHandler(String filename) {
+        startOperation();
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp"));
+        fileChooser.setTitle("Load Texture");
 
+        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
+        if (file == null) {
+            endOperation();
+            return;
+        }
+
+        try {
+            Image image = TextureLoader.loadTextureFromFile(file);
+            sceneStorage.addTexture(filename, file.getName(), image);
+            refreshGui();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        endOperation();
     }
 
     @Override

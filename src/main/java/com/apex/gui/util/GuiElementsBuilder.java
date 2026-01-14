@@ -22,16 +22,16 @@ public class GuiElementsBuilder {
         Button selectBtn = new Button(metadata.name);
         selectBtn.setFont(Font.font(10));
         selectBtn.setOnAction(e -> {
-            if (onChangeActiveStatus != null) {
-                onChangeActiveStatus.accept(metadata.name);
+            if (onChangeVisibility != null) {
+                onChangeVisibility.accept(metadata.name);
             }
         });
 
-        Button visibilityBtn = new Button("V");
-        visibilityBtn.setFont(Font.font(10));
-        visibilityBtn.setOnAction(e -> {
-            if (onChangeVisibility != null) {
-                onChangeVisibility.accept(metadata.name);
+        Button activityButton = new Button("A");
+        activityButton.setFont(Font.font(10));
+        activityButton.setOnAction(e -> {
+            if (onChangeActiveStatus != null) {
+                onChangeActiveStatus.accept(metadata.name);
             }
         });
 
@@ -51,7 +51,7 @@ public class GuiElementsBuilder {
             }
         });
 
-        Button deleteBtn = new Button("DEL");
+        Button deleteBtn = new Button("D");
         deleteBtn.setFont(Font.font(10));
         deleteBtn.setOnAction(e -> {
             if (onDelete != null) {
@@ -60,7 +60,7 @@ public class GuiElementsBuilder {
         });
 
         hbox.getChildren().addAll(
-                visibilityBtn,
+                activityButton,
                 selectBtn,
                 addTextureBtn,
                 removeTextureBtn,

@@ -47,5 +47,6 @@ public class JavaFXRasterizationBufferGUIController extends AbstractController {
         buffer.updateBufferForNewScreenSizes(newWidth, newHeight);
         activeCameraWrapper.getActiveCamera().setAspectRatio((float) Constants.SCENE_WIDTH / Constants.SCENE_HEIGHT);
         imageView.setImage(buffer.getWritableImage());
+        refreshRender();
     }
 }
