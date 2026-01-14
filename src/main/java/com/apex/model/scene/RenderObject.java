@@ -14,6 +14,9 @@ import com.apex.math.Vector3f;
 public class RenderObject {
     private final RenderObjectMetadata metadata;
     private final Model model;
+
+    private BoundingData boundingData = new BoundingData();
+
     private Matrix4x4 worldMatrix;
     private Texture texture;
     private boolean textured = false;
@@ -33,6 +36,37 @@ public class RenderObject {
                 {0, 0, 0, 1},
         });
         this.workVertices = new float[model.vertices.size() * 4];
+    }
+
+    public void refreshBounding(float scaleX, float scaleY, float scaleZ) {
+        calcCenterPosition(scaleX, scaleY, scaleZ);
+        calculateBoundingRadius(scaleX, scaleY, scaleZ);
+
+        boundingData.centerOfObject.setX(boundingData.centerOfObject.getX() * scaleX);
+        boundingData.centerOfObject.setY(boundingData.centerOfObject.getY() * scaleY);
+        boundingData.centerOfObject.setZ(boundingData.centerOfObject.getZ() * scaleZ);
+
+        float maxScale = Math.max(Math.abs(scaleX), Math.max(Math.abs(scaleY), Math.abs(scaleZ)));
+        boundingData.boundingRadius *= maxScale;
+    }
+
+    private void calculateBoundingRadius(float scaleX, float scaleY, float scaleZ) {
+        boundingData.boundingRadius = 0;
+        float maxDist = 0;
+        for (Vector3f vertex : model.vertices) {
+            Vector3f distVector = boundingData.centerOfObject.subtract(vertex);
+            maxDist = Math.max(distVector.length(), maxDist);
+        }
+        boundingData.boundingRadius = maxDist;
+    }
+
+    public void calcCenterPosition(float scaleX, float scaleY, float scaleZ) {
+        Vector3f center = new Vector3f();
+        boundingData.centerOfObject = center;
+        for (Vector3f vertex : model.vertices) {
+            center.addLocal(vertex);
+        }
+        center.multiplyLocal(1f / model.vertices.size());
     }
 
     public Model getModel() {
@@ -120,5 +154,14 @@ public class RenderObject {
 
     public RenderObjectMetadata getMetadata() {
         return metadata;
+    }
+
+    public class BoundingData {
+        public Vector3f centerOfObject;
+        public float boundingRadius;
+    }
+
+    public BoundingData getBoundingData() {
+        return boundingData;
     }
 }

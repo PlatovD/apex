@@ -36,7 +36,7 @@ public class BaseGuiController extends AbstractController {
             double height = canvas.getHeight();
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
-            camera.setAspectRatio((float) (width / height));
+            activeCameraWrapper.getActiveCamera().setAspectRatio((float) (width / height));
 
             if (sceneStorage.hasAnyModels()) {
                 renderEngine.render();

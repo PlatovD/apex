@@ -16,4 +16,5 @@ public class Constants {
     public static String DEFAULT_CAMERA_NAME = "Default";
     public static int WIREFRAME_COLOR = 0xFFDFFF00;
     public static final Vector3f DEFAULT_UP = new Vector3f(0.0f, 1.0f, 0.0f);
+    public static final float MIN_CAMERA_DIST = 3f;
 }
