@@ -4,7 +4,6 @@ import com.apex.cache.ModelCache;
 import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
 import com.apex.exception.SceneStorageException;
-import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.tool.colorization.ColorProvider;

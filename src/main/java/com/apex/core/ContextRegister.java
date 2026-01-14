@@ -1,12 +1,11 @@
 package com.apex.core;
 
-import com.apex.controller.BaseGuiController;
+import com.apex.gui.controller.BaseGuiController;
 import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
 import com.apex.buffer.JavaFXBasedRasterizationBuffer;
 import com.apex.buffer.RasterizationBuffer;
-import com.apex.controller.JavaFXRasterizationBufferGUIController;
+import com.apex.gui.controller.JavaFXRasterizationBufferGUIController;
 import com.apex.exception.BadPropertiesFileException;
-import com.apex.exception.ContextRegisterException;
 import com.apex.reflection.ReflectionScanner;
 import com.apex.model.scene.Camera;
 import com.apex.tool.triangulator.EarCuttingTriangulator;

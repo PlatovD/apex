@@ -32,6 +32,16 @@ public class JavaFXBasedRasterizationBuffer implements RasterizationBuffer {
         return new int[0];
     }
 
+    @Override
+    public void updateBufferForNewScreenSizes(int newWidth, int newHeight) {
+        width = Constants.SCENE_WIDTH;
+        height = Constants.SCENE_HEIGHT;
+        IntBuffer buffer = IntBuffer.allocate(width * height);
+        pixels = buffer.array();
+        pixelBufferFX = new PixelBuffer<>(width, height, buffer, PixelFormat.getIntArgbPreInstance());
+        writableImage = new WritableImage(pixelBufferFX);
+    }
+
     public void setPixel(int x, int y, int rgbColor) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             pixels[y * width + x] = rgbColor;
