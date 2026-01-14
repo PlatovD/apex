@@ -12,13 +12,14 @@ import com.apex.reflection.AutoInject;
 import com.apex.render.RenderEngine;
 import com.apex.storage.SceneStorage;
 import com.apex.storage.transformation.TransformationController;
+import com.apex.util.ColorUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,6 +28,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -65,6 +67,8 @@ public abstract class AbstractController implements Controller {
     protected Pane renderPane;
     @FXML
     protected VBox modelsVBox;
+    @FXML
+    protected ColorPicker colorPicker;
 
     @FXML
     @Override
@@ -275,5 +279,16 @@ public abstract class AbstractController implements Controller {
     public void handleCameraDown(ActionEvent actionEvent) {
         camera.movePosition(new Vector3f(0, -Constants.TRANSLATION, 0));
         refreshRender();
+    }
+
+    @FXML
+    @Override
+    public void handleBaseTextureColorChange(ActionEvent event) {
+        startOperation();
+        Color color = colorPicker.getValue();
+        Constants.color = ColorUtil.toARGB(color);
+        sceneStorage.updateColors();
+        refreshGui();
+        endOperation();
     }
 }

@@ -4,6 +4,7 @@ import com.apex.cache.ModelCache;
 import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
 import com.apex.exception.SceneStorageException;
+import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.tool.colorization.ColorProvider;
@@ -184,19 +185,18 @@ public class SceneStorage {
     }
 
     private void checkTextureVertices(String filename) {
-        return;
-//        if (!renderObjectsMap.containsKey(filename))
-//            throw new SceneStorageException("No render object with name=" + filename);
-//        Model model = renderObjectsMap.get(filename).getModel();
-//        for (Polygon polygon : model.polygons) {
-//            List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
-//            if (textureVertexIndices.size() != 3)
-//                throw new SceneStorageException("Bad model texture vertices. Unable to add texture");
-//            for (Integer textureVertexIndex : textureVertexIndices) {
-//                if (textureVertexIndex < 0 || textureVertexIndex >= model.textureVertices.size())
-//                    throw new SceneStorageException("Bad model texture vertices. Wrong indices");
-//            }
-//        }
+        if (!renderObjectsMap.containsKey(filename))
+            throw new SceneStorageException("No render object with name=" + filename);
+        Model model = renderObjectsMap.get(filename).getModel();
+        for (Polygon polygon : model.polygons) {
+            List<Integer> textureVertexIndices = polygon.getTextureVertexIndices();
+            if (textureVertexIndices.size() != 3)
+                throw new SceneStorageException("Bad model texture vertices. Unable to add texture");
+            for (Integer textureVertexIndex : textureVertexIndices) {
+                if (textureVertexIndex < 0 || textureVertexIndex >= model.textureVertices.size())
+                    throw new SceneStorageException("Bad model texture vertices. Wrong indices");
+            }
+        }
     }
 
     /**
@@ -204,5 +204,9 @@ public class SceneStorage {
      * заливки
      */
     public void updateColors() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            if (ro.isTextured()) continue;
+            deleteTexture(ro.getFilename());
+        }
     }
 }

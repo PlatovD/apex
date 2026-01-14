@@ -48,4 +48,7 @@ public interface Controller extends Initializable {
     @FXML
     @Override
     void initialize(URL url, ResourceBundle resourceBundle);
+
+    @FXML
+    void handleBaseTextureColorChange(ActionEvent event);
 }
