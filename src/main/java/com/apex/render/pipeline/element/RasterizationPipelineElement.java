@@ -88,6 +88,9 @@ public class RasterizationPipelineElement implements PipelineElement {
 
                 vertex2Attribute.u = textureVertex2.getX();
                 vertex2Attribute.v = textureVertex2.getY();
+                refreshVertexPerspectiveCorrection(vertex0Attribute);
+                refreshVertexPerspectiveCorrection(vertex1Attribute);
+                refreshVertexPerspectiveCorrection(vertex2Attribute);
             }
 
             // здесь прикрепляю нормали
@@ -123,6 +126,12 @@ public class RasterizationPipelineElement implements PipelineElement {
         vertexAttribute.x = Math.round(rawVertices[vertexIndex * 4]);
         vertexAttribute.y = Math.round(rawVertices[vertexIndex * 4 + 1]);
         vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
+        vertexAttribute.invW = rawVertices[vertexIndex * 4 + 3] == 0 ? 1 / Constants.EPS : 1 / rawVertices[vertexIndex * 4 + 3];
+    }
+
+    private void refreshVertexPerspectiveCorrection(VertexAttribute vertexAttribute) {
+        vertexAttribute.uOverW = vertexAttribute.u * vertexAttribute.invW;
+        vertexAttribute.vOwerW = vertexAttribute.v * vertexAttribute.invW;
     }
 
     private boolean isOnScreen(VertexAttribute v0, VertexAttribute v1, VertexAttribute v2, int screenWidth, int screenHeight) {

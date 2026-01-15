@@ -8,9 +8,13 @@ public class DefaultColorProvider implements ColorProvider {
         int color;
         if (colorData.textured && texture != null) {
             double[] barycentric = colorData.barycentric;
-            double u = colorData.u0 * barycentric[0] + colorData.u1 * barycentric[1] + colorData.u2 * barycentric[2];
-            double v = colorData.v0 * barycentric[0] + colorData.v1 * barycentric[1] + colorData.v2 * barycentric[2];
-            color = texture.getPixelColor(u, v);
+            double invW_pixel = colorData.invW0 * barycentric[0] + colorData.invW1 * barycentric[1] + colorData.invW2 * barycentric[2];
+            double uOverW_pixel = colorData.uOverW0 * barycentric[0] + colorData.uOverW1 * barycentric[1] + colorData.uOverW2 * barycentric[2];
+            double vOverW_pixel = colorData.vOverW0 * barycentric[0] + colorData.vOverW1 * barycentric[1] + colorData.vOverW2 * barycentric[2];
+
+            double u_correct = uOverW_pixel / invW_pixel;
+            double v_correct = vOverW_pixel / invW_pixel;
+            color = texture.getPixelColor(u_correct, v_correct);
         } else {
             color = com.apex.core.Constants.color;
         }
