@@ -212,9 +212,9 @@ public class Matrix4x4 {
     }
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
-        Vector3f z = target.subtract(eye).normalize();
-        Vector3f x = up.cross(z).normalize();
-        Vector3f y = z.cross(x);
+        Vector3f z = target.subtract(eye).normalize(); // Z вперёд
+        Vector3f x = z.cross(up).normalize();          // X = Z × up → вправо
+        Vector3f y = x.cross(z);                       // Y = X × Z → вверх
 
         float tx = -x.dot(eye);
         float ty = -y.dot(eye);
