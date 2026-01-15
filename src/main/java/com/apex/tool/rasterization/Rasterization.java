@@ -8,8 +8,6 @@ import com.apex.model.scene.ZBuffer;
 import com.apex.model.texture.Texture;
 import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
-import javafx.scene.image.PixelWriter;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 import java.util.HashMap;
