@@ -92,7 +92,7 @@ public class Rasterization {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
                 findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y0, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
@@ -136,7 +136,7 @@ public class Rasterization {
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
@@ -178,7 +178,7 @@ public class Rasterization {
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
-                    double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
@@ -204,8 +204,10 @@ public class Rasterization {
                 - (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]) * light.getZ();
     }
 
-    private static double findZFromBarycentric(double[] barycentric, double z0, double z1, double z2) {
-        return barycentric[0] * z0 + barycentric[1] * z1 + barycentric[2] * z2;
+    private static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1, double z2, double invW2) {
+        double invW = barycentric[0] * invW0 + barycentric[1] * invW1 + barycentric[2] * invW2;
+        double zOverW = barycentric[0] * z0 * invW0 + barycentric[1] * z1 * invW1 + barycentric[2] * z2 * invW2;
+        return zOverW / invW;
     }
 
     public static Map<Integer, List<Integer>> myBresenhamOneY(int x0, int y0, int x1, int y1) {
