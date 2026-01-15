@@ -20,15 +20,14 @@ public class TransformationController {
     private CameraStorage cameraStorage;
 
     public void updateWorldMatrixForObject(RenderObject ro,
-                                           float scaleX, float scaleY, float scaleZ,
-                                           float rotationX, float rotationY, float rotationZ,
-                                           float positionX, float positionY, float positionZ) {
+            float scaleX, float scaleY, float scaleZ,
+            float rotationX, float rotationY, float rotationZ,
+            float positionX, float positionY, float positionZ) {
 
         Matrix4x4 worldMatrix = createAffineMatrix(
                 new Vector3f(positionX, positionY, positionZ),
                 new Vector3f(rotationX, rotationY, rotationZ),
-                new Vector3f(scaleX, scaleY, scaleZ)
-        );
+                new Vector3f(scaleX, scaleY, scaleZ));
         ro.setWorldMatrix(worldMatrix);
         ro.refreshBounding(scaleX, scaleY, scaleZ);
     }
@@ -41,8 +40,7 @@ public class TransformationController {
         Matrix4x4 worldMatrix = createAffineMatrix(
                 new Vector3f(positionX, positionY, positionZ),
                 new Vector3f(rotationX, rotationY, rotationZ),
-                new Vector3f(scaleX, scaleY, scaleZ)
-        );
+                new Vector3f(scaleX, scaleY, scaleZ));
 
         for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
             ro.setWorldMatrix(worldMatrix.copy());
@@ -50,23 +48,22 @@ public class TransformationController {
     }
 
     public void updateWorldMatrixForObject(String objectName,
-                                           float scaleX, float scaleY, float scaleZ,
-                                           float rotationX, float rotationY, float rotationZ,
-                                           float positionX, float positionY, float positionZ) {
+            float scaleX, float scaleY, float scaleZ,
+            float rotationX, float rotationY, float rotationZ,
+            float positionX, float positionY, float positionZ) {
 
         RenderObject ro = sceneStorage.getRenderObject(objectName);
         if (ro != null) {
             updateWorldMatrixForObject(ro,
                     scaleX, scaleY, scaleZ,
                     rotationX, rotationY, rotationZ,
-                    positionX, positionY, positionZ
-            );
+                    positionX, positionY, positionZ);
         }
     }
 
     private Matrix4x4 createAffineMatrix(Vector3f position,
-                                         Vector3f rotationDegrees,
-                                         Vector3f scale) {
+            Vector3f rotationDegrees,
+            Vector3f scale) {
 
         AffineBuilder builder = new AffineBuilder();
 

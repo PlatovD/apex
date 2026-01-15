@@ -29,11 +29,17 @@ public class BaseGuiController extends AbstractController {
         PixelWriterWrapper pixelWriterWrapper = (PixelWriterWrapper) ReflectionScanner
                 .findAssignableBeanByClass(PixelWriterWrapper.class);
         pixelWriterWrapper.setPixelWriter(canvas.getGraphicsContext2D().getPixelWriter());
-        imageView.setVisible(false);
+
+        // Bind canvas dimensions to renderPane for proper rendering
+        canvas.widthProperty().bind(renderPane.widthProperty());
+        canvas.heightProperty().bind(renderPane.heightProperty());
 
         KeyFrame frame = new KeyFrame(Duration.millis(30), event -> {
             double width = canvas.getWidth();
             double height = canvas.getHeight();
+
+            if (width <= 0 || height <= 0)
+                return;
 
             canvas.getGraphicsContext2D().clearRect(0, 0, width, height);
             activeCameraWrapper.getActiveCamera().setAspectRatio((float) (width / height));
@@ -42,7 +48,9 @@ public class BaseGuiController extends AbstractController {
                 renderEngine.render();
             }
         });
-        Platform.runLater(canvas::requestFocus);
+        Platform.runLater(() -> {
+            canvas.requestFocus();
+        });
         timeline.getKeyFrames().add(frame);
         timeline.play();
     }

@@ -58,7 +58,6 @@ public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuff
                 PixelFormat.getIntArgbInstance(),
                 pixels,
                 0,
-                pixels.length / height
-        );
+                pixels.length / height);
     }
 }
