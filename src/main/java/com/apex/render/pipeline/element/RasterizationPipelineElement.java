@@ -1,6 +1,7 @@
 package com.apex.render.pipeline.element;
 
 import com.apex.buffer.RasterizationBuffer;
+import com.apex.core.Constants;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
 import com.apex.model.scene.RenderObject;
@@ -63,6 +64,16 @@ public class RasterizationPipelineElement implements PipelineElement {
 
             textureIndices = polygon.getTextureVertexIndices();
 
+            // обновил координаты
+            {
+                refreshVertexAttributeForPolygon(vertex0Attribute, vertex1Index, rawVertices);
+                refreshVertexAttributeForPolygon(vertex1Attribute, vertex2Index, rawVertices);
+                refreshVertexAttributeForPolygon(vertex2Attribute, vertex3Index, rawVertices);
+            }
+
+            if (!isOnScreen(vertex0Attribute, vertex1Attribute, vertex2Attribute, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT))
+                continue;
+
             // надо передавать текстурные вершины и смотреть, чтобы они были
             if (ro.isTextured()) {
                 textureVertex0 = model.textureVertices.get(textureIndices.get(0));
@@ -77,6 +88,9 @@ public class RasterizationPipelineElement implements PipelineElement {
 
                 vertex2Attribute.u = textureVertex2.getX();
                 vertex2Attribute.v = textureVertex2.getY();
+                refreshVertexPerspectiveCorrection(vertex0Attribute);
+                refreshVertexPerspectiveCorrection(vertex1Attribute);
+                refreshVertexPerspectiveCorrection(vertex2Attribute);
             }
 
             // здесь прикрепляю нормали
@@ -100,13 +114,6 @@ public class RasterizationPipelineElement implements PipelineElement {
                 vertex2Attribute.n_z = normalVertex2.getZ();
             }
 
-            // обновил координаты
-            {
-                refreshVertexAttributeForPolygon(vertex0Attribute, vertex1Index, rawVertices);
-                refreshVertexAttributeForPolygon(vertex1Attribute, vertex2Index, rawVertices);
-                refreshVertexAttributeForPolygon(vertex2Attribute, vertex3Index, rawVertices);
-            }
-
             Rasterization.drawTriangle(rb, zBuffer,
                     light, colorData, ro.getColorProvider(), ro.getTexture(),
                     vertex0Attribute, vertex1Attribute, vertex2Attribute,
@@ -119,7 +126,20 @@ public class RasterizationPipelineElement implements PipelineElement {
         vertexAttribute.x = Math.round(rawVertices[vertexIndex * 4]);
         vertexAttribute.y = Math.round(rawVertices[vertexIndex * 4 + 1]);
         vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
-        vertexAttribute.invW = 1 / rawVertices[vertexIndex * 4 + 3];
+        vertexAttribute.invW = rawVertices[vertexIndex * 4 + 3] == 0 ? 1 / Constants.EPS : 1 / rawVertices[vertexIndex * 4 + 3];
+    }
+
+    private void refreshVertexPerspectiveCorrection(VertexAttribute vertexAttribute) {
+        vertexAttribute.uOverW = vertexAttribute.u * vertexAttribute.invW;
+        vertexAttribute.vOwerW = vertexAttribute.v * vertexAttribute.invW;
+    }
+
+    private boolean isOnScreen(VertexAttribute v0, VertexAttribute v1, VertexAttribute v2, int screenWidth, int screenHeight) {
+        boolean lefter = v0.x < 0 && v1.x < 0 && v2.x < 0;
+        boolean righter = v0.x >= screenWidth && v1.x >= screenWidth && v2.x >= screenWidth;
+        boolean toper = v0.y < 0 && v1.y < 0 && v2.y < 0;
+        boolean downer = v0.y >= screenHeight && v1.y >= screenHeight && v2.y >= screenHeight;
+        return !(lefter || righter || toper || downer);
     }
 
     @Override

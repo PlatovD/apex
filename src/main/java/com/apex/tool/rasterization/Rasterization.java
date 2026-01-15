@@ -26,6 +26,16 @@ public class Rasterization {
             VertexAttribute v0A, VertexAttribute v1A, VertexAttribute v2A,
             double[] barycentric
     ) {
+        if (v0A.y > v1A.y) {
+            v0A.swapWith(v1A);
+        }
+        if (v1A.y > v2A.y) {
+            v1A.swapWith(v2A);
+        }
+        if (v0A.y > v1A.y) {
+            v0A.swapWith(v1A);
+        }
+
         int x0 = v0A.x;
         int y0 = v0A.y;
         double z0 = v0A.z;
@@ -53,111 +63,28 @@ public class Rasterization {
         float n_y2 = v2A.n_y;
         float n_z2 = v2A.n_z;
 
-        int tmp;
-        double tmpD;
-        float tmpF;
+        double invW0 = v0A.invW;
+        double invW1 = v1A.invW;
+        double invW2 = v2A.invW;
 
-        if (y0 > y1) {
-            // Свап int
-            tmp = y1;
-            y1 = y0;
-            y0 = tmp;
-            tmp = x1;
-            x1 = x0;
-            x0 = tmp;
+        double uOverW0 = v0A.uOverW;
+        double uOverW1 = v1A.uOverW;
+        double uOverW2 = v2A.uOverW;
 
-            // Свап double
-            tmpD = z1;
-            z1 = z0;
-            z0 = tmpD;
+        double vOverW0 = v0A.vOwerW;
+        double vOverW1 = v1A.vOwerW;
+        double vOverW2 = v2A.vOwerW;
 
-            // Свап float
-            tmpF = u1;
-            u1 = u0;
-            u0 = tmpF;
-            tmpF = v1;
-            v1 = v0;
-            v0 = tmpF;
+        colorData.uOverW0 = uOverW0;
+        colorData.uOverW1 = uOverW1;
+        colorData.uOverW2 = uOverW2;
+        colorData.vOverW0 = vOverW0;
+        colorData.vOverW1 = vOverW1;
+        colorData.vOverW2 = vOverW2;
+        colorData.invW0 = invW0;
+        colorData.invW1 = invW1;
+        colorData.invW2 = invW2;
 
-            tmpF = n_x1;
-            n_x1 = n_x0;
-            n_x0 = tmpF;
-            tmpF = n_y1;
-            n_y1 = n_y0;
-            n_y0 = tmpF;
-            tmpF = n_z1;
-            n_z1 = n_z0;
-            n_z0 = tmpF;
-        }
-        if (y1 > y2) {
-            tmp = y2;
-            y2 = y1;
-            y1 = tmp;
-            tmp = x2;
-            x2 = x1;
-            x1 = tmp;
-
-            tmpD = z2;
-            z2 = z1;
-            z1 = tmpD;
-
-            tmpF = u2;
-            u2 = u1;
-            u1 = tmpF;
-            tmpF = v2;
-            v2 = v1;
-            v1 = tmpF;
-
-            tmpF = n_x2;
-            n_x2 = n_x1;
-            n_x1 = tmpF;
-            tmpF = n_y2;
-            n_y2 = n_y1;
-            n_y1 = tmpF;
-            tmpF = n_z2;
-            n_z2 = n_z1;
-            n_z1 = tmpF;
-        }
-        if (y0 > y1) {
-            tmp = y1;
-            y1 = y0;
-            y0 = tmp;
-            tmp = x1;
-            x1 = x0;
-            x0 = tmp;
-
-            tmpD = z1;
-            z1 = z0;
-            z0 = tmpD;
-
-            tmpF = u1;
-            u1 = u0;
-            u0 = tmpF;
-            tmpF = v1;
-            v1 = v0;
-            v0 = tmpF;
-
-            tmpF = n_x1;
-            n_x1 = n_x0;
-            n_x0 = tmpF;
-            tmpF = n_y1;
-            n_y1 = n_y0;
-            n_y0 = tmpF;
-            tmpF = n_z1;
-            n_z1 = n_z0;
-            n_z0 = tmpF;
-        }
-
-//        float invZ1 = 1 / z0;
-//        float invZ2 = 1 / z1;
-//        float invZ3 = 1 / z2;
-
-        colorData.u0 = u0;
-        colorData.u1 = u1;
-        colorData.u2 = u2;
-        colorData.v0 = v0;
-        colorData.v1 = v1;
-        colorData.v2 = v2;
 
         int minX = min(x0, min(x1, x2));
         int maxX = max(x0, max(x1, x2));
@@ -167,7 +94,7 @@ public class Rasterization {
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y0, pixelZ)) {
+                    if (zBuffer.setPixel(x, y0, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y0, cp.getColor(colorData, texture));
@@ -211,7 +138,7 @@ public class Rasterization {
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
+                    if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y, cp.getColor(colorData, texture));
@@ -253,7 +180,7 @@ public class Rasterization {
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, z1, z2);
                     double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
-                    if (lightFactor > Constants.EPS && zBuffer.setPixel(x, y, pixelZ)) {
+                    if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y, cp.getColor(colorData, texture));

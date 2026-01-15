@@ -12,7 +12,7 @@ public class Constants {
     public static int color = 0xFF0000;
     public static int backgroundColor = 0xFF1C1C1C;
     public static String PATH_TO_PROPERTIES = "/application.properties";
-    public static float MIN_LIGHT_FACTOR = 0.2f;
+    public static float MIN_LIGHT_FACTOR = 0.3f;
     public static String DEFAULT_CAMERA_NAME = "Default";
     public static int WIREFRAME_COLOR = 0xFFDFFF00;
     public static final Vector3f DEFAULT_UP = new Vector3f(0.0f, 1.0f, 0.0f);
