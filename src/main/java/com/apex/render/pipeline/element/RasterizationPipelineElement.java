@@ -139,7 +139,9 @@ public class RasterizationPipelineElement implements PipelineElement {
         boolean righter = v0.x >= screenWidth && v1.x >= screenWidth && v2.x >= screenWidth;
         boolean toper = v0.y < 0 && v1.y < 0 && v2.y < 0;
         boolean downer = v0.y >= screenHeight && v1.y >= screenHeight && v2.y >= screenHeight;
-        return !(lefter || righter || toper || downer);
+        boolean nearer = v0.z < -1;
+        boolean fairer = v0.z > 1;
+        return !(lefter || righter || toper || downer || nearer | fairer);
     }
 
     @Override

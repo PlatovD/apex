@@ -34,7 +34,7 @@ public class PipelineConfigurer {
 
     public void enableFirstReserved() {
         if (disabled.isEmpty()) return;
-        PipelineElement el = elements.remove(0);
+        PipelineElement el = disabled.remove(0);
         elements.add(el);
     }
 

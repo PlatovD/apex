@@ -32,7 +32,6 @@ public class TransformPipelineElement implements PipelineElement {
         Matrix4x4 projMatrix = activeCameraWrapper.getActiveCamera().getProjectionMatrix();
 
         Matrix4x4 mvpMatrix = projMatrix.multiply(viewMatrix).multiply(worldMatrix);
-
         for (int i = 0; i < vertexCount; i++) {
             Vector3f v = model.vertices.get(i);
 
