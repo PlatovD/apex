@@ -30,6 +30,7 @@ public class TransformationController {
                 new Vector3f(scaleX, scaleY, scaleZ)
         );
         ro.setWorldMatrix(worldMatrix);
+        ro.refreshBounding(scaleX, scaleY, scaleZ);
     }
 
     public void updateWorldMatrixForActiveObjects(

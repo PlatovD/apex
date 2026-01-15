@@ -40,6 +40,7 @@ public class SceneStorage {
                 new SolidTexture(Constants.color));
 
         RenderObject ro = new RenderObject(filename, model, cp, defaultTexture);
+        ro.refreshBounding(1, 1, 1);
         renderObjectsMap.put(filename, ro);
         visibleRenderObjects.add(ro);
     }

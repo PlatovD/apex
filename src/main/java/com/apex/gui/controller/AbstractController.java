@@ -11,7 +11,9 @@ import com.apex.model.util.RenderObjectStatus;
 import com.apex.reflection.AutoInject;
 import com.apex.render.RenderEngine;
 import com.apex.storage.SceneStorage;
+import com.apex.storage.collision.CollisionManager;
 import com.apex.storage.transformation.TransformationController;
+import com.apex.util.ActiveCameraWrapper;
 import com.apex.util.ColorUtil;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -53,7 +55,9 @@ public abstract class AbstractController implements Controller {
     @AutoInject
     protected RenderEngine renderEngine;
     @AutoInject
-    protected Camera camera;
+    protected ActiveCameraWrapper activeCameraWrapper;
+    @AutoInject
+    protected CollisionManager collisionManager;
 
     @FXML
     protected Canvas canvas;
@@ -247,37 +251,55 @@ public abstract class AbstractController implements Controller {
 
     @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, -Constants.TRANSLATION));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(0, 0, -Constants.TRANSLATION);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
     @FXML
     public void handleCameraBackward(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, 0, Constants.TRANSLATION));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(0, 0, Constants.TRANSLATION);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(Constants.TRANSLATION, 0, 0));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(Constants.TRANSLATION, 0, 0);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(-Constants.TRANSLATION, 0, 0));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(-Constants.TRANSLATION, 0, 0);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, Constants.TRANSLATION, 0));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(0, Constants.TRANSLATION, 0);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
-        camera.movePosition(new Vector3f(0, -Constants.TRANSLATION, 0));
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        Vector3f delta = new Vector3f(0, -Constants.TRANSLATION, 0);
+        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
+        camera.movePosition(delta);
         refreshRender();
     }
 
