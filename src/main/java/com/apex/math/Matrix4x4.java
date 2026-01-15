@@ -213,8 +213,8 @@ public class Matrix4x4 {
 
     public static Matrix4x4 lookAt(Vector3f eye, Vector3f target, Vector3f up) {
         Vector3f z = target.subtract(eye).normalize(); // Z вперёд
-        Vector3f x = z.cross(up).normalize();          // X = Z × up → вправо
-        Vector3f y = x.cross(z);                       // Y = X × Z → вверх
+        Vector3f x = z.cross(up).normalize();          // X = Z × up вправо
+        Vector3f y = x.cross(z);                       // Y = X × Z вверх
 
         float tx = -x.dot(eye);
         float ty = -y.dot(eye);
@@ -353,19 +353,17 @@ public class Matrix4x4 {
      * @return Новая матрица 4x4
      */
     public static Matrix4x4 transform(Vector3f position, Vector3f rotation, Vector3f scale) {
-        // Масштабирование
         Matrix4x4 S = scale(scale);
 
-        // Повороты (в порядке Z -> Y -> X, умножение справа)
+        // повороты (в порядке Z -> Y -> X, умножение справа)
         Matrix4x4 Rz = rotationZ((float) Math.toRadians(rotation.getZ()));
         Matrix4x4 Ry = rotationY((float) Math.toRadians(rotation.getY()));
         Matrix4x4 Rx = rotationX((float) Math.toRadians(rotation.getX()));
         Matrix4x4 R = Rx.multiply(Ry.multiply(Rz)); // R = Rx * Ry * Rz
 
-        // Перенос
         Matrix4x4 T = translation(position);
 
-        // Итог: T * R * S
+        // итог: T * R * S
         return T.multiply(R.multiply(S));
     }
 

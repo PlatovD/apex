@@ -120,6 +120,10 @@ public abstract class AbstractController implements Controller {
     @FXML
     protected ColorPicker colorPicker;
 
+    private double lastMouseX = 0;
+    private double lastMouseY = 0;
+    private boolean isMousePressed = false;
+
     @FXML
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -153,6 +157,8 @@ public abstract class AbstractController implements Controller {
             });
         }
 
+        setupMouseHandlers();
+
         wireframeCheckBox.setOnAction((actionEvent) -> {
             if (wireframeCheckBox.isSelected()) pipelineConfigurer.enableFirstReserved();
             else pipelineConfigurer.disableLast();
@@ -167,6 +173,59 @@ public abstract class AbstractController implements Controller {
                 Constants.SCENE_HEIGHT = (int) renderPane.getHeight();
             refreshBuffer(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
             refreshGui();
+        });
+    }
+
+    private void setupMouseHandlers() {
+        // Обработка вращения камеры (левая кнопка мыши)
+        renderPane.setOnMousePressed(event -> {
+            if (event.isPrimaryButtonDown()) {
+                lastMouseX = event.getSceneX();
+                lastMouseY = event.getSceneY();
+                isMousePressed = true;
+                renderPane.getScene().setCursor(javafx.scene.Cursor.CLOSED_HAND);
+            }
+        });
+
+        renderPane.setOnMouseDragged(event -> {
+            if (isMousePressed && event.isPrimaryButtonDown()) {
+                double currentX = event.getSceneX();
+                double currentY = event.getSceneY();
+
+                double deltaX = currentX - lastMouseX;
+                double deltaY = currentY - lastMouseY;
+
+                lastMouseX = currentX;
+                lastMouseY = currentY;
+
+                // определяем тип управления в зависимости от модификаторов
+                if (event.isControlDown()) {
+                    // ctrl + ЛКМ = панорамирование
+                    transformationController.panCamera(new Vector3f((float)deltaX, (float)deltaY, 0));
+                } else {
+                    // просто ЛКМ = вращение камеры
+                    transformationController.moveCameraOnVector(new Vector3f((float)deltaX, (float)deltaY, 0));
+                }
+
+                refreshRender();
+            }
+        });
+
+        renderPane.setOnMouseReleased(event -> {
+            isMousePressed = false;
+            if (renderPane.getScene() != null) {
+                renderPane.getScene().setCursor(javafx.scene.Cursor.DEFAULT);
+            }
+        });
+
+        // обработка зума (на колесико мыши)
+        renderPane.setOnScroll(event -> {
+            double delta = event.getDeltaY();
+            if (delta != 0) {
+                float zoomSpeed = 0.1f;
+                transformationController.zoomCamera((float)delta * zoomSpeed);
+                refreshRender();
+            }
         });
     }
 
@@ -429,62 +488,38 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    public void handleCameraMove(MouseEvent mouseEvent) {
-        // todo: как то исходя из движения мыши надо билдить вектор
-        transformationController.moveCameraOnVector(null);
-    }
-
-    @FXML
     public void handleCameraForward(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(0, 0, -Constants.TRANSLATION);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraForward(Constants.TRANSLATION);
         refreshRender();
     }
 
     @FXML
     public void handleCameraBackward(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(0, 0, Constants.TRANSLATION);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraForward(-Constants.TRANSLATION);
         refreshRender();
     }
 
     @FXML
     public void handleCameraLeft(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(Constants.TRANSLATION, 0, 0);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraRight(-Constants.TRANSLATION);
         refreshRender();
     }
 
     @FXML
     public void handleCameraRight(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(-Constants.TRANSLATION, 0, 0);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraRight(Constants.TRANSLATION);
         refreshRender();
     }
 
     @FXML
     public void handleCameraUp(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(0, Constants.TRANSLATION, 0);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraUp(Constants.TRANSLATION);
         refreshRender();
     }
 
     @FXML
     public void handleCameraDown(ActionEvent actionEvent) {
-        Camera camera = activeCameraWrapper.getActiveCamera();
-        Vector3f delta = new Vector3f(0, -Constants.TRANSLATION, 0);
-        if (collisionManager.checkCollisions(camera.getPosition().add(delta))) return;
-        camera.movePosition(delta);
+        transformationController.moveCameraUp(-Constants.TRANSLATION);
         refreshRender();
     }
 
