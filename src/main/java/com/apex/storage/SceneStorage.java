@@ -107,6 +107,18 @@ public class SceneStorage {
         }
     }
 
+    public void onTextures() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.getColorData().textured = true;
+        }
+    }
+
+    public void offTextures() {
+        for (RenderObject ro : renderObjectsMap.values()) {
+            ro.getColorData().textured = false;
+        }
+    }
+
     public Model getPreparedToSaveModel(String fileObjName) {
         if (!hasAnyModels())
             throw new SceneStorageException("No models to save");
@@ -130,7 +142,8 @@ public class SceneStorage {
     public List<RenderObject> getActiveRenderObjects() {
         List<RenderObject> renderObjects = new ArrayList<>();
         for (RenderObject ro : renderObjectsMap.values()) {
-            if (!Objects.equals(ro.getStatus(), RenderObjectStatus.ACTIVE)) continue;
+            if (!Objects.equals(ro.getStatus(), RenderObjectStatus.ACTIVE))
+                continue;
             renderObjects.add(ro);
         }
         return renderObjects;
@@ -163,7 +176,8 @@ public class SceneStorage {
             throw new SceneStorageException("No render object with name=" + fileObjName);
 
         RenderObject ro = renderObjectsMap.get(fileObjName);
-        if (ro.isVisible()) return;
+        if (ro.isVisible())
+            return;
         ro.setVisibility(true);
         visibleRenderObjects.add(ro);
     }
@@ -175,13 +189,15 @@ public class SceneStorage {
             throw new SceneStorageException("No render object with name=" + fileObjName);
 
         RenderObject ro = renderObjectsMap.get(fileObjName);
-        if (!ro.isVisible()) return;
+        if (!ro.isVisible())
+            return;
         ro.setVisibility(false);
         visibleRenderObjects.remove(ro);
     }
 
     public List<RenderObject> getVisibleRenderObjects() {
-        return visibleRenderObjects; // мог бы тут делать как в getActiveRenderObjects, но этот метод вызывается чаще и он вызывается при отрисовке, так что оптимизирую
+        return visibleRenderObjects; // мог бы тут делать как в getActiveRenderObjects, но этот метод вызывается чаще
+                                     // и он вызывается при отрисовке, так что оптимизирую
     }
 
     private void checkTextureVertices(String filename) {
@@ -205,7 +221,8 @@ public class SceneStorage {
      */
     public void updateColors() {
         for (RenderObject ro : renderObjectsMap.values()) {
-            if (ro.isTextured()) continue;
+            if (ro.isTextured())
+                continue;
             deleteTexture(ro.getFilename());
         }
     }

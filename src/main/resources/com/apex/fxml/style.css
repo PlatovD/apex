@@ -1,46 +1,336 @@
+/* Blender-inspired dark theme */
+.root {
+    -fx-base: #2b2b2b;
+    -fx-background: #1e1e1e;
+    -fx-control-inner-background: #383838;
+    -fx-accent: #4a90e2;
+    -fx-focus-color: #5a9fd4;
+    -fx-faint-focus-color: #5a9fd422;
+}
+
+/* Model node container */
 .model-node {
-    -fx-spacing: 4;
-    -fx-padding: 3;
-    -fx-border-color: #aaa;
+    -fx-spacing: 6;
+    -fx-padding: 6;
+    -fx-background-color: #383838;
+    -fx-border-color: #1a1a1a;
     -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
 }
 
 .model-node.active {
-    -fx-background-color: #f8f8f8;
+    -fx-background-color: #454545;
+    -fx-border-color: #4a90e2;
 }
 
 .model-node.hidden {
-    -fx-opacity: 0.4;
+    -fx-opacity: 0.5;
 }
 
+/* Model buttons */
 .model-btn {
     -fx-font-size: 12;
-    -fx-padding: 3 6;
-    -fx-background-color: white;
-    -fx-border-color: #ccc;
+    -fx-padding: 4 8;
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #d9d9d9;
+    -fx-border-color: #555555;
     -fx-border-width: 1;
-    -fx-min-height: 24;
-    -fx-min-width: 24;
+    -fx-border-radius: 2;
+    -fx-background-radius: 2;
+    -fx-min-height: 26;
+    -fx-min-width: 26;
+    -fx-cursor: hand;
+}
+
+.model-btn:hover {
+    -fx-background-color: #3a3a3a;
+    -fx-border-color: #5a9fd4;
+}
+
+.model-btn:pressed {
+    -fx-background-color: #1a1a1a;
+    -fx-border-color: #4a90e2;
 }
 
 .model-btn.name {
-    -fx-min-width: 100;
-    -fx-text-fill: #333;
+    -fx-min-width: 60;
+    -fx-text-fill: #ffffff;
+    -fx-alignment: center-left;
+    -fx-padding: 4 8;
 }
 
 .model-btn.name.inactive {
     -fx-opacity: 0.6;
+    -fx-text-fill: #aaaaaa;
+}
+
+.model-btn.name:hover {
+    -fx-text-fill: #4a90e2;
 }
 
 .model-btn.visibility {
-    -fx-border-color: #777;
+    -fx-border-color: #666666;
+    -fx-font-size: 14;
+}
+
+.model-btn.visibility:hover {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: #ffffff;
+}
+
+.model-btn.texture-add {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+}
+
+.model-btn.texture-add:hover {
+    -fx-background-color: #2e7d32;
+    -fx-border-color: #4caf50;
+    -fx-text-fill: #ffffff;
+}
+
+.model-btn.texture-remove {
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+}
+
+.model-btn.texture-remove:hover {
+    -fx-background-color: #d32f2f;
+    -fx-border-color: #f44336;
+    -fx-text-fill: #ffffff;
 }
 
 .model-btn.delete:hover {
-    -fx-text-fill: #c00;
-    -fx-border-color: #c00;
+    -fx-text-fill: #ff5252;
+    -fx-border-color: #ff5252;
+    -fx-background-color: #3a1a1a;
 }
 
+/* Icons styling */
+.texture-add-icon,
+.texture-remove-icon,
+.delete-icon {
+    -fx-fill: #d9d9d9;
+}
+
+.model-btn:hover .texture-add-icon,
+.model-btn:hover .texture-remove-icon,
+.model-btn:hover .delete-icon,
+.model-btn:hover .camera-icon {
+    -fx-fill: #ffffff;
+}
+
+/* Camera Activity Indicator */
+.model-btn.camera-active .camera-icon {
+    -fx-fill: #4a90e2;
+    /* Active blue accent */
+}
+
+.model-btn.inactive-camera .camera-icon {
+    -fx-fill: #666666;
+    /* Muted for inactive */
+    -fx-opacity: 0.6;
+}
+
+.model-node.active .name {
+    -fx-text-fill: #4a90e2;
+    /* Highlight name of active item */
+}
+
+/* Render objects box */
 .render-objects-box {
-    -fx-background-color: #fafafa;
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 5;
+    -fx-spacing: 12px;
+}
+
+.model-item-container {
+    -fx-spacing: 4px;
+}
+
+.texture-row {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.texture-label {
+    -fx-text-fill: #818181;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+/* Collapsible headers */
+.collapsible-header {
+    -fx-background-color: #383838;
+    -fx-padding: 8 10;
+    -fx-background-radius: 4;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 0 0 1 0;
+    -fx-cursor: hand;
+    -fx-alignment: center-left;
+    -fx-transition: background-color 0.2s;
+}
+
+.collapsible-header:hover {
+    -fx-background-color: #4a4a4a;
+    -fx-border-color: #4a90e2;
+}
+
+.collapsible-header .label,
+.section-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}
+
+.collapse-indicator {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 10;
+    -fx-padding: 0 0 0 4;
+}
+
+.collapsible-header:hover .collapse-indicator {
+    -fx-text-fill: #ffffff;
+}
+
+/* Text fields */
+.text-field {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #888888;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 2;
+    -fx-background-radius: 2;
+    -fx-padding: 4 6;
+}
+
+.text-field:focused {
+    -fx-border-color: #4a90e2;
+    -fx-background-color: #333333;
+}
+
+/* Buttons */
+.button {
+    -fx-background-color: #383838;
+    -fx-text-fill: #d9d9d9;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 6 12;
+    -fx-cursor: hand;
+}
+
+.button:hover {
+    -fx-background-color: #4a90e2;
+    -fx-border-color: #5a9fd4;
+    -fx-text-fill: #ffffff;
+}
+
+.button:pressed {
+    -fx-background-color: #3a7bc8;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #d9d9d9;
+    -fx-font-weight: normal;
+    -fx-font-size: 13px;
+}
+
+/* ScrollPane */
+.scroll-pane {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #1a1a1a;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: #2b2b2b;
+}
+
+.scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #2b2b2b;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #555555;
+    -fx-background-radius: 3;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #666666;
+}
+
+.scroll-pane .scroll-bar:vertical .thumb:pressed {
+    -fx-background-color: #4a90e2;
+}
+
+/* ColorPicker */
+.color-picker {
+    -fx-background-color: #383838;
+    -fx-border-color: #555555;
+}
+
+.color-picker:hover {
+    -fx-border-color: #4a90e2;
+}
+
+/* Menu Bar */
+.menu-bar {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 0 0 1 0;
+}
+
+.menu-bar .label {
+    -fx-text-fill: #d9d9d9;
+}
+
+.menu-bar .menu:hover {
+    -fx-background-color: #383838;
+}
+
+.context-menu {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #555555;
+}
+
+.menu-item {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #d9d9d9;
+}
+
+.menu-item:hover {
+    -fx-background-color: #4a90e2;
+    -fx-text-fill: #ffffff;
+}
+
+/* VBox and HBox */
+.vbox,
+.hbox {
+    -fx-background-color: transparent;
+}
+
+/* SVG Eye Icons */
+.eye-icon {
+    -fx-fill: #d9d9d9;
+}
+
+.eye-icon-hidden {
+    -fx-fill: #888888;
+}
+
+.model-btn.visibility:hover .eye-icon {
+    -fx-fill: #ffffff;
+}
+
+.model-btn.visibility:hover .eye-icon-hidden {
+    -fx-fill: #ffffff;
 }

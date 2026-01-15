@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ColorPicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -19,92 +21,155 @@
 
 <AnchorPane fx:id="rootPane" prefHeight="1400.0" prefWidth="708.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.gui.controller.Controller">
     <children>
-        <Pane fx:id="renderPane" minHeight="-Infinity" minWidth="-Infinity" style="-fx-background-color: gray;">
+        <Pane fx:id="renderPane" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleRenderPaneClick" style="-fx-background-color: gray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="266.0" AnchorPane.topAnchor="25.0">
             <children>
                 <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-                <Canvas fx:id="canvas" height="200.0" width="200.0" />
+                <Canvas fx:id="canvas" focusTraversable="true" />
             </children>
         </Pane>
-        <ScrollPane fx:id="rightPane" hbarPolicy="NEVER" prefHeight="486.0" prefWidth="266.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <ScrollPane fx:id="rightPane" hbarPolicy="NEVER" onKeyPressed="#handleScrollPaneKeyPressed" prefWidth="266.0" vbarPolicy="ALWAYS" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="1000.0" prefWidth="1.0E8">
-               <children>
-                  <VBox fx:id="modelsVBox" layoutX="51.0" layoutY="52.0" prefHeight="400.0" prefWidth="244.0" styleClass="render-objects-box" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="55.0" />
-                  <Label layoutX="6.0" layoutY="28.0" text="RenderObjects">
-                     <font>
-                        <Font size="18.0" />
-                     </font></Label>
-                  <Label layoutX="4.0" layoutY="481.0" text="Affine">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Label>
-                  <VBox fx:id="modelsVBox1" layoutX="4.0" layoutY="506.0" prefHeight="175.0" prefWidth="246.0" spacing="7.0">
-                     <children>
-                        <Label text="Scale" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="110.0">
-                           <children>
-                              <Label text="X" />
-                              <Label text="Y" />
-                              <Label text="Z" />
-                           </children>
+                <VBox prefWidth="250.0" spacing="10.0">
+                    <padding>
+                        <Insets bottom="15.0" left="10.0" right="10.0" top="35.0" />
+                    </padding>
+                    <children>
+                        <Label text="RenderObjects" styleClass="section-title" />
+                        <VBox fx:id="modelsVBox" minHeight="50.0" prefWidth="230.0" maxWidth="230.0" styleClass="render-objects-box" />
+                        
+                        <!-- Cameras Section -->
+                        <HBox fx:id="camerasHeader" onMouseClicked="#handleCamerasCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Cameras" />
+                                <Button fx:id="camerasCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                            </children>
                         </HBox>
-                        <HBox prefHeight="27.0" prefWidth="238.0" spacing="45.0">
-                           <children>
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                           </children>
+                        <VBox fx:id="camerasVBox" minHeight="30.0" prefWidth="230.0" maxWidth="230.0" styleClass="render-objects-box" />
+
+                        <!-- Affine Section -->
+                        <HBox fx:id="affineHeader" onMouseClicked="#handleAffineCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Affine" />
+                                <Button fx:id="affineCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                            </children>
                         </HBox>
-                        <Label text="Rotate" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="110.0">
-                           <children>
-                              <Label text="X" />
-                              <Label text="Y" />
-                              <Label text="Z" />
-                           </children>
+                        <VBox fx:id="affineContentVBox" prefWidth="246.0" spacing="7.0">
+                            <children>
+                                <Label text="Scale" />
+                                <HBox spacing="5.0">
+                                    <children>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="X" />
+                                                <TextField fx:id="scaleXField" prefWidth="65.0" text="1.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Y" />
+                                                <TextField fx:id="scaleYField" prefWidth="65.0" text="1.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Z" />
+                                                <TextField fx:id="scaleZField" prefWidth="65.0" text="1.0" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <Label text="Rotate (degrees)" />
+                                <HBox spacing="5.0">
+                                    <children>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="X" />
+                                                <TextField fx:id="rotateXField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Y" />
+                                                <TextField fx:id="rotateYField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Z" />
+                                                <TextField fx:id="rotateZField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <Label text="Translate" />
+                                <HBox spacing="5.0">
+                                    <children>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="X" />
+                                                <TextField fx:id="translateXField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Y" />
+                                                <TextField fx:id="translateYField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                        <VBox spacing="2.0">
+                                            <children>
+                                                <Label text="Z" />
+                                                <TextField fx:id="translateZField" prefWidth="65.0" text="0.0" />
+                                            </children>
+                                        </VBox>
+                                    </children>
+                                </HBox>
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Button fx:id="affineApplyBtn" mnemonicParsing="false" onAction="#handleAffineApply" prefWidth="80.0" text="Apply" />
+                                        <Button fx:id="affineResetBtn" mnemonicParsing="false" onAction="#handleAffineReset" prefWidth="80.0" text="Reset" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <!-- Rendering Modes Section -->
+                        <HBox fx:id="renderingModesHeader" onMouseClicked="#handleRenderingModesCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Rendering Modes" />
+                                <Button fx:id="renderingModesCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                            </children>
                         </HBox>
-                        <HBox prefHeight="27.0" prefWidth="238.0" spacing="45.0">
-                           <children>
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                           </children>
+                        <VBox fx:id="renderingModesContentVBox" prefWidth="246.0" spacing="7.0">
+                            <children>
+                                <CheckBox fx:id="wireframeCheckBox" mnemonicParsing="false" onAction="#handleWireframeToggle" text="Draw Wireframe" />
+                                <CheckBox fx:id="texturesCheckBox" mnemonicParsing="false" onAction="#handleTexturesToggle" selected="true" text="Use Textures" />
+                                <CheckBox fx:id="lightingCheckBox" mnemonicParsing="false" onAction="#handleLightingToggle" selected="true" text="Use Lighting" />
+                            </children>
+                        </VBox>
+
+                        <!-- Settings Section -->
+                        <HBox fx:id="settingsHeader" onMouseClicked="#handleSettingsCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Settings" />
+                                <Button fx:id="settingsCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                            </children>
                         </HBox>
-                        <Label text="Transfrom" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" spacing="110.0">
-                           <children>
-                              <Label text="X" />
-                              <Label text="Y" />
-                              <Label text="Z" />
-                           </children>
-                        </HBox>
-                        <HBox prefHeight="27.0" prefWidth="238.0" spacing="45.0">
-                           <children>
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                              <TextField prefHeight="27.0" prefWidth="52.0" />
-                           </children>
-                        </HBox>
-                     </children>
-                  </VBox>
-                  <Button layoutX="4.0" layoutY="758.0" mnemonicParsing="false" text="Apply" />
-                  <Button layoutX="97.0" layoutY="759.0" mnemonicParsing="false" text="Reset" />
-                  <ColorPicker fx:id="colorPicker" editable="true" layoutX="6.0" layoutY="866.0" onAction="#handleBaseTextureColorChange">
-                     <value>
-                        <Color red="0.9539473652839661" green="0.022082114592194557" blue="0.022082114592194557" />
-                     </value>
-                  </ColorPicker>
-                  <Label layoutX="6.0" layoutY="814.0" text="Settings">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Label>
-                  <Label layoutX="6.0" layoutY="846.0" text="Base texture color" />
-               </children></AnchorPane>
+                        <VBox fx:id="settingsContentVBox" prefWidth="246.0" spacing="7.0">
+                            <children>
+                                <Label text="Base texture color" />
+                                <ColorPicker fx:id="colorPicker" editable="true" onAction="#handleBaseTextureColorChange">
+                                    <value>
+                                        <Color red="1.0" green="0.0" blue="0.0" />
+                                    </value>
+                                </ColorPicker>
+                            </children>
+                        </VBox>
+                    </children>
+                </VBox>
             </content>
         </ScrollPane>
-        <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+        <MenuBar AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <menus>
                 <Menu mnemonicParsing="false" text="Load">
                     <items>

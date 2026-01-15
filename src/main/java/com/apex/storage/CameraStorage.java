@@ -20,16 +20,20 @@ public class CameraStorage {
     private ActiveCameraWrapper activeCameraWrapper;
 
     public void addCamera(String name, Camera camera) {
-        if (Objects.isNull(camera)) throw new CameraStorageException("Camera can't be null");
-        if (Objects.isNull(name)) throw new CameraStorageException("Camera name can't be null");
+        if (Objects.isNull(camera))
+            throw new CameraStorageException("Camera can't be null");
+        if (Objects.isNull(name))
+            throw new CameraStorageException("Camera name can't be null");
         if (cameras.containsKey(name))
             throw new CameraStorageException("Duplicated camera name. Unable to create a camera. Change the name");
         cameras.put(name, camera);
     }
 
     public void deleteCamera(String name) {
-        if (cameras.isEmpty()) return;
-        if (Objects.equals(name, Constants.DEFAULT_CAMERA_NAME)) return;
+        if (cameras.isEmpty())
+            return;
+        if (Objects.equals(name, Constants.DEFAULT_CAMERA_NAME))
+            return;
         if (name.equals(activeCamera))
             setActiveCamera(Constants.DEFAULT_CAMERA_NAME);
         cameras.remove(name);
@@ -44,7 +48,8 @@ public class CameraStorage {
     }
 
     public void setActiveCamera(String name) {
-        if (!cameras.containsKey(name)) return;
+        if (!cameras.containsKey(name))
+            return;
         activeCamera = name;
         activeCameraWrapper.setActiveCamera(cameras.get(name));
     }
@@ -53,5 +58,9 @@ public class CameraStorage {
         if (!cameras.containsKey(activeCamera))
             setActiveCamera(Constants.DEFAULT_CAMERA_NAME);
         return activeCameraWrapper.getActiveCamera();
+    }
+
+    public String getActiveCameraName() {
+        return activeCamera;
     }
 }
