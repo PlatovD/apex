@@ -5,6 +5,7 @@ import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.render.pipeline.Pipeline;
 import com.apex.render.pipeline.element.PipelineElement;
+import com.apex.render.pipeline.element.WireFramePipelineElement;
 import com.apex.render.rasterizator.Rasterizator;
 import com.apex.storage.CameraStorage;
 
@@ -13,9 +14,10 @@ public class Config {
     public void pipelineConfig(
             @AutoInject Pipeline pipeline,
             @AutoInject(name = "TransformPipelineElement") PipelineElement transformEl,
-            @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl
+            @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl,
+            @AutoInject(name = "WireFramePipelineElement") WireFramePipelineElement wireFramePipelineElement
     ) {
-        pipeline.configure().addElement(transformEl).addElement(rasterizationEl);
+        pipeline.configure().addElement(transformEl).addElement(rasterizationEl).addElement(wireFramePipelineElement);
     }
 
     public void initialCameraConfig(

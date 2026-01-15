@@ -10,6 +10,7 @@ import java.util.List;
 @AutoCreation
 public class PipelineConfigurer {
     private final List<PipelineElement> elements = new ArrayList<>();
+    private final List<PipelineElement> disabled = new ArrayList<>();
 
     public PipelineConfigurer addElement(PipelineElement element) {
         elements.add(element);
@@ -23,6 +24,18 @@ public class PipelineConfigurer {
     public PipelineElement getElement(int index) {
         if (index + 1 >= elements.size()) throw new PipelineException("Pipeline has no element with index " + index);
         return elements.get(index);
+    }
+
+    public void disableLast() {
+        if (elements.isEmpty()) return;
+        PipelineElement el = elements.remove(elements.size() - 1);
+        disabled.add(el);
+    }
+
+    public void enableFirstReserved() {
+        if (disabled.isEmpty()) return;
+        PipelineElement el = elements.remove(0);
+        elements.add(el);
     }
 
     public int pipelineConfigElementsCount() {

@@ -10,6 +10,7 @@ import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.reflection.AutoInject;
 import com.apex.render.RenderEngine;
+import com.apex.render.pipeline.PipelineConfigurer;
 import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
 import com.apex.storage.collision.CollisionManager;
@@ -63,6 +64,8 @@ public abstract class AbstractController implements Controller {
     protected CollisionManager collisionManager;
     @AutoInject
     protected CameraStorage cameraStorage;
+    @AutoInject
+    protected PipelineConfigurer pipelineConfigurer;
 
     @FXML
     protected Canvas canvas;
@@ -149,6 +152,13 @@ public abstract class AbstractController implements Controller {
                 }
             });
         }
+
+        wireframeCheckBox.setOnAction((actionEvent) -> {
+            if (wireframeCheckBox.isSelected()) pipelineConfigurer.enableFirstReserved();
+            else pipelineConfigurer.disableLast();
+            refreshRender();
+        });
+        wireframeCheckBox.fire();
 
         Platform.runLater(() -> {
             if (renderPane.getWidth() > 0)

@@ -414,82 +414,142 @@ public class Rasterization {
     }
 
     /**
-     * Метод рисования линии. Позволяет рисовать ее из точки 1 в точку 2. Использует округление и
-     * линейную интерполяцию для того, чтобы получить промежуточные значения и построить путь из 1 в 2.
-     *
-     * @param pixelWriter объект для рисования
-     * @param x1          точка начала
-     * @param y1          точка начала
-     * @param x2          точка конца
-     * @param y2          точка конца
+     * Метод рисования линии с учётом Z-буфера.
      */
-    public static void drawLine(PixelWriter pixelWriter, double x1, double y1, double x2, double y2) {
+    public static void drawLine(
+            RasterizationBuffer rb,
+            ZBuffer zBuffer,
+            int x1, int y1, double z1,
+            int x2, int y2, double z2,
+            int color) {
+
         double dx = x2 - x1;
         double dy = y2 - y1;
+        double dz = z2 - z1;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // Горизонтальная линия
+            if (x1 > x2) {
+                // Свап
+                int tmpX = x2;
+                x2 = x1;
+                x1 = tmpX;
+                int tmpY = y2;
+                y2 = y1;
+                y1 = tmpY;
+                double tmpZ = z2;
+                z2 = z1;
+                z1 = tmpZ;
+            }
+
+            double slope = dy / dx;
+            double zSlope = dz / dx;
+
+            double y = y1;
+            double z = z1;
+            for (int x = x1; x <= x2; x++) {
+                if (zBuffer.setPixel(x, (int) Math.round(y), z + Constants.WIREFRAME_GAP)) {
+                    rb.setPixel(x, (int) Math.round(y), color);
+                }
+                y += slope;
+                z += zSlope;
+            }
+        } else {
+            // Вертикальная линия
+            if (y1 > y2) {
+                int tmpX = x2;
+                x2 = x1;
+                x1 = tmpX;
+                int tmpY = y2;
+                y2 = y1;
+                y1 = tmpY;
+                double tmpZ = z2;
+                z2 = z1;
+                z1 = tmpZ;
+            }
+
+            double slope = dx / dy;
+            double zSlope = dz / dy;
+
+            double x = x1;
+            double z = z1;
+            for (int y = y1; y <= y2; y++) {
+                if (zBuffer.setPixel((int) Math.round(x), y, z + Constants.WIREFRAME_GAP)) {
+                    rb.setPixel((int) Math.round(x), y, color);
+                }
+                x += slope;
+                z += zSlope;
+            }
+        }
+    }
+
+    /**
+     * Рисует контур треугольника (wireframe) с учётом Z-буфера.
+     */
+    public static void drawWireFrameTriangle(
+            RasterizationBuffer rb,
+            ZBuffer zBuffer,
+            VertexAttribute v0, VertexAttribute v1, VertexAttribute v2,
+            int color) {
+
+        // Сортируем вершины по Y
+        if (v0.y > v1.y) v0.swapWith(v1);
+        if (v1.y > v2.y) v1.swapWith(v2);
+        if (v0.y > v1.y) v0.swapWith(v1);
+
+        // Рисуем 3 ребра
+        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, color);
+        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v2.x, v2.y, v2.z, color);
+        drawLine(rb, zBuffer, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, color);
+    }
+
+    /**
+     * Упрощённая версия для 2D (без Z-буфера, для отладки).
+     */
+    public static void drawWireFrameTriangle2D(
+            RasterizationBuffer rb,
+            int x0, int y0, int x1, int y1, int x2, int y2,
+            int color) {
+
+        drawLine2D(rb, x0, y0, x1, y1, color);
+        drawLine2D(rb, x0, y0, x2, y2, color);
+        drawLine2D(rb, x1, y1, x2, y2, color);
+    }
+
+    private static void drawLine2D(RasterizationBuffer rb, int x1, int y1, int x2, int y2, int color) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
         if (Math.abs(dx) > Math.abs(dy)) {
             if (x1 > x2) {
-                double tmp = x2;
+                int tmp = x2;
                 x2 = x1;
                 x1 = tmp;
-
                 tmp = y2;
                 y2 = y1;
                 y1 = tmp;
             }
-            int[] points = interpolate(y1, x1, y2, x2);
-            for (double x = x1; x < x2; x++) {
-                pixelWriter.setColor((int) x, points[(int) (x - x1)], Color.RED);
+            double slope = dy / dx;
+            double y = y1;
+            for (int x = x1; x <= x2; x++) {
+                rb.setPixel(x, (int) Math.round(y), color);
+                y += slope;
             }
         } else {
             if (y1 > y2) {
-                double tmp = x2;
+                int tmp = x2;
                 x2 = x1;
                 x1 = tmp;
-
                 tmp = y2;
                 y2 = y1;
                 y1 = tmp;
             }
-            int[] points = interpolate(x1, y1, x2, y2);
-            for (double y = y1; y < y2; y++) {
-                pixelWriter.setColor(points[(int) (y - y1)], (int) y, Color.RED);
+            double slope = dx / dy;
+            double x = x1;
+            for (int y = y1; y <= y2; y++) {
+                rb.setPixel((int) Math.round(x), y, color);
+                x += slope;
             }
         }
-    }
-
-    /**
-     * Вычисляет значения функции d = f(i) от i=i0 до i=i1
-     * Использует числа с плавающей точкой и их округление.
-     *
-     * @param d0 значение функции в начальной координате
-     * @param i0 аргумент функции в начальной координате
-     * @param d1 значение функции в конечной координате
-     * @param i1 аргумент функции в конечной координате
-     */
-    private static int[] interpolate(double d0, double i0, double d1, double i1) {
-        double tmp;
-        int[] values = new int[(int) ((i1 - i0) + 1)];
-        if (i0 > i1) {
-            tmp = i1;
-            i1 = i0;
-            i0 = tmp;
-        }
-
-        double a = (d1 - d0) / (i1 - i0);
-        double value = d0;
-        for (double i = i0; i <= i1; i++) {
-            values[(int) (i - i0)] = (int) Math.round(value);
-            value += a;
-        }
-        return values;
-    }
-
-    /**
-     * С помощью линий рисует треугольник, однако не заполняет его, а ставит пиксели только на стороны.
-     */
-    public static void drawWireFrameTriangle(PixelWriter pixelWriter, double x0, double y0, double x1, double y1, double x2, double y2) {
-        drawLine(pixelWriter, x0, y0, x1, y1);
-        drawLine(pixelWriter, x0, y0, x2, y2);
-        drawLine(pixelWriter, x2, y2, x1, y1);
     }
 }
