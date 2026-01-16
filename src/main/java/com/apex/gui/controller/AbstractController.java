@@ -563,10 +563,21 @@ public abstract class AbstractController implements Controller {
             RenderObject ro = sceneStorage.getRenderObject(name);
             if (ro == null) return;
 
-            Vector3f center = ro.getWorldCenter();
+            Vector3f newTarget = ro.getWorldCenter();
+            if (newTarget == null) return;
 
             Camera camera = activeCameraWrapper.getActiveCamera();
-            camera.setTarget(center);
+            Vector3f oldTarget = camera.getTarget();
+            Vector3f cameraPos = camera.getPosition();
+
+            float distance = cameraPos.subtract(oldTarget).length();
+
+            Vector3f directionToNewTarget = newTarget.subtract(cameraPos).normalize();
+
+            Vector3f newCameraPos = newTarget.subtract(directionToNewTarget.multiply(distance));
+
+            camera.setPosition(newCameraPos);
+            camera.setTarget(newTarget);
 
             refreshRender();
         });
