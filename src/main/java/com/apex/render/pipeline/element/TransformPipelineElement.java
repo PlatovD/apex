@@ -71,7 +71,6 @@ public class TransformPipelineElement implements PipelineElement {
             workVertices[offset + 2] = screenPoint.z;
             workVertices[offset + 3] = w;
         }
-
         // worldMatrix * normal (w = 0) + normalize
         for (int i = 0; i < normalCount; i++) {
             Vector3f n = model.normals.get(i);
