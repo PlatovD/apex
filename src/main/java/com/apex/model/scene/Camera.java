@@ -205,4 +205,14 @@ public class Camera {
         this.target = position.add(front);
         updateCameraVectors();
     }
+
+    public Camera copy() {
+        return new Camera(
+                new Vector3f(this.position),
+                new Vector3f(this.target),
+                this.fov,
+                this.aspectRatio,
+                this.nearPlane,
+                this.farPlane);
+    }
 }

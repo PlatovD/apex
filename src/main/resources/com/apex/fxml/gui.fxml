@@ -37,10 +37,12 @@
                         <VBox fx:id="modelsVBox" maxWidth="230.0" minHeight="50.0" prefWidth="230.0" styleClass="render-objects-box" />
 
                         <!-- Cameras Section -->
-                        <HBox fx:id="camerasHeader" onMouseClicked="#handleCamerasCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                        <HBox fx:id="camerasHeader" alignment="CENTER_LEFT" onMouseClicked="#handleCamerasCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Cameras" />
-                                <Button fx:id="camerasCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
+                                <Pane HBox.hgrow="ALWAYS" />
+                                <Button fx:id="cameraSaveBtn" mnemonicParsing="false" onAction="#handleSaveCamera" styleClass="model-btn" text="+ Save" />
+                                <Button fx:id="camerasCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
                             </children>
                         </HBox>
                         <VBox fx:id="camerasVBox" maxWidth="230.0" minHeight="30.0" prefWidth="230.0" styleClass="render-objects-box" />
@@ -182,5 +184,6 @@
             </Menu>
             </menus>
         </MenuBar>
+        <VBox fx:id="notificationContainer" alignment="BOTTOM_LEFT" mouseTransparent="true" pickOnBounds="false" spacing="10.0" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" prefWidth="350.0" />
     </children>
 </AnchorPane>

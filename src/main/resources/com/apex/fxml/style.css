@@ -340,3 +340,39 @@
     -fx-font-weight: bold;
     -fx-text-fill: #ffffff;
 }
+
+
+/* Toast Notification Styles */
+.error-toast {
+    -fx-background-color: #331a1a;
+    -fx-border-color: #d32f2f;
+    -fx-border-width: 1px;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-effect: dropshadow(three-pass-box, rgba(0, 0, 0, 0.4), 10, 0, 0, 5);
+}
+
+.error-toast-title {
+    -fx-text-fill: #ff5252;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.error-toast-msg {
+    -fx-text-fill: #d1d1d1;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+.error-toast-close {
+    -fx-background-color: transparent;
+    -fx-text-fill: #888888;
+    -fx-font-size: 16px;
+    -fx-padding: 0 4;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+}
+
+.error-toast-close:hover {
+    -fx-text-fill: #ffffff;
+}

@@ -1,6 +1,7 @@
 package com.apex.gui.controller;
 
 import com.apex.core.Constants;
+import com.apex.gui.util.ErrorDialogRenderer;
 import com.apex.gui.util.GuiElementsBuilder;
 import com.apex.io.textureloader.TextureLoader;
 import com.apex.io.util.IOProcessor;
@@ -38,7 +39,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -66,6 +66,22 @@ public abstract class AbstractController implements Controller {
     @AutoInject
     protected PipelineConfigurer pipelineConfigurer;
 
+    @FunctionalInterface
+    protected interface ThrowableRunnable {
+        void run() throws Exception;
+    }
+
+    protected void executeSafe(String context, ThrowableRunnable action) {
+        startOperation();
+        try {
+            action.run();
+        } catch (Exception e) {
+            com.apex.gui.util.ErrorDialogRenderer.showError("Error during " + context, e);
+        } finally {
+            endOperation();
+        }
+    }
+
     @FXML
     protected Canvas canvas;
     @FXML
@@ -76,6 +92,8 @@ public abstract class AbstractController implements Controller {
     protected ScrollPane rightPane;
     @FXML
     protected Pane renderPane;
+    @FXML
+    protected VBox notificationContainer;
     @FXML
     protected VBox modelsVBox;
     @FXML
@@ -126,6 +144,7 @@ public abstract class AbstractController implements Controller {
     @FXML
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        ErrorDialogRenderer.setNotificationContainer(notificationContainer);
         imageView.setPreserveRatio(false);
 
         // Link imageView size to renderPane
@@ -159,8 +178,10 @@ public abstract class AbstractController implements Controller {
         setupMouseHandlers();
 
         wireframeCheckBox.setOnAction((actionEvent) -> {
-            if (wireframeCheckBox.isSelected()) pipelineConfigurer.enableFirstReserved();
-            else pipelineConfigurer.disableLast();
+            if (wireframeCheckBox.isSelected())
+                pipelineConfigurer.enableFirstReserved();
+            else
+                pipelineConfigurer.disableLast();
             refreshRender();
         });
         wireframeCheckBox.fire();
@@ -337,18 +358,15 @@ public abstract class AbstractController implements Controller {
     @FXML
     @Override
     public void onOpenModelHandler(ActionEvent event) {
-        startOperation();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Model (*.obj)", "*.obj"));
         fileChooser.setTitle("Load Model");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null) {
-            endOperation();
+        if (file == null)
             return;
-        }
 
-        try {
+        executeSafe("opening model: " + file.getName(), () -> {
             Path fileName = Path.of(file.getAbsolutePath());
             String fileContent = Files.readString(fileName);
             Model model = ObjReader.read(fileContent);
@@ -356,20 +374,15 @@ public abstract class AbstractController implements Controller {
             sceneStorage.addModel(file.getName(), model);
             refreshGui();
             refreshRender();
-        } catch (IOException exception) {
-            // todo: обработка ошибок
-        }
-        endOperation();
+        });
     }
 
     @Override
     public void onDeleteModelHandler(String filename) {
-        startOperation();
-
-        sceneStorage.deleteModel(filename);
-        refreshGui();
-
-        endOperation();
+        executeSafe("deleting model: " + filename, () -> {
+            sceneStorage.deleteModel(filename);
+            refreshGui();
+        });
     }
 
     @FXML
@@ -380,64 +393,52 @@ public abstract class AbstractController implements Controller {
 
     @Override
     public void onAddTextureHandler(String filename) {
-        startOperation();
         FileChooser fileChooser = new FileChooser();
         fileChooser.getExtensionFilters().addAll(
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp"));
         fileChooser.setTitle("Load Texture");
 
         File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
-        if (file == null) {
-            endOperation();
+        if (file == null)
             return;
-        }
 
-        try {
+        executeSafe("adding texture to " + filename, () -> {
             Image image = TextureLoader.loadTextureFromFile(file);
             sceneStorage.addTexture(filename, file.getName(), image);
             refreshGui();
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
-        endOperation();
+        });
     }
 
     @Override
     public void onRemoveTextureHandler(String filename) {
-        startOperation();
-
-        sceneStorage.deleteTexture(filename);
-        refreshGui();
-
-        endOperation();
+        executeSafe("removing texture from " + filename, () -> {
+            sceneStorage.deleteTexture(filename);
+            refreshGui();
+        });
     }
 
     @Override
     public void onChangeVisibilityHandler(String filename) {
-        startOperation();
-
-        RenderObject renderObject = sceneStorage.getRenderObject(filename);
-        if (renderObject.isVisible())
-            sceneStorage.makeUnVisible(filename);
-        else
-            sceneStorage.makeVisible(filename);
-        refreshGui();
-
-        endOperation();
+        executeSafe("changing visibility for " + filename, () -> {
+            RenderObject renderObject = sceneStorage.getRenderObject(filename);
+            if (renderObject.isVisible())
+                sceneStorage.makeUnVisible(filename);
+            else
+                sceneStorage.makeVisible(filename);
+            refreshGui();
+        });
     }
 
     @Override
     public void onChangeActiveStatusHandler(String filename) {
-        startOperation();
-
-        RenderObject renderObject = sceneStorage.getRenderObject(filename);
-        if (renderObject.getStatus().equals(RenderObjectStatus.ACTIVE))
-            sceneStorage.makeUnactive(filename);
-        else
-            sceneStorage.makeActive(filename);
-        refreshGui();
-
-        endOperation();
+        executeSafe("changing active status for " + filename, () -> {
+            RenderObject renderObject = sceneStorage.getRenderObject(filename);
+            if (renderObject.getStatus().equals(RenderObjectStatus.ACTIVE))
+                sceneStorage.makeUnactive(filename);
+            else
+                sceneStorage.makeActive(filename);
+            refreshGui();
+        });
     }
 
     @Override
@@ -476,20 +477,42 @@ public abstract class AbstractController implements Controller {
         }
     }
 
+    @FXML
+    public void handleSaveCamera(ActionEvent event) {
+        executeSafe("saving current view", () -> {
+            Camera active = activeCameraWrapper.getActiveCamera();
+            Camera snapshot = active.copy();
+
+            // Generate a unique name
+            int count = cameraStorage.getCamerasNames().size();
+            String name = "Camera " + count;
+            while (cameraStorage.hasCamera(name)) {
+                count++;
+                name = "Camera " + count;
+            }
+
+            cameraStorage.addCamera(name, snapshot);
+            refreshCameraList();
+        });
+        // Prevent collapsing section when clicking save
+        if (event != null)
+            event.consume();
+    }
+
     private void onDeleteCameraHandler(String name) {
-        startOperation();
-        cameraStorage.deleteCamera(name);
-        refreshCameraList();
-        refreshRender();
-        endOperation();
+        executeSafe("deleting camera: " + name, () -> {
+            cameraStorage.deleteCamera(name);
+            refreshCameraList();
+            refreshRender();
+        });
     }
 
     private void onChangeActiveCameraHandler(String name) {
-        startOperation();
-        cameraStorage.setActiveCamera(name);
-        refreshCameraList();
-        refreshRender();
-        endOperation();
+        executeSafe("switching to camera: " + name, () -> {
+            cameraStorage.setActiveCamera(name);
+            refreshCameraList();
+            refreshRender();
+        });
     }
 
     @FXML
@@ -531,18 +554,17 @@ public abstract class AbstractController implements Controller {
     @FXML
     @Override
     public void handleBaseTextureColorChange(ActionEvent event) {
-        startOperation();
-        Color color = colorPicker.getValue();
-        Constants.color = ColorUtil.toARGB(color);
-        sceneStorage.updateColors();
-        refreshGui();
-        endOperation();
+        executeSafe("changing base color", () -> {
+            Color color = colorPicker.getValue();
+            Constants.color = ColorUtil.toARGB(color);
+            sceneStorage.updateColors();
+            refreshGui();
+        });
     }
 
     @FXML
     public void handleAffineApply(ActionEvent event) {
-        startOperation();
-        try {
+        executeSafe("applying transformations", () -> {
             float scaleX = Float.parseFloat(scaleXField.getText());
             float scaleY = Float.parseFloat(scaleYField.getText());
             float scaleZ = Float.parseFloat(scaleZField.getText());
@@ -560,11 +582,7 @@ public abstract class AbstractController implements Controller {
                     rotateX, rotateY, rotateZ,
                     translateX, translateY, translateZ);
             refreshRender();
-
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid number format in transformation fields: " + e.getMessage());
-        }
-        endOperation();
+        });
     }
 
     @FXML
