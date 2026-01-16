@@ -34,14 +34,20 @@ public class AssociationBuffer {
     }
 
     public int getPolygonIndex(int x, int y) {
-        return buffer[y * width + x].polygonIndex();
+        PixelVertexInfo info = buffer[y * width + x];
+        if (info == null) return -1;
+        return info.polygonIndex();
     }
 
     public int getVertexIndex(int x, int y) {
-        return buffer[y * width + x].vertexIndex();
+        PixelVertexInfo info = buffer[y * width + x];
+        if (info == null) return -1;
+        return info.vertexIndex();
     }
 
     public String getModelFilename(int x, int y) {
-        return buffer[y * width + x].modelFilename();
+        PixelVertexInfo info = buffer[y * width + x];
+        if (info == null) return "";
+        return info.modelFilename();
     }
 }

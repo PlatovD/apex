@@ -239,17 +239,26 @@ public abstract class AbstractController implements Controller {
             int x = (int) event.getX();
             int y = (int) event.getY();
             int vertexIndex = associationBuffer.getVertexIndex(x, y);
+            if (vertexIndex == -1) return;
             String roName = associationBuffer.getModelFilename(x, y);
             RenderObject ro = sceneStorage.getRenderObject(roName);
-            ro.getSelectedVertexIndices().add(vertexIndex);
+            if (ro.getSelectedVertexIndices().contains(vertexIndex)) {
+                ro.getSelectedVertexIndices().remove(vertexIndex);
+
+            } else
+                ro.getSelectedVertexIndices().add(vertexIndex);
         }
         if (event.isShiftDown()) {
             int x = (int) event.getX();
             int y = (int) event.getY();
             int polygonIndex = associationBuffer.getPolygonIndex(x, y);
+            if (polygonIndex == -1) return;
             String roName = associationBuffer.getModelFilename(x, y);
             RenderObject ro = sceneStorage.getRenderObject(roName);
-            ro.getSelectedPolygonIndices().add(polygonIndex);
+            if (ro.getSelectedPolygonIndices().contains(polygonIndex)) {
+                ro.getSelectedPolygonIndices().remove(polygonIndex);
+            } else
+                ro.getSelectedPolygonIndices().add(polygonIndex);
         }
         refreshRender();
     }
