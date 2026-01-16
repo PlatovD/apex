@@ -11,8 +11,20 @@ public class PointLightProvider implements LightProvider {
             Vector3f light,
             double[] barycentric
     ) {
-        return -(n_x0 * barycentric[0] + n_x1 * barycentric[1] + n_x2 * barycentric[2]) * light.getX()
-                - (n_y0 * barycentric[0] + n_y1 * barycentric[1] + n_y2 * barycentric[2]) * light.getY()
-                - (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]) * light.getZ();
+        float nx = (float) (n_x0 * barycentric[0] + n_x1 * barycentric[1] + n_x2 * barycentric[2]);
+        float ny = (float) (n_y0 * barycentric[0] + n_y1 * barycentric[1] + n_y2 * barycentric[2]);
+        float nz = (float) (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]);
+
+        float len = (float) Math.sqrt(nx * nx + ny * ny + nz * nz);
+        if (len > 0) {
+            nx /= len;
+            ny /= len;
+            nz /= len;
+        }
+        nx = -nx;
+        ny = -ny;
+        nz = -nz;
+        double dot = nx * light.getX() + ny * light.getY() + nz * light.getZ();
+        return Math.max(dot, 0);
     }
 }
