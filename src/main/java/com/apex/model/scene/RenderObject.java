@@ -9,10 +9,8 @@ import com.apex.math.Matrix4x4;
 import com.apex.math.Vector3f;
 import com.apex.tool.light.LightProvider;
 
-/**
- * Объект-обертка, содержащий все необходимые для рендеринга данные
- */
 public class RenderObject {
+
     private final RenderObjectMetadata metadata;
     private final Model model;
 
@@ -24,23 +22,34 @@ public class RenderObject {
     private ColorProvider colorProvider;
     private LightProvider lightProvider;
     private final ColorData colorData = new ColorData();
+
     private float[] workVertices;
+    private float[] workNormals;
+
     private java.util.Set<Integer> selectedVertexIndices = new java.util.HashSet<>();
     private java.util.Set<Integer> selectedPolygonIndices = new java.util.HashSet<>();
 
-    public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
+    public RenderObject(String filename,
+                        Model model,
+                        ColorProvider colorProvider,
+                        Texture texture,
+                        LightProvider lightProvider) {
+
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
-        this.lightProvider = lightProvider;  
+        this.lightProvider = lightProvider;
+
         this.worldMatrix = new Matrix4x4(new float[][]{
                 { 1, 0, 0, 0 },
                 { 0, 1, 0, 0 },
                 { 0, 0, 1, 0 },
-                {0, 0, 0, 1},
+                { 0, 0, 0, 1 },
         });
+
         this.workVertices = new float[model.vertices.size() * 4];
+        this.workNormals  = new float[model.normals.size() * 3];
     }
 
     public void refreshBounding(float scaleX, float scaleY, float scaleZ) {
@@ -51,26 +60,31 @@ public class RenderObject {
         boundingData.centerOfObject.setY(boundingData.centerOfObject.getY() * scaleY);
         boundingData.centerOfObject.setZ(boundingData.centerOfObject.getZ() * scaleZ);
 
-        float maxScale = Math.max(Math.abs(scaleX), Math.max(Math.abs(scaleY), Math.abs(scaleZ)));
+        float maxScale = Math.max(Math.abs(scaleX),
+                Math.max(Math.abs(scaleY), Math.abs(scaleZ)));
         boundingData.boundingRadius *= maxScale;
     }
 
     private void calculateBoundingRadius(float scaleX, float scaleY, float scaleZ) {
         boundingData.boundingRadius = 0;
         float maxDist = 0;
+
         for (Vector3f vertex : model.vertices) {
             Vector3f distVector = boundingData.centerOfObject.subtract(vertex);
             maxDist = Math.max(distVector.length(), maxDist);
         }
+
         boundingData.boundingRadius = maxDist;
     }
 
     public void calcCenterPosition(float scaleX, float scaleY, float scaleZ) {
         Vector3f center = new Vector3f();
         boundingData.centerOfObject = center;
+
         for (Vector3f vertex : model.vertices) {
             center.addLocal(vertex);
         }
+
         center.multiplyLocal(1f / model.vertices.size());
     }
 
@@ -86,14 +100,6 @@ public class RenderObject {
         this.worldMatrix = worldMatrix;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
-
-    public void setTexture(Texture texture) {
-        this.texture = texture;
-    }
-
     public float[] getWorkVertices() {
         return workVertices;
     }
@@ -102,8 +108,28 @@ public class RenderObject {
         this.workVertices = workVertices;
     }
 
+    public float[] getWorkNormals() {
+        return workNormals;
+    }
+
+    public void setWorkNormals(float[] workNormals) {
+        this.workNormals = workNormals;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
+    }
+
     public ColorProvider getColorProvider() {
         return colorProvider;
+    }
+
+    public void setColorProvider(ColorProvider colorProvider) {
+        this.colorProvider = colorProvider;
     }
 
     public boolean isTextured() {
@@ -134,44 +160,16 @@ public class RenderObject {
         return metadata.isVisible;
     }
 
-    public static class RenderObjectMetadata {
-        public String name;
-        public boolean isVisible;
-        public RenderObjectStatus status;
-
-        public RenderObjectMetadata() {
-        }
-
-        public RenderObjectMetadata(String name, boolean isVisible, RenderObjectStatus status) {
-            this.name = name;
-            this.isVisible = isVisible;
-            this.status = status;
-        }
-    }
-
-    public void setColorProvider(ColorProvider colorProvider) {
-        this.colorProvider = colorProvider;
-    }
-
     public ColorData getColorData() {
         return colorData;
     }
 
-    public RenderObjectMetadata getMetadata() {
-        return metadata;
-    }
-
-    public class BoundingData {
-        public Vector3f centerOfObject;
-        public float boundingRadius;
-    }
-
-    public BoundingData getBoundingData() {
-        return boundingData;
-    }
-
     public LightProvider getLightProvider() {
         return lightProvider;
+    }
+
+    public RenderObjectMetadata getMetadata() {
+        return metadata;
     }
 
     public void setLightProvider(LightProvider lightProvider) {
@@ -192,5 +190,28 @@ public class RenderObject {
 
     public void setSelectedPolygonIndices(java.util.Set<Integer> selectedPolygonIndices) {
         this.selectedPolygonIndices = selectedPolygonIndices;
+    }
+
+    public static class RenderObjectMetadata {
+        public String name;
+        public boolean isVisible;
+        public RenderObjectStatus status;
+
+        public RenderObjectMetadata() {}
+
+        public RenderObjectMetadata(String name, boolean isVisible, RenderObjectStatus status) {
+            this.name = name;
+            this.isVisible = isVisible;
+            this.status = status;
+        }
+    }
+
+    public class BoundingData {
+        public Vector3f centerOfObject;
+        public float boundingRadius;
+    }
+
+    public BoundingData getBoundingData() {
+        return boundingData;
     }
 }
