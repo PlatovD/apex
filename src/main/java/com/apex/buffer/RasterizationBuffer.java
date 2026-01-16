@@ -9,5 +9,7 @@ public interface RasterizationBuffer {
 
     void clear();
 
+    void drawPoint(int x, int y, int size, int color);
+
     void rasterize();
 }

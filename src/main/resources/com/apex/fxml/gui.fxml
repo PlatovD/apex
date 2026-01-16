@@ -134,6 +134,34 @@
                             </children>
                         </VBox>
 
+                        <!-- Modification Section -->
+                        <HBox fx:id="modificationHeader" onMouseClicked="#handleModificationCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Modification" />
+                                <Button fx:id="modificationCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="modificationContentVBox" prefWidth="246.0" spacing="7.0">
+                            <children>
+                                <Label text="Vertices (e.g. 1, 2-5)" />
+                                <TextField fx:id="vertexIndicesField" promptText="1, 2, 5-10" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#handleSelectVertices" text="Select" />
+                                        <Button mnemonicParsing="false" onAction="#handleRemoveVertices" text="Remove" />
+                                    </children>
+                                </HBox>
+                                <Label text="Polygons (e.g. 1, 2-5)" />
+                                <TextField fx:id="polygonIndicesField" promptText="1, 2, 5-10" />
+                                <HBox spacing="10.0">
+                                    <children>
+                                        <Button mnemonicParsing="false" onAction="#handleSelectPolygons" text="Select" />
+                                        <Button mnemonicParsing="false" onAction="#handleRemovePolygons" text="Remove" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </VBox>
+
                         <!-- Rendering Modes Section -->
                         <HBox fx:id="renderingModesHeader" onMouseClicked="#handleRenderingModesCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>

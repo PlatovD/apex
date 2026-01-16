@@ -25,17 +25,19 @@ public class RenderObject {
     private LightProvider lightProvider;
     private final ColorData colorData = new ColorData();
     private float[] workVertices;
+    private java.util.Set<Integer> selectedVertexIndices = new java.util.HashSet<>();
+    private java.util.Set<Integer> selectedPolygonIndices = new java.util.HashSet<>();
 
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
-        this.lightProvider = lightProvider;
+        this.lightProvider = lightProvider;  
         this.worldMatrix = new Matrix4x4(new float[][]{
-                {1, 0, 0, 0},
-                {0, 1, 0, 0},
-                {0, 0, 1, 0},
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
                 {0, 0, 0, 1},
         });
         this.workVertices = new float[model.vertices.size() * 4];
@@ -174,5 +176,21 @@ public class RenderObject {
 
     public void setLightProvider(LightProvider lightProvider) {
         this.lightProvider = lightProvider;
+    }
+
+    public java.util.Set<Integer> getSelectedVertexIndices() {
+        return selectedVertexIndices;
+    }
+
+    public void setSelectedVertexIndices(java.util.Set<Integer> selectedVertexIndices) {
+        this.selectedVertexIndices = selectedVertexIndices;
+    }
+
+    public java.util.Set<Integer> getSelectedPolygonIndices() {
+        return selectedPolygonIndices;
+    }
+
+    public void setSelectedPolygonIndices(java.util.Set<Integer> selectedPolygonIndices) {
+        this.selectedPolygonIndices = selectedPolygonIndices;
     }
 }

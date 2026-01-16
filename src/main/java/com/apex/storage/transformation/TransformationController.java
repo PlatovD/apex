@@ -41,8 +41,8 @@ public class TransformationController {
     }
 
     private Matrix4x4 createAffineMatrix(Vector3f position,
-                                         Vector3f rotationDegrees,
-                                         Vector3f scale) {
+            Vector3f rotationDegrees,
+            Vector3f scale) {
 
         AffineBuilder builder = new AffineBuilder();
 
@@ -59,20 +59,24 @@ public class TransformationController {
     }
 
     public void moveCameraOnVector(Vector3f mouseDelta) {
-        if (mouseDelta == null || (mouseDelta.getX() == 0 && mouseDelta.getY() == 0)) return;
+        if (mouseDelta == null || (mouseDelta.getX() == 0 && mouseDelta.getY() == 0))
+            return;
 
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.rotateAroundTarget(mouseDelta.getX(), mouseDelta.getY());
     }
 
     // панорамирование камеры (движение с зажатой средней кнопкой)
     public void panCamera(Vector3f mouseDelta) {
-        if (mouseDelta == null) return;
+        if (mouseDelta == null)
+            return;
 
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.pan(mouseDelta.getX(), mouseDelta.getY());
     }
@@ -80,7 +84,8 @@ public class TransformationController {
     // метод для зума камеры (колесико мыши)
     public void zoomCamera(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.zoom(amount);
     }
@@ -88,23 +93,34 @@ public class TransformationController {
     // методы для клавиатурного управления
     public void moveCameraForward(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.moveForwardBackward(amount);
     }
 
     public void moveCameraRight(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.moveRightLeft(amount);
     }
 
     public void moveCameraUp(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
-        if (camera == null) return;
+        if (camera == null)
+            return;
 
         camera.moveUpDown(amount);
+    }
+
+    public void rotateCamera(float deltaX, float deltaY) {
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null)
+            return;
+
+        camera.rotateAroundTarget(deltaX, deltaY);
     }
 
     // Костыль для преобразования из Matrix4d в Matrix4x4

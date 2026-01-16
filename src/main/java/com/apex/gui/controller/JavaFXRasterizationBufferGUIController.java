@@ -2,9 +2,7 @@ package com.apex.gui.controller;
 
 import com.apex.buffer.JavaFXBasedRasterizationBuffer;
 import com.apex.core.Constants;
-import com.apex.model.scene.Camera;
 import com.apex.reflection.AutoInject;
-import com.apex.reflection.ReflectionScanner;
 import com.apex.util.ActiveCameraWrapper;
 import javafx.application.Platform;
 import javafx.fxml.FXML;

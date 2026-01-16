@@ -24,8 +24,7 @@ public class Rasterization {
             Vector3f light, LightProvider lightProvider, // about light
             ColorData colorData, ColorProvider cp, Texture texture, // about color
             VertexAttribute v0A, VertexAttribute v1A, VertexAttribute v2A,
-            double[] barycentric
-    ) {
+            double[] barycentric) {
         if (v0A.y > v1A.y) {
             v0A.swapWith(v1A);
         }
@@ -71,9 +70,9 @@ public class Rasterization {
         double uOverW1 = v1A.uOverW;
         double uOverW2 = v2A.uOverW;
 
-        double vOverW0 = v0A.vOwerW;
-        double vOverW1 = v1A.vOwerW;
-        double vOverW2 = v2A.vOwerW;
+        double vOverW0 = v0A.vOverW;
+        double vOverW1 = v1A.vOverW;
+        double vOverW2 = v2A.vOverW;
 
         colorData.uOverW0 = uOverW0;
         colorData.uOverW1 = uOverW1;
@@ -85,7 +84,6 @@ public class Rasterization {
         colorData.invW1 = invW1;
         colorData.invW2 = invW2;
 
-
         int minX = min(x0, min(x1, x2));
         int maxX = max(x0, max(x1, x2));
         if (y0 == y1 && y1 == y2) {
@@ -93,7 +91,8 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y0, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
@@ -137,7 +136,8 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
@@ -179,7 +179,8 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
@@ -194,7 +195,8 @@ public class Rasterization {
         }
     }
 
-    private static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1, double z2, double invW2) {
+    private static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1,
+            double z2, double invW2) {
         double invW = barycentric[0] * invW0 + barycentric[1] * invW1 + barycentric[2] * invW2;
         double zOverW = barycentric[0] * z0 * invW0 + barycentric[1] * z1 * invW1 + barycentric[2] * z2 * invW2;
         return zOverW / invW;
@@ -217,9 +219,12 @@ public class Rasterization {
         }
         if (dx > dy) {
             // тогда я меняю на каждой итерации x, а для y коплю ошибки
-            // тогда я могу равномерно разделить подъем, когда иду по y. То есть на каждом шаге по x надо на какое то нецелое
-            // число, которое меньше нуля (dx > dy) менять y. Но это не целое. Поэтому я умножу все на dx,а потом из за
-            // того, что 0.5 - ошибка при которой я должен закрасить клетку сверху - я буду умножать еще на два
+            // тогда я могу равномерно разделить подъем, когда иду по y. То есть на каждом
+            // шаге по x надо на какое то нецелое
+            // число, которое меньше нуля (dx > dy) менять y. Но это не целое. Поэтому я
+            // умножу все на dx,а потом из за
+            // того, что 0.5 - ошибка при которой я должен закрасить клетку сверху - я буду
+            // умножать еще на два
             for (int i = 0; i <= dx; i++) {
                 if (points.containsKey(y)) {
                     points.get(y).add(x);
@@ -267,11 +272,14 @@ public class Rasterization {
         }
         if (dx > dy) {
             // тогда я меняю на каждой итерации x, а для y коплю ошибки
-            // тогда я могу равномерно разделить подъем, когда иду по y. То есть на каждом шаге по x надо на какое то нецелое
-            // число, которое меньше нуля (dx > dy) менять y. Но это не целое. Поэтому я умножу все на dx,а потом из за
-            // того, что 0.5 - ошибка при которой я должен закрасить клетку сверху - я буду умножать еще на два
+            // тогда я могу равномерно разделить подъем, когда иду по y. То есть на каждом
+            // шаге по x надо на какое то нецелое
+            // число, которое меньше нуля (dx > dy) менять y. Но это не целое. Поэтому я
+            // умножу все на dx,а потом из за
+            // того, что 0.5 - ошибка при которой я должен закрасить клетку сверху - я буду
+            // умножать еще на два
             for (int i = 0; i <= dx; i++) {
-//                pw.setColor(x, y, Color.BLACK);
+                // pw.setColor(x, y, Color.BLACK);
                 points.put(x, new ArrayList<>());
                 points.get(x).add(y);
                 error += 2 * dy;
@@ -284,7 +292,7 @@ public class Rasterization {
         } else {
             // тогда я меняю на каждой итерации y, а для x коплю ошибки
             for (int i = 0; i <= dy; i++) {
-//                pw.setColor(x, y, Color.BLACK);
+                // pw.setColor(x, y, Color.BLACK);
                 if (points.containsKey(x)) {
                     points.get(x).add(y);
                 } else {
@@ -303,10 +311,12 @@ public class Rasterization {
     }
 
     /**
-     * Метод для растеризации треугольника с использованием идеи scanline и нахождения границ через алгоритм
+     * Метод для растеризации треугольника с использованием идеи scanline и
+     * нахождения границ через алгоритм
      * Брезенхейма.
      */
-    public static void drawTriangleBresenham(CustomIntArrayBasedRasterizationBuffer fb, int x0, int y0, int x1, int y1, int x2, int y2) {
+    public static void drawTriangleBresenham(CustomIntArrayBasedRasterizationBuffer fb, int x0, int y0, int x1, int y1,
+            int x2, int y2) {
         if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) > max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
             int tmp;
             if (y0 > y1) {
@@ -403,13 +413,15 @@ public class Rasterization {
         }
     }
 
-    private static double findZFromCoefficients(double[] coefficients, double z0, double invW0, double z1, double inwW1) {
+    private static double findZFromCoefficients(double[] coefficients, double z0, double invW0, double z1,
+            double inwW1) {
         double invW = coefficients[0] * invW0 + coefficients[1] * inwW1;
         double zOverW = coefficients[0] * invW0 * z0 + coefficients[1] * inwW1 * z1;
         return zOverW / invW;
     }
 
-    private static void findLinearCoefficients(double[] coefficients, double x, double y, double x0, double y0, double x1, double y1) {
+    private static void findLinearCoefficients(double[] coefficients, double x, double y, double x0, double y0,
+            double x1, double y1) {
         if (x1 == x0 && y1 == y0) {
             coefficients[0] = 1;
             coefficients[1] = 0;
@@ -497,9 +509,12 @@ public class Rasterization {
             int color, double[] coefficients) {
 
         // Сортируем вершины по Y
-        if (v0.y > v1.y) v0.swapWith(v1);
-        if (v1.y > v2.y) v1.swapWith(v2);
-        if (v0.y > v1.y) v0.swapWith(v1);
+        if (v0.y > v1.y)
+            v0.swapWith(v1);
+        if (v1.y > v2.y)
+            v1.swapWith(v2);
+        if (v0.y > v1.y)
+            v0.swapWith(v1);
 
         // Рисуем 3 ребра
         drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v0.invW, v1.x, v1.y, v1.z, v1.invW, color, coefficients);
