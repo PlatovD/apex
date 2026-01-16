@@ -31,6 +31,8 @@ public interface Controller extends Initializable {
 
     void refreshGui();
 
+    void refreshAssociationBuffer();
+
     void refreshBuffer(int newWidth, int newHeight);
 
     void refreshRender();

@@ -9,6 +9,10 @@ import com.apex.math.Matrix4x4;
 import com.apex.math.Vector3f;
 import com.apex.tool.light.LightProvider;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Объект-обертка, содержащий все необходимые для рендеринга данные
  */
@@ -25,19 +29,19 @@ public class RenderObject {
     private LightProvider lightProvider;
     private final ColorData colorData = new ColorData();
     private float[] workVertices;
-    private java.util.Set<Integer> selectedVertexIndices = new java.util.HashSet<>();
-    private java.util.Set<Integer> selectedPolygonIndices = new java.util.HashSet<>();
+    private Set<Integer> selectedVertexIndices = new HashSet<>();
+    private Set<Integer> selectedPolygonIndices = new HashSet<>();
 
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
-        this.lightProvider = lightProvider;  
+        this.lightProvider = lightProvider;
         this.worldMatrix = new Matrix4x4(new float[][]{
-                { 1, 0, 0, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 1, 0 },
+                {1, 0, 0, 0},
+                {0, 1, 0, 0},
+                {0, 0, 1, 0},
                 {0, 0, 0, 1},
         });
         this.workVertices = new float[model.vertices.size() * 4];

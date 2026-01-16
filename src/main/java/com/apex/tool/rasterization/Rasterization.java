@@ -4,6 +4,7 @@ import com.apex.buffer.RasterizationBuffer;
 import com.apex.buffer.CustomIntArrayBasedRasterizationBuffer;
 import com.apex.core.Constants;
 import com.apex.math.Vector3f;
+import com.apex.model.scene.AssociationBuffer;
 import com.apex.model.scene.ZBuffer;
 import com.apex.model.texture.Texture;
 import com.apex.tool.colorization.ColorData;
@@ -195,8 +196,193 @@ public class Rasterization {
         }
     }
 
+    public static void drawTriangleWithAssociations(
+            RasterizationBuffer rb, ZBuffer zBuffer, AssociationBuffer assBuffer,
+            Vector3f light, LightProvider lightProvider, // about light
+            ColorData colorData, ColorProvider cp, Texture texture, // about color
+            VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE,
+            double[] barycentric) {
+        if (v0AE.y > v1AE.y) {
+            v0AE.swapWith(v1AE);
+        }
+        if (v1AE.y > v2AE.y) {
+            v1AE.swapWith(v2AE);
+        }
+        if (v0AE.y > v1AE.y) {
+            v0AE.swapWith(v1AE);
+        }
+
+        int x0 = v0AE.x;
+        int y0 = v0AE.y;
+        double z0 = v0AE.z;
+        float u0 = v0AE.u;
+        float v0 = v0AE.v;
+        float n_x0 = v0AE.n_x;
+        float n_y0 = v0AE.n_y;
+        float n_z0 = v0AE.n_z;
+
+        int x1 = v1AE.x;
+        int y1 = v1AE.y;
+        double z1 = v1AE.z;
+        float u1 = v1AE.u;
+        float v1 = v1AE.v;
+        float n_x1 = v1AE.n_x;
+        float n_y1 = v1AE.n_y;
+        float n_z1 = v1AE.n_z;
+
+        int x2 = v2AE.x;
+        int y2 = v2AE.y;
+        double z2 = v2AE.z;
+        float u2 = v2AE.u;
+        float v2 = v2AE.v;
+        float n_x2 = v2AE.n_x;
+        float n_y2 = v2AE.n_y;
+        float n_z2 = v2AE.n_z;
+
+        double invW0 = v0AE.invW;
+        double invW1 = v1AE.invW;
+        double invW2 = v2AE.invW;
+
+        double uOverW0 = v0AE.uOverW;
+        double uOverW1 = v1AE.uOverW;
+        double uOverW2 = v2AE.uOverW;
+
+        double vOverW0 = v0AE.vOverW;
+        double vOverW1 = v1AE.vOverW;
+        double vOverW2 = v2AE.vOverW;
+
+        colorData.uOverW0 = uOverW0;
+        colorData.uOverW1 = uOverW1;
+        colorData.uOverW2 = uOverW2;
+        colorData.vOverW0 = vOverW0;
+        colorData.vOverW1 = vOverW1;
+        colorData.vOverW2 = vOverW2;
+        colorData.invW0 = invW0;
+        colorData.invW1 = invW1;
+        colorData.invW2 = invW2;
+
+        int minX = min(x0, min(x1, x2));
+        int maxX = max(x0, max(x1, x2));
+        if (y0 == y1 && y1 == y2) {
+            for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
+                findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
+                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
+                    if (zBuffer.setPixel(x, y0, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
+                        colorData.barycentric = barycentric;
+                        assBuffer.setPixel(x, y0, getClosestVertexIndex(barycentric, v0AE, v1AE, v2AE), v0AE.polygonIndex, v0AE.modelFilename);
+                        rb.setPixel(x, y0, cp.getColor(colorData, texture));
+                    }
+                }
+            }
+        }
+
+        double dxEvenlyDistributedLong = y2 - y0 != 0 ? (double) (x2 - x0) / (y2 - y0) : 0;
+        double dxEvenlyDistributedShort1 = y1 - y0 != 0 ? (double) (x1 - x0) / (y1 - y0) : 0;
+        double dxEvenlyDistributedShort2 = y2 - y1 != 0 ? (double) (x2 - x1) / (y2 - y1) : 0;
+        double longSide = x0;
+        double shortSide = x0;
+        double nextLongSide = longSide;
+        double nextShortSide = shortSide;
+        for (int y = y0; y <= y1; y++) {
+            nextLongSide = longSide + dxEvenlyDistributedLong;
+            nextShortSide = shortSide + dxEvenlyDistributedShort1;
+
+            int xStart = (int) Math.floor(min(shortSide, longSide));
+            int xEnd = (int) Math.ceil(max(shortSide, longSide));
+            if (y != y1) {
+                if (longSide > shortSide) {
+                    if (longSide + 1 < nextLongSide && longSide + 1 < nextShortSide) {
+                        xEnd = (int) Math.floor(min(nextLongSide, nextShortSide));
+                    } else if (shortSide - 1 > nextLongSide && shortSide - 1 > nextShortSide) {
+                        xStart = (int) Math.ceil(max(nextLongSide, nextShortSide));
+                    }
+                } else {
+                    if (shortSide + 1 < nextLongSide && shortSide + 1 < nextShortSide) {
+                        xEnd = (int) Math.floor(min(nextLongSide, nextShortSide));
+                    } else if (longSide - 1 > nextLongSide && longSide - 1 > nextShortSide) {
+                        xStart = (int) Math.ceil(max(nextLongSide, nextShortSide));
+                    }
+                }
+            }
+            xStart = max(xStart, minX);
+            xEnd = min(xEnd, maxX);
+            for (int x = xStart; x <= xEnd; x++) {
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
+                    if (zBuffer.setPixel(x, y, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
+                        colorData.barycentric = barycentric;
+                        assBuffer.setPixel(x, y, getClosestVertexIndex(barycentric, v0AE, v1AE, v2AE), v0AE.polygonIndex, v0AE.modelFilename);
+                        rb.setPixel(x, y, cp.getColor(colorData, texture));
+                    }
+                }
+            }
+
+            longSide = nextLongSide;
+            shortSide = nextShortSide;
+        }
+        shortSide = x1;
+        longSide -= dxEvenlyDistributedLong;
+        for (int y = y1; y <= y2; y++) {
+            nextLongSide = longSide + dxEvenlyDistributedLong;
+            nextShortSide = shortSide + dxEvenlyDistributedShort2;
+
+            int xStart = (int) Math.floor(min(shortSide, longSide));
+            int xEnd = (int) Math.ceil(max(shortSide, longSide));
+
+            if (y != y2) {
+                if (longSide > shortSide) {
+                    if (longSide + 1 < nextLongSide && longSide + 1 < nextShortSide) {
+                        xEnd = (int) Math.floor(min(nextLongSide, nextShortSide));
+                    } else if (shortSide - 1 > nextLongSide && shortSide - 1 > nextShortSide) {
+                        xStart = (int) Math.ceil(max(nextLongSide, nextShortSide));
+                    }
+                } else {
+                    if (shortSide + 1 < nextLongSide && shortSide + 1 < nextShortSide) {
+                        xEnd = (int) Math.floor(min(nextLongSide, nextShortSide));
+                    } else if (longSide - 1 > nextLongSide && longSide - 1 > nextShortSide) {
+                        xStart = (int) Math.ceil(max(nextLongSide, nextShortSide));
+                    }
+                }
+            }
+            xStart = max(xStart, minX);
+            xEnd = min(xEnd, maxX);
+            for (int x = xStart; x <= xEnd; x++) {
+                findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
+                    double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1,
+                            n_z2, light, barycentric);
+                    if (zBuffer.setPixel(x, y, pixelZ)) {
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
+                        colorData.barycentric = barycentric;
+                        assBuffer.setPixel(x, y, getClosestVertexIndex(barycentric, v0AE, v1AE, v2AE), v0AE.polygonIndex, v0AE.modelFilename);
+                        rb.setPixel(x, y, cp.getColor(colorData, texture));
+                    }
+                }
+
+            }
+
+            longSide = nextLongSide;
+            shortSide = nextShortSide;
+        }
+    }
+
+    public static int getClosestVertexIndex(double[] barycentric, VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE) {
+        if (barycentric[0] >= barycentric[1] && barycentric[0] >= barycentric[2]) return v0AE.vertexIndex;
+        if (barycentric[1] >= barycentric[2]) return v1AE.vertexIndex;
+        return v2AE.vertexIndex;
+    }
+
     private static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1,
-            double z2, double invW2) {
+                                               double z2, double invW2) {
         double invW = barycentric[0] * invW0 + barycentric[1] * invW1 + barycentric[2] * invW2;
         double zOverW = barycentric[0] * z0 * invW0 + barycentric[1] * z1 * invW1 + barycentric[2] * z2 * invW2;
         return zOverW / invW;
@@ -316,7 +502,7 @@ public class Rasterization {
      * Брезенхейма.
      */
     public static void drawTriangleBresenham(CustomIntArrayBasedRasterizationBuffer fb, int x0, int y0, int x1, int y1,
-            int x2, int y2) {
+                                             int x2, int y2) {
         if (max(y0, max(y1, y2)) - min(y0, max(y1, y2)) > max(x0, max(x1, x2)) - min(x0, max(x1, x2))) {
             int tmp;
             if (y0 > y1) {
@@ -414,14 +600,14 @@ public class Rasterization {
     }
 
     private static double findZFromCoefficients(double[] coefficients, double z0, double invW0, double z1,
-            double inwW1) {
+                                                double inwW1) {
         double invW = coefficients[0] * invW0 + coefficients[1] * inwW1;
         double zOverW = coefficients[0] * invW0 * z0 + coefficients[1] * inwW1 * z1;
         return zOverW / invW;
     }
 
     private static void findLinearCoefficients(double[] coefficients, double x, double y, double x0, double y0,
-            double x1, double y1) {
+                                               double x1, double y1) {
         if (x1 == x0 && y1 == y0) {
             coefficients[0] = 1;
             coefficients[1] = 0;

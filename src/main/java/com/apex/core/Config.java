@@ -1,7 +1,7 @@
 package com.apex.core;
 
 import com.apex.buffer.JavaFXBasedRasterizationBuffer;
-import com.apex.buffer.RasterizationBuffer;
+import com.apex.model.scene.AssociationBuffer;
 import com.apex.model.scene.Camera;
 import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
@@ -10,7 +10,6 @@ import com.apex.render.pipeline.Pipeline;
 import com.apex.render.pipeline.element.PipelineElement;
 
 import com.apex.render.pipeline.element.PolygonHighlightPipelineElement;
-import com.apex.render.rasterizator.Rasterizator;
 import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
 import com.apex.tool.colorization.DefaultColorProvider;
@@ -21,7 +20,7 @@ public class Config {
     public void pipelineConfig(
             @AutoInject Pipeline pipeline,
             @AutoInject(name = "TransformPipelineElement") PipelineElement transformEl,
-            @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl,
+            @AutoInject(name = "RasterizationWithAssociationPipelineElement") PipelineElement rasterizationEl,
             @AutoInject(name = "VertexHighlightPipelineElement") PipelineElement vertexHighlightEl,
             @AutoInject(name = "PolygonHighlightPipelineElement") PolygonHighlightPipelineElement polygonHighlightEl,
             @AutoInject(name = "WireFramePipelineElement") PipelineElement wireframePipelineElement) {
@@ -53,5 +52,12 @@ public class Config {
     ) {
         sceneStorage.setCp(new DefaultColorProvider(runtimeStates));
         sceneStorage.setLp(new PointLightProvider());
+    }
+
+    public void initialAssociationBufferConfig(
+            @AutoInject AssociationBuffer associationBuffer,
+            @AutoInject RuntimeStates runtimeStates
+    ) {
+        associationBuffer.update(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
     }
 }

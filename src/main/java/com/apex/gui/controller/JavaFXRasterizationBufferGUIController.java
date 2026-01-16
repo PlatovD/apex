@@ -44,6 +44,5 @@ public class JavaFXRasterizationBufferGUIController extends AbstractController {
     public void refreshBuffer(int newWidth, int newHeight) {
         buffer.updateBufferForNewScreenSizes();
         imageView.setImage(buffer.getWritableImage());
-        refreshRender();
     }
 }

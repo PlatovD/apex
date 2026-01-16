@@ -10,6 +10,7 @@ import com.apex.io.util.IOProcessor;
 import com.apex.io.write.ObjWriter;
 import com.apex.math.Vector3f;
 import com.apex.model.geometry.Model;
+import com.apex.model.scene.AssociationBuffer;
 import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
@@ -82,6 +83,8 @@ public abstract class AbstractController implements Controller {
     protected PipelineConfigurer pipelineConfigurer;
     @AutoInject
     protected RuntimeStates runtimeStates;
+    @AutoInject
+    protected AssociationBuffer associationBuffer;
 
     @FunctionalInterface
     protected interface ThrowableRunnable {
@@ -188,6 +191,8 @@ public abstract class AbstractController implements Controller {
             if (newVal.doubleValue() > 0) {
                 runtimeStates.SCENE_WIDTH = newVal.intValue();
                 refreshBuffer(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
+                refreshAssociationBuffer();
+                refreshRender();
             }
         });
 
@@ -195,6 +200,8 @@ public abstract class AbstractController implements Controller {
             if (newVal.doubleValue() > 0) {
                 runtimeStates.SCENE_HEIGHT = newVal.intValue();
                 refreshBuffer(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
+                refreshAssociationBuffer();
+                refreshRender();
             }
         });
 
@@ -227,9 +234,30 @@ public abstract class AbstractController implements Controller {
         });
     }
 
+    private void handleModelPartChoose(MouseEvent event) {
+        if (event.isControlDown()) {
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            int vertexIndex = associationBuffer.getVertexIndex(x, y);
+            String roName = associationBuffer.getModelFilename(x, y);
+            RenderObject ro = sceneStorage.getRenderObject(roName);
+            ro.getSelectedVertexIndices().add(vertexIndex);
+        }
+        if (event.isShiftDown()) {
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            int polygonIndex = associationBuffer.getPolygonIndex(x, y);
+            String roName = associationBuffer.getModelFilename(x, y);
+            RenderObject ro = sceneStorage.getRenderObject(roName);
+            ro.getSelectedPolygonIndices().add(polygonIndex);
+        }
+        refreshRender();
+    }
+
     private void setupMouseHandlers() {
         // Обработка вращения камеры (левая кнопка мыши)
         renderPane.setOnMousePressed(event -> {
+            if (event.isSecondaryButtonDown()) handleModelPartChoose(event);
             if (event.isPrimaryButtonDown()) {
                 lastMouseX = event.getSceneX();
                 lastMouseY = event.getSceneY();
@@ -768,5 +796,10 @@ public abstract class AbstractController implements Controller {
         if (changed) {
             refreshRender();
         }
+    }
+
+    @Override
+    public void refreshAssociationBuffer() {
+        associationBuffer.update(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
     }
 }
