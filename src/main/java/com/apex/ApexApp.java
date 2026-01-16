@@ -17,7 +17,8 @@ public class ApexApp extends Application {
     @Override
     public void start(Stage stage) throws IOException {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/gui.fxml"));
-        // Loader читает fxml и видит "com.apex.controller.BaseGuiController". После этого он передает в этот метод именно этот класс
+        // Loader читает fxml и видит "com.apex.controller.BaseGuiController". После
+        // этого он передает в этот метод именно этот класс
         loader.setControllerFactory(ReflectionScanner::findAssignableBeanByClass);
         AnchorPane viewport = loader.load();
         viewport.setPrefSize(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
@@ -29,6 +30,18 @@ public class ApexApp extends Application {
     }
 
     public static void main(String[] args) {
+        // Устанавливаем обработчик ошибок
+        Thread.setDefaultUncaughtExceptionHandler((thread, throwable) -> {
+            System.err.println("Uncaught exception in thread " + thread.getName());
+            throwable.printStackTrace();
+            if (javafx.application.Platform.isFxApplicationThread()) {
+                com.apex.gui.util.ErrorDialogRenderer.showError("Global Error", throwable);
+            } else {
+                javafx.application.Platform.runLater(
+                        () -> com.apex.gui.util.ErrorDialogRenderer.showError("Background Thread Error", throwable));
+            }
+        });
+
         // регистрация хардово заданных руками бинов, которые не можем собрать из-за
         // того,
         // что большой конструктор и много параметров

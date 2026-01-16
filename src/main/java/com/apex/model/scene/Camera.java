@@ -59,6 +59,16 @@ public class Camera {
         return Matrix4x4.perspective(fov, aspectRatio, nearPlane, farPlane);
     }
 
+    public Camera copy() {
+        return new Camera(
+                new Vector3f(this.position),
+                new Vector3f(this.target),
+                this.fov,
+                this.aspectRatio,
+                this.nearPlane,
+                this.farPlane);
+    }
+
     private Vector3f position;
     private Vector3f target;
     private float fov;
