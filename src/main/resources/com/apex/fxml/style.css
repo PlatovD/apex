@@ -334,3 +334,9 @@
 .model-btn.visibility:hover .eye-icon-hidden {
     -fx-fill: #ffffff;
 }
+
+.models-box-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+}

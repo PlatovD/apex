@@ -45,7 +45,6 @@ import java.nio.file.Path;
 import java.util.ResourceBundle;
 
 import com.apex.io.read.ObjReader;
-import com.apex.model.scene.Camera;
 
 public abstract class AbstractController implements Controller {
     @AutoInject
@@ -201,10 +200,10 @@ public abstract class AbstractController implements Controller {
                 // определяем тип управления в зависимости от модификаторов
                 if (event.isControlDown()) {
                     // ctrl + ЛКМ = панорамирование
-                    transformationController.panCamera(new Vector3f((float)deltaX, (float)deltaY, 0));
+                    transformationController.panCamera(new Vector3f((float) deltaX, (float) deltaY, 0));
                 } else {
                     // просто ЛКМ = вращение камеры
-                    transformationController.moveCameraOnVector(new Vector3f((float)deltaX, (float)deltaY, 0));
+                    transformationController.moveCameraOnVector(new Vector3f((float) deltaX, (float) deltaY, 0));
                 }
 
                 refreshRender();
@@ -223,7 +222,7 @@ public abstract class AbstractController implements Controller {
             double delta = event.getDeltaY();
             if (delta != 0) {
                 float zoomSpeed = 0.1f;
-                transformationController.zoomCamera((float)delta * zoomSpeed);
+                transformationController.zoomCamera((float) delta * zoomSpeed);
                 refreshRender();
             }
         });
@@ -264,22 +263,22 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    protected void handleAffineCollapseToggle(MouseEvent event) {
+    public void handleAffineCollapseToggle(MouseEvent event) {
         toggleSection(affineContentVBox, affineCollapseBtn);
     }
 
     @FXML
-    protected void handleCamerasCollapseToggle(MouseEvent event) {
+    public void handleCamerasCollapseToggle(MouseEvent event) {
         toggleSection(camerasVBox, camerasCollapseBtn);
     }
 
     @FXML
-    protected void handleRenderingModesCollapseToggle(MouseEvent event) {
+    public void handleRenderingModesCollapseToggle(MouseEvent event) {
         toggleSection(renderingModesContentVBox, renderingModesCollapseBtn);
     }
 
     @FXML
-    protected void handleSettingsCollapseToggle(MouseEvent event) {
+    public void handleSettingsCollapseToggle(MouseEvent event) {
         toggleSection(settingsContentVBox, settingsCollapseBtn);
     }
 
@@ -291,7 +290,7 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    protected void handleWireframeToggle() {
+    public void handleWireframeToggle() {
         if (wireframeCheckBox.isSelected()) {
             sceneStorage.enableWireframeForAll();
         } else {
@@ -301,7 +300,7 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    protected void handleTexturesToggle() {
+    public void handleTexturesToggle() {
         if (texturesCheckBox.isSelected()) {
             sceneStorage.onTextures();
         } else {
@@ -311,7 +310,7 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    protected void handleLightingToggle() {
+    public void handleLightingToggle() {
         if (lightingCheckBox.isSelected()) {
             sceneStorage.enableLightingForAll();
         } else {
@@ -371,6 +370,12 @@ public abstract class AbstractController implements Controller {
         refreshGui();
 
         endOperation();
+    }
+
+    @FXML
+    @Override
+    public void onSaveModelHandler(ActionEvent event) {
+
     }
 
     @Override

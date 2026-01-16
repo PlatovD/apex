@@ -14,6 +14,10 @@ import javafx.scene.layout.StackPane;
 import java.util.function.Consumer;
 
 public class GuiElementsBuilder {
+    public static Node createModelChooseWindow() {
+        return new Button();
+    }
+
     public static Node createObjectNode(
             RenderObject renderObject,
             Consumer<String> onDelete,

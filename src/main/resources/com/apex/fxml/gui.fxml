@@ -17,13 +17,12 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
-<?import javafx.scene.text.Font?>
 
 <AnchorPane fx:id="rootPane" prefHeight="1400.0" prefWidth="708.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.gui.controller.Controller">
     <children>
         <Pane fx:id="renderPane" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleRenderPaneClick" style="-fx-background-color: gray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="266.0" AnchorPane.topAnchor="25.0">
             <children>
-                <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
+                <ImageView fx:id="imageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" smooth="false" />
                 <Canvas fx:id="canvas" focusTraversable="true" />
             </children>
         </Pane>
@@ -34,23 +33,23 @@
                         <Insets bottom="15.0" left="10.0" right="10.0" top="35.0" />
                     </padding>
                     <children>
-                        <Label text="RenderObjects" styleClass="section-title" />
-                        <VBox fx:id="modelsVBox" minHeight="50.0" prefWidth="230.0" maxWidth="230.0" styleClass="render-objects-box" />
-                        
+                        <Label styleClass="models-box-title" text="RenderObjects" />
+                        <VBox fx:id="modelsVBox" maxWidth="230.0" minHeight="50.0" prefWidth="230.0" styleClass="render-objects-box" />
+
                         <!-- Cameras Section -->
                         <HBox fx:id="camerasHeader" onMouseClicked="#handleCamerasCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Cameras" />
-                                <Button fx:id="camerasCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                                <Button fx:id="camerasCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
                             </children>
                         </HBox>
-                        <VBox fx:id="camerasVBox" minHeight="30.0" prefWidth="230.0" maxWidth="230.0" styleClass="render-objects-box" />
+                        <VBox fx:id="camerasVBox" maxWidth="230.0" minHeight="30.0" prefWidth="230.0" styleClass="render-objects-box" />
 
                         <!-- Affine Section -->
                         <HBox fx:id="affineHeader" onMouseClicked="#handleAffineCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Affine" />
-                                <Button fx:id="affineCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                                <Button fx:id="affineCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
                             </children>
                         </HBox>
                         <VBox fx:id="affineContentVBox" prefWidth="246.0" spacing="7.0">
@@ -137,7 +136,7 @@
                         <HBox fx:id="renderingModesHeader" onMouseClicked="#handleRenderingModesCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Rendering Modes" />
-                                <Button fx:id="renderingModesCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                                <Button fx:id="renderingModesCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
                             </children>
                         </HBox>
                         <VBox fx:id="renderingModesContentVBox" prefWidth="246.0" spacing="7.0">
@@ -152,7 +151,7 @@
                         <HBox fx:id="settingsHeader" onMouseClicked="#handleSettingsCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Settings" />
-                                <Button fx:id="settingsCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                                <Button fx:id="settingsCollapseBtn" mnemonicParsing="false" mouseTransparent="true" styleClass="collapse-indicator" text="▼" />
                             </children>
                         </HBox>
                         <VBox fx:id="settingsContentVBox" prefWidth="246.0" spacing="7.0">
@@ -178,7 +177,7 @@
                 </Menu>
             <Menu mnemonicParsing="false" text="Save">
               <items>
-                <MenuItem mnemonicParsing="false" text="Save active models" />
+                <MenuItem mnemonicParsing="false" onAction="#onSaveModelHandler" text="Save model" />
               </items>
             </Menu>
             </menus>
