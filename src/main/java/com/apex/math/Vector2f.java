@@ -123,6 +123,10 @@ public class Vector2f {
         return this.x * other.x + this.y * other.y;
     }
 
+    public Vector2f copy() {
+        return new Vector2f(x, y);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;

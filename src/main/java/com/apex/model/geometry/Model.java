@@ -2,11 +2,13 @@ package com.apex.model.geometry;
 
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
+import com.apex.util.PolygonUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class Model {
     public List<Vector3f> vertices = new ArrayList<Vector3f>();
@@ -41,5 +43,14 @@ public class Model {
     @Override
     public int hashCode() {
         return Objects.hash(vertices, Arrays.hashCode(workVertices), textureVertices, normals, polygons);
+    }
+
+    public Model copy() {
+        Model model = new Model();
+        model.vertices = this.vertices.stream().map(Vector3f::copy).collect(Collectors.toList());
+        model.polygons = this.polygons.stream().map(PolygonUtil::deepCopyOfPolygon).collect(Collectors.toList());
+        model.normals = this.normals.stream().map(Vector3f::copy).collect(Collectors.toList());
+        model.textureVertices = this.textureVertices.stream().map(Vector2f::copy).collect(Collectors.toList());
+        return model;
     }
 }

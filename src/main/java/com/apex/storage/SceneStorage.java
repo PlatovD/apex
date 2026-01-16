@@ -144,7 +144,7 @@ public class SceneStorage {
         }
     }
 
-    public Model getPreparedToSaveModel(String fileObjName) {
+    public Model getModel(String fileObjName) {
         if (!hasAnyModels())
             throw new SceneStorageException("No models to save");
         if (!renderObjectsMap.containsKey(fileObjName))

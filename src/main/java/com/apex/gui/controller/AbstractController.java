@@ -4,9 +4,12 @@ import com.apex.core.Constants;
 import com.apex.gui.util.ErrorDialogRenderer;
 import com.apex.gui.util.GuiElementsBuilder;
 import com.apex.io.textureloader.TextureLoader;
+import com.apex.io.util.IOProcessParams;
 import com.apex.io.util.IOProcessor;
+import com.apex.io.write.ObjWriter;
 import com.apex.math.Vector3f;
 import com.apex.model.geometry.Model;
+import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.reflection.AutoInject;
@@ -36,15 +39,22 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 import com.apex.io.read.ObjReader;
+import javafx.stage.Stage;
 
 public abstract class AbstractController implements Controller {
     @AutoInject
@@ -370,7 +380,7 @@ public abstract class AbstractController implements Controller {
             Path fileName = Path.of(file.getAbsolutePath());
             String fileContent = Files.readString(fileName);
             Model model = ObjReader.read(fileContent);
-            inputProcessor.process(model);
+            inputProcessor.process(new IOProcessParams(model, IOProcessParams.IOType.INPUT, null, null));
             sceneStorage.addModel(file.getName(), model);
             refreshGui();
             refreshRender();
@@ -388,7 +398,27 @@ public abstract class AbstractController implements Controller {
     @FXML
     @Override
     public void onSaveModelHandler(ActionEvent event) {
+        executeSafe("saving models", () -> {
+            Stage stage = GuiElementsBuilder.createModelChooseWindow(new ArrayList<>(sceneStorage.getRenderObjects()), this::onSaveModel, this::handleChoosingFolder);
+            stage.showAndWait();
+        });
+    }
 
+    private String handleChoosingFolder() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Directory to save");
+        File file = directoryChooser.showDialog(rootPane.getScene().getWindow());
+        if (file == null) return "";
+        return file.getPath();
+    }
+
+    private void onSaveModel(String path, String s, boolean saveTransformed) throws IOException {
+        RenderObject ro = sceneStorage.getRenderObject(s);
+        Model modelToSave = ro.getModel().copy();
+        writeProcessor.process(new IOProcessParams(modelToSave, IOProcessParams.IOType.OUTPUT, saveTransformed, ro.getWorldMatrix()));
+        String timestamp = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+        ObjWriter.write(modelToSave, Paths.get(path, timestamp + "_" + ro.getFilename()).toString());
     }
 
     @Override
@@ -398,7 +428,7 @@ public abstract class AbstractController implements Controller {
                 new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.bmp"));
         fileChooser.setTitle("Load Texture");
 
-        File file = fileChooser.showOpenDialog(canvas.getScene().getWindow());
+        File file = fileChooser.showOpenDialog(rootPane.getScene().getWindow());
         if (file == null)
             return;
 

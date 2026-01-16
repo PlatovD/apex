@@ -75,4 +75,6 @@ public interface Controller extends Initializable {
     void handleLightingToggle();
 
     void handleSettingsCollapseToggle(MouseEvent mouseEvent);
+
+    void handleSaveCamera(ActionEvent event);
 }

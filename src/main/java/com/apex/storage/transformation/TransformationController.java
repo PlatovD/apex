@@ -11,6 +11,7 @@ import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
 import com.apex.util.ActiveCameraWrapper;
 import com.apex.model.scene.Camera;
+
 import javax.vecmath.Matrix4d;
 
 @AutoCreation
@@ -24,19 +25,6 @@ public class TransformationController {
     @AutoInject
     private ActiveCameraWrapper activeCameraWrapper;
 
-    public void updateWorldMatrixForObject(RenderObject ro,
-                                           float scaleX, float scaleY, float scaleZ,
-                                           float rotationX, float rotationY, float rotationZ,
-                                           float positionX, float positionY, float positionZ) {
-
-        Matrix4x4 worldMatrix = createAffineMatrix(
-                new Vector3f(positionX, positionY, positionZ),
-                new Vector3f(rotationX, rotationY, rotationZ),
-                new Vector3f(scaleX, scaleY, scaleZ));
-        ro.setWorldMatrix(worldMatrix);
-        ro.refreshBounding(scaleX, scaleY, scaleZ);
-    }
-
     public void updateWorldMatrixForActiveObjects(
             float scaleX, float scaleY, float scaleZ,
             float rotationX, float rotationY, float rotationZ,
@@ -49,20 +37,6 @@ public class TransformationController {
 
         for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
             ro.setWorldMatrix(worldMatrix.copy());
-        }
-    }
-
-    public void updateWorldMatrixForObject(String objectName,
-                                           float scaleX, float scaleY, float scaleZ,
-                                           float rotationX, float rotationY, float rotationZ,
-                                           float positionX, float positionY, float positionZ) {
-
-        RenderObject ro = sceneStorage.getRenderObject(objectName);
-        if (ro != null) {
-            updateWorldMatrixForObject(ro,
-                    scaleX, scaleY, scaleZ,
-                    rotationX, rotationY, rotationZ,
-                    positionX, positionY, positionZ);
         }
     }
 

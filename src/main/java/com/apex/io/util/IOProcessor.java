@@ -8,5 +8,5 @@ import com.apex.model.geometry.Model;
  * Их нельзя добавлять в Pipeline, чтобы не портить производительность
  */
 public interface IOProcessor {
-    void process(Model model);
+    void process(IOProcessParams params);
 }

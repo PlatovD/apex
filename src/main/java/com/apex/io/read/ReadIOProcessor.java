@@ -1,5 +1,6 @@
 package com.apex.io.read;
 
+import com.apex.io.util.IOProcessParams;
 import com.apex.io.util.IOProcessor;
 import com.apex.model.geometry.Model;
 import com.apex.reflection.AutoCreation;
@@ -16,8 +17,8 @@ public class ReadIOProcessor implements IOProcessor {
     private NormalCalculator normalCalculator;
 
     @Override
-    public void process(Model model) {
-        triangulator.triangulateModel(model);
-        normalCalculator.calculateNormals(model);
+    public void process(IOProcessParams params) {
+        triangulator.triangulateModel(params.model());
+        normalCalculator.calculateNormals(params.model());
     }
 }

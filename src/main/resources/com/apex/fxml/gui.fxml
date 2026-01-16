@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 
-<AnchorPane fx:id="rootPane" prefHeight="1400.0" prefWidth="708.0" stylesheets="@style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.gui.controller.Controller">
+<AnchorPane fx:id="rootPane" prefHeight="1400.0" prefWidth="708.0" stylesheets="@../../../style.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.apex.gui.controller.Controller">
     <children>
         <Pane fx:id="renderPane" minHeight="-Infinity" minWidth="-Infinity" onMouseClicked="#handleRenderPaneClick" style="-fx-background-color: gray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="266.0" AnchorPane.topAnchor="25.0">
             <children>

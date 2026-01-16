@@ -1,21 +1,123 @@
 package com.apex.gui.util;
 
+import com.apex.exception.GUIException;
+import com.apex.gui.element.ModelSaveRowGUI;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.layout.StackPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class GuiElementsBuilder {
-    public static Node createModelChooseWindow() {
-        return new Button();
+    @FunctionalInterface
+    public interface Operation {
+        void apply(String path, String s, boolean saveTransformed) throws IOException;
+    }
+
+    public static Stage createModelChooseWindow(
+            List<RenderObject> renderObjects,
+            Operation saveOperation,
+            Supplier<String> fileChoosing
+    ) {
+        Stage stage = new Stage();
+        stage.setTitle("Save Models");
+        stage.initModality(Modality.APPLICATION_MODAL);
+
+        VBox mainLayout = new VBox(10);
+        mainLayout.setPadding(new Insets(10));
+
+        // 1. Заголовок
+        Label titleLabel = new Label("Select models to save:");
+
+        // 2. Список моделей
+        VBox modelsList = new VBox(5);
+        for (RenderObject ro : renderObjects) {
+            Node modelRow = createModelRow(ro);
+            modelsList.getChildren().add(modelRow);
+        }
+        if (modelsList.getChildren().isEmpty()) modelsList.setVisible(false);
+
+        ScrollPane scrollPane = new ScrollPane(modelsList);
+        scrollPane.setPrefHeight(300);
+        scrollPane.setPrefWidth(400);
+        scrollPane.setFitToWidth(true);
+
+        // 3. Выбор папки
+        HBox folderSelection = new HBox(10);
+        TextField folderPathField = new TextField();
+        Button chooseFolderBtn = new Button("Directory");
+        chooseFolderBtn.setOnAction(action -> {
+            String path = fileChoosing.get();
+            folderPathField.setText(path);
+        });
+
+        folderPathField.setPromptText("Select save location...");
+        folderPathField.setPrefWidth(350);
+        folderSelection.getChildren().addAll(chooseFolderBtn, folderPathField);
+
+        // 4. Кнопки действий
+        HBox buttonBox = new HBox(10);
+        Button saveBtn = new Button("Save Selected");
+        saveBtn.setOnAction(action -> {
+            if (folderPathField.getText().isBlank()) throw new GUIException("No directory selected to save");
+            for (Node node : modelsList.getChildren()) {
+                if (!(node instanceof ModelSaveRowGUI modelSaveRowGUI)) continue;
+                if (!modelSaveRowGUI.isSelected()) continue;
+                try {
+                    saveOperation.apply(folderPathField.getText(), modelSaveRowGUI.getModelName(), modelSaveRowGUI.isSaveModified());
+                } catch (IOException e) {
+                    System.out.println(Arrays.toString(e.getStackTrace()));
+                    throw new RuntimeException("Exception during saving model");
+                }
+            }
+        });
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setOnAction(action -> stage.close());
+        buttonBox.getChildren().addAll(saveBtn, cancelBtn);
+
+        // Сборка
+        mainLayout.getChildren().addAll(
+                titleLabel,
+                scrollPane,
+                new Separator(),
+                folderSelection,
+                buttonBox
+        );
+
+        Scene scene = new Scene(mainLayout, 500, 450);
+        scene.getStylesheets().add(GuiConstants.PATH_TO_CSS);
+        stage.setScene(scene);
+
+        mainLayout.getStyleClass().add("save-window");
+        titleLabel.getStyleClass().add("save-title");
+        scrollPane.getStyleClass().add("save-scroll-pane");
+        modelsList.getStyleClass().add("models-list");
+        folderSelection.getStyleClass().add("folder-selection");
+        folderPathField.getStyleClass().add("folder-textfield");
+        chooseFolderBtn.getStyleClass().add("folder-button");
+        buttonBox.getStyleClass().add("save-buttons-panel");
+        saveBtn.getStyleClass().add("save-button");
+        cancelBtn.getStyleClass().add("cancel-button");
+
+        return stage;
+    }
+
+    private static ModelSaveRowGUI createModelRow(RenderObject renderObject) {
+        return new ModelSaveRowGUI(renderObject);
     }
 
     public static Node createObjectNode(

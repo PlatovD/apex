@@ -376,3 +376,267 @@
 .error-toast-close:hover {
     -fx-text-fill: #ffffff;
 }
+
+/* ===== SAVE MODELS WINDOW ===== */
+
+/* Основное окно */
+.save-window {
+    -fx-background-color: #2b2b2b;
+}
+
+/* Заголовок окна */
+.save-title {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-padding: 0 0 10 0;
+}
+
+/* Список моделей */
+.models-list {
+    -fx-background-color: #383838;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8;
+}
+
+/* Строка с моделью */
+.model-save-row {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 8;
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.model-save-row:hover {
+    -fx-background-color: #3a3a3a;
+    -fx-border-color: #555555;
+}
+
+/* Чекбоксы */
+.model-save-checkbox {
+    -fx-text-fill: #d9d9d9;
+}
+
+.model-save-checkbox .box {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #555555;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+}
+
+.model-save-checkbox:hover .box {
+    -fx-border-color: #4a90e2;
+}
+
+.model-save-checkbox:selected .mark {
+    -fx-background-color: #4a90e2;
+}
+
+.model-save-checkbox:selected .box {
+    -fx-border-color: #4a90e2;
+}
+
+/* Имя модели */
+.model-name-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-pref-width: 200;
+}
+
+/* Чекбокс "With transformations" */
+.transform-checkbox {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 12px;
+}
+
+.transform-checkbox .box {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #666666;
+    -fx-border-radius: 2;
+    -fx-background-radius: 2;
+}
+
+.transform-checkbox:hover .box {
+    -fx-border-color: #5a9fd4;
+}
+
+.transform-checkbox:selected .mark {
+    -fx-background-color: #4a90e2;
+}
+
+/* Выбор папки */
+.folder-selection {
+    -fx-spacing: 10;
+    -fx-alignment: center-left;
+}
+
+.folder-label {
+    -fx-text-fill: #d9d9d9;
+    -fx-font-size: 13px;
+}
+
+.folder-textfield {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #ffffff;
+    -fx-prompt-text-fill: #888888;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 6 8;
+}
+
+.folder-textfield:focused {
+    -fx-border-color: #4a90e2;
+    -fx-background-color: #333333;
+}
+
+/* Кнопка выбора папки */
+.folder-button {
+    -fx-background-color: #383838;
+    -fx-text-fill: #d9d9d9;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 3;
+    -fx-background-radius: 3;
+    -fx-padding: 6 12;
+    -fx-font-size: 14px;
+    -fx-cursor: hand;
+    -fx-min-width: 40;
+}
+
+.folder-button:hover {
+    -fx-background-color: #4a90e2;
+    -fx-border-color: #5a9fd4;
+    -fx-text-fill: #ffffff;
+}
+
+/* Панель кнопок */
+.save-buttons-panel {
+    -fx-spacing: 15;
+    -fx-alignment: center-right;
+    -fx-padding: 15 0 0 0;
+}
+
+/* Кнопки действий */
+.save-button {
+    -fx-background-color: #2e7d32;
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: bold;
+    -fx-border-color: #4caf50;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-min-width: 120;
+}
+
+.save-button:hover {
+    -fx-background-color: #388e3c;
+    -fx-border-color: #66bb6a;
+}
+
+.save-button:pressed {
+    -fx-background-color: #1b5e20;
+}
+
+.cancel-button {
+    -fx-background-color: #383838;
+    -fx-text-fill: #d9d9d9;
+    -fx-border-color: #555555;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 8 20;
+    -fx-cursor: hand;
+    -fx-min-width: 100;
+}
+
+.cancel-button:hover {
+    -fx-background-color: #4a4a4a;
+    -fx-border-color: #666666;
+    -fx-text-fill: #ffffff;
+}
+
+.cancel-button:pressed {
+    -fx-background-color: #2a2a2a;
+}
+
+/* Состояния строк */
+.model-save-row.selected {
+    -fx-background-color: #454545;
+    -fx-border-color: #4a90e2;
+}
+
+.model-save-row.selected .model-name-label {
+    -fx-text-fill: #4a90e2;
+}
+
+/* ScrollPane для списка */
+.save-scroll-pane {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+}
+
+.save-scroll-pane .viewport {
+    -fx-background-color: #383838;
+}
+
+.save-scroll-pane .scroll-bar:vertical {
+    -fx-background-color: #383838;
+}
+
+.save-scroll-pane .scroll-bar:vertical .thumb {
+    -fx-background-color: #555555;
+    -fx-background-radius: 3;
+}
+
+.save-scroll-pane .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: #666666;
+}
+
+/* Separator */
+.separator {
+    -fx-background-color: #1a1a1a;
+    -fx-padding: 10 0;
+}
+
+/* Информационная панель */
+.info-panel {
+    -fx-background-color: #383838;
+    -fx-border-color: #1a1a1a;
+    -fx-border-width: 1;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 10;
+    -fx-spacing: 5;
+}
+
+.info-label {
+    -fx-text-fill: #aaaaaa;
+    -fx-font-size: 11px;
+    -fx-font-style: italic;
+}
+
+.count-label {
+    -fx-text-fill: #4a90e2;
+    -fx-font-weight: bold;
+}
+
+.model-save-row .check-box,
+.model-save-row .label,
+.model-save-row .transform-checkbox {
+    -fx-font-family: "Segoe UI", "Roboto", sans-serif;
+}
