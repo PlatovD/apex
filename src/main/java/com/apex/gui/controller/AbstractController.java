@@ -21,8 +21,10 @@ import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
 import com.apex.storage.collision.CollisionManager;
 import com.apex.storage.transformation.TransformationController;
+import com.apex.tool.ModelTools;
 import com.apex.util.ActiveCameraWrapper;
 import com.apex.util.ColorUtil;
+import com.apex.util.IndexParser;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -54,6 +56,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import com.apex.io.read.ObjReader;
 import javafx.stage.Stage;
@@ -717,18 +720,17 @@ public abstract class AbstractController implements Controller {
     @FXML
     public void handleRemoveVertices(ActionEvent event) {
         String text = vertexIndicesField.getText();
-        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
 
         boolean changed = false;
         for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
-            com.apex.modification.VertexRemovalResult result = vertexRemover.removeVertices(ro.getModel(), indices,
-                    true);
-            if (result.removedVerticesCount() > 0 || result.removedPolygonsCount() > 0) {
-                ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
-                ro.setSelectedVertexIndices(new java.util.HashSet<>());
-                ro.setSelectedPolygonIndices(new java.util.HashSet<>());
-                changed = true;
+            for (Integer removableIndex : ro.getSelectedVertexIndices()) {
+                ModelTools.removeVertex(ro.getModel(), removableIndex);
             }
+            inputProcessor.process(new IOProcessParams(ro.getModel(), IOProcessParams.IOType.INPUT, null, null));
+            ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
+            ro.setSelectedVertexIndices(new java.util.HashSet<>());
+            ro.setSelectedPolygonIndices(new java.util.HashSet<>());
+            changed = true;
         }
 
         if (changed) {
@@ -750,18 +752,17 @@ public abstract class AbstractController implements Controller {
     @FXML
     public void handleRemovePolygons(ActionEvent event) {
         String text = polygonIndicesField.getText();
-        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
 
         boolean changed = false;
         for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
-            com.apex.modification.VertexRemovalResult result = vertexRemover.removePolygons(ro.getModel(), indices,
-                    true);
-            if (result.removedPolygonsCount() > 0) {
-                ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
-                ro.setSelectedVertexIndices(new java.util.HashSet<>());
-                ro.setSelectedPolygonIndices(new java.util.HashSet<>());
-                changed = true;
+            for (Integer removablePolygonIndex : ro.getSelectedPolygonIndices()) {
+                ModelTools.removePolygon(ro.getModel(), removablePolygonIndex);
             }
+            inputProcessor.process(new IOProcessParams(ro.getModel(), IOProcessParams.IOType.INPUT, null, null));
+            ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
+            ro.setSelectedVertexIndices(new java.util.HashSet<>());
+            ro.setSelectedPolygonIndices(new java.util.HashSet<>());
+            changed = true;
         }
 
         if (changed) {
