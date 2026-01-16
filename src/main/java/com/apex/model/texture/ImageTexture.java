@@ -28,17 +28,17 @@ public class ImageTexture implements Texture {
 
     @Override
     public int getPixelColor(double u, double v) {
-        // Standard wrapping logic for UV coords (support for tiling or just clamping)
-        // Here we use standard wrapping (fmod 1.0) then scale to width/height
-        double u_wrapped = u - Math.floor(u);
-        double v_wrapped = v - Math.floor(v);
+        int x = (int) (1 - (u * (width - 1)) % width);
+        int y = (int) (1 - (v * (height - 1)) % height);
 
-        int x = (int) (u_wrapped * (width - 1));
-        int y = (int) (v_wrapped * (height - 1));
 
-        // Final defensive clamping to prevent OOB due to precision issues
-        x = Math.max(0, Math.min(width - 1, x));
-        y = Math.max(0, Math.min(height - 1, y));
+
+        if (x < 0) x += width;
+        if (y < 0) y += height;
+
+
+
+
 
         return pixels[y * width + x];
     }
