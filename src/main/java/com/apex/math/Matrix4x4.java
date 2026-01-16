@@ -102,6 +102,30 @@ public class Matrix4x4 {
         return result;
     }
 
+    public void multiply(Vector4f in, Vector4f out) {
+        float x = data[0][0] * in.getX() +
+                data[0][1] * in.getY() +
+                data[0][2] * in.getZ() +
+                data[0][3] * in.getW();
+
+        float y = data[1][0] * in.getX() +
+                data[1][1] * in.getY() +
+                data[1][2] * in.getZ() +
+                data[1][3] * in.getW();
+
+        float z = data[2][0] * in.getX() +
+                data[2][1] * in.getY() +
+                data[2][2] * in.getZ() +
+                data[2][3] * in.getW();
+
+        float w = data[3][0] * in.getX() +
+                data[3][1] * in.getY() +
+                data[3][2] * in.getZ() +
+                data[3][3] * in.getW();
+
+        out.set(x, y, z, w);
+    }
+
     public Matrix4x4 addLocal(Matrix4x4 other) {
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
