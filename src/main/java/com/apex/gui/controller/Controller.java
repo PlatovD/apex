@@ -77,4 +77,14 @@ public interface Controller extends Initializable {
     void handleSettingsCollapseToggle(MouseEvent mouseEvent);
 
     void handleSaveCamera(ActionEvent event);
+
+    void handleModificationCollapseToggle(MouseEvent mouseEvent);
+
+    void handleSelectVertices(ActionEvent event);
+
+    void handleRemoveVertices(ActionEvent event);
+
+    void handleSelectPolygons(ActionEvent event);
+
+    void handleRemovePolygons(ActionEvent event);
 }

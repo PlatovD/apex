@@ -48,7 +48,8 @@ public class RasterizationPipelineElement implements PipelineElement {
         Vector3f normalVertex1;
         Vector3f normalVertex2;
 
-        // инициализирую то, что будет переиспользоваться. Уменьшаю нагрузку на сборщик мусора
+        // инициализирую то, что будет переиспользоваться. Уменьшаю нагрузку на сборщик
+        // мусора
         ColorData colorData = ro.getColorData();
         double[] barycentric = new double[3];
 
@@ -58,7 +59,9 @@ public class RasterizationPipelineElement implements PipelineElement {
         Model model = ro.getModel();
         float[] rawVertices = ro.getWorkVertices();
         LightProvider lp = ro.getLightProvider();
-        Vector3f light = activeCameraWrapper.getActiveCamera().getTarget().subtract(activeCameraWrapper.getActiveCamera().getPosition());
+        // todo: нормализация
+        Vector3f light = activeCameraWrapper.getActiveCamera().getTarget()
+                .subtract(activeCameraWrapper.getActiveCamera().getPosition());
         light.normalizeLocal();
         for (Polygon polygon : ro.getModel().polygons) {
             if (polygon.getVertexIndices().size() != 3)
@@ -123,30 +126,32 @@ public class RasterizationPipelineElement implements PipelineElement {
             Rasterization.drawTriangle(rb, zBuffer,
                     light, lp, colorData, ro.getColorProvider(), ro.getTexture(),
                     vertex0Attribute, vertex1Attribute, vertex2Attribute,
-                    barycentric
-            );
+                    barycentric);
         }
     }
 
-    private void refreshVertexAttributeForPolygon(VertexAttribute vertexAttribute, int vertexIndex, float[] rawVertices) {
+    private void refreshVertexAttributeForPolygon(VertexAttribute vertexAttribute, int vertexIndex,
+                                                  float[] rawVertices) {
         vertexAttribute.x = Math.round(rawVertices[vertexIndex * 4]);
         vertexAttribute.y = Math.round(rawVertices[vertexIndex * 4 + 1]);
         vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
-        vertexAttribute.invW = rawVertices[vertexIndex * 4 + 3] == 0 ? 1 / Constants.EPS : 1 / rawVertices[vertexIndex * 4 + 3];
+        vertexAttribute.invW = rawVertices[vertexIndex * 4 + 3] == 0 ? 1 / Constants.EPS
+                : 1 / rawVertices[vertexIndex * 4 + 3];
     }
 
     private void refreshVertexPerspectiveCorrection(VertexAttribute vertexAttribute) {
         vertexAttribute.uOverW = vertexAttribute.u * vertexAttribute.invW;
-        vertexAttribute.vOwerW = vertexAttribute.v * vertexAttribute.invW;
+        vertexAttribute.vOverW = vertexAttribute.v * vertexAttribute.invW;
     }
 
-    private boolean isOnScreen(VertexAttribute v0, VertexAttribute v1, VertexAttribute v2, int screenWidth, int screenHeight) {
+    private boolean isOnScreen(VertexAttribute v0, VertexAttribute v1, VertexAttribute v2, int screenWidth,
+                               int screenHeight) {
         boolean lefter = v0.x < 0 && v1.x < 0 && v2.x < 0;
         boolean righter = v0.x >= screenWidth && v1.x >= screenWidth && v2.x >= screenWidth;
         boolean toper = v0.y < 0 && v1.y < 0 && v2.y < 0;
         boolean downer = v0.y >= screenHeight && v1.y >= screenHeight && v2.y >= screenHeight;
-        boolean nearer = v0.z < -1;
-        boolean fairer = v0.z > 1;
+        boolean nearer = v0.z < -1 || v1.z < -1 || v2.z < -1;
+        boolean fairer = v0.z > 1 || v1.z > 1 || v2.z > 1;
         return !(lefter || righter || toper || downer || nearer | fairer);
     }
 
