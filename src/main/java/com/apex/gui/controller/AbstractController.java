@@ -344,9 +344,9 @@ public abstract class AbstractController implements Controller {
     @FXML
     public void handleWireframeToggle() {
         if (wireframeCheckBox.isSelected()) {
-            sceneStorage.enableWireframeForAll();
+            pipelineConfigurer.enableFirstReserved();
         } else {
-            sceneStorage.disableWireframeAll();
+            pipelineConfigurer.disableLast();
         }
         refreshRender();
     }

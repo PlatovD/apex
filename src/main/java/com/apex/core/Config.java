@@ -23,12 +23,14 @@ public class Config {
             @AutoInject(name = "TransformPipelineElement") PipelineElement transformEl,
             @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl,
             @AutoInject(name = "VertexHighlightPipelineElement") PipelineElement vertexHighlightEl,
-            @AutoInject(name = "PolygonHighlightPipelineElement") PolygonHighlightPipelineElement polygonHighlightEl) {
+            @AutoInject(name = "PolygonHighlightPipelineElement") PolygonHighlightPipelineElement polygonHighlightEl,
+            @AutoInject(name = "WireFramePipelineElement") PipelineElement wireframePipelineElement) {
         pipeline.configure()
                 .addElement(transformEl)
                 .addElement(rasterizationEl)
                 .addElement(vertexHighlightEl)
-                .addElement(polygonHighlightEl);
+                .addElement(polygonHighlightEl)
+                .addDisabledElement(wireframePipelineElement);
     }
 
     public void initialCameraConfig(

@@ -17,6 +17,11 @@ public class PipelineConfigurer {
         return this;
     }
 
+    public PipelineConfigurer addDisabledElement(PipelineElement pipelineElement) {
+        disabled.add(pipelineElement);
+        return this;
+    }
+
     public List<PipelineElement> getElements() {
         return elements;
     }
