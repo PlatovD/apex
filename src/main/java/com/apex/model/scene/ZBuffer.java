@@ -1,19 +1,26 @@
 package com.apex.model.scene;
 
-import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.reflection.AutoCreation;
+import com.apex.reflection.AutoInject;
 
 import java.util.Arrays;
 
 @AutoCreation
 public class ZBuffer {
+    @AutoInject
+    private RuntimeStates runtimeStates;
+
     private int width;
     private int height;
     private double[] buffer;
 
     public ZBuffer() {
-        this.width = Constants.SCENE_WIDTH;
-        this.height = Constants.SCENE_HEIGHT;
+    }
+
+    public void initZBuffer(){
+        this.width = runtimeStates.SCENE_WIDTH;
+        this.height = runtimeStates.SCENE_HEIGHT;
         buffer = new double[width * height];
         clear();
     }
@@ -56,6 +63,11 @@ public class ZBuffer {
     }
 
     public void clear() {
+        if (runtimeStates.SCENE_WIDTH != width && runtimeStates.SCENE_HEIGHT != height) {
+            buffer = new double[runtimeStates.SCENE_WIDTH * runtimeStates.SCENE_HEIGHT];
+            width = runtimeStates.SCENE_WIDTH;
+            height = runtimeStates.SCENE_HEIGHT;
+        }
         Arrays.fill(buffer, Double.MAX_VALUE);
     }
 }

@@ -3,6 +3,7 @@ package com.apex.storage;
 import com.apex.cache.ModelCache;
 import com.apex.cache.TextureCache;
 import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.RenderObject;
@@ -29,9 +30,12 @@ public class SceneStorage {
     private final List<RenderObject> visibleRenderObjects = new ArrayList<>();
     private final Map<String, String> savedTextures = new HashMap<>();
 
+    @AutoInject
+    private RuntimeStates runtimeStates;
+
     // global objects
-    private ColorProvider cp = new DefaultColorProvider();
-    private LightProvider lp = new PointLightProvider();
+    private ColorProvider cp;
+    private LightProvider lp;
 
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
@@ -42,8 +46,8 @@ public class SceneStorage {
     public void addModel(String filename, Model model) {
         model = modelCache.smartCache(filename, model);
 
-        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
-                new SolidTexture(Constants.color));
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(runtimeStates.color),
+                new SolidTexture(runtimeStates.color));
 
         RenderObject ro = new RenderObject(filename, model, cp, defaultTexture, lp);
         ro.refreshBounding(1, 1, 1);
@@ -71,8 +75,8 @@ public class SceneStorage {
             throw new SceneStorageException("No render object with name=" + fileObjName);
         Texture oldTexture = renderObjectsMap.get(fileObjName).getTexture();
         textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(oldTexture.getCache());
-        Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
-                new SolidTexture(Constants.color));
+        Texture defaultTexture = textureCache.smartCache(String.valueOf(runtimeStates.color),
+                new SolidTexture(runtimeStates.color));
         RenderObject ro = renderObjectsMap.get(fileObjName);
         savedTextures.remove(ro.getFilename());
         ro.setTexture(defaultTexture);
@@ -97,7 +101,7 @@ public class SceneStorage {
             if (!ro.isTextured()) continue;
             String textureFilename = ro.getTexture().getCache();
             savedTextures.put(ro.getFilename(), textureFilename);
-            Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color), new SolidTexture(Constants.color));
+            Texture defaultTexture = textureCache.smartCache(String.valueOf(runtimeStates.color), new SolidTexture(runtimeStates.color));
             ro.setTexture(defaultTexture);
             ro.setTextured(false);
         }
@@ -109,7 +113,7 @@ public class SceneStorage {
             String savedTextureFilename = savedTextures.get(ro.getFilename());
             if (!textureCache.existsInCache(savedTextureFilename)) continue;
             Texture texture = textureCache.getFromCache(savedTextureFilename);
-            textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(String.valueOf(Constants.color));
+            textureCache.deleteFromCacheIfNotUsedElseDecreaseUsage(String.valueOf(runtimeStates.color));
             ro.setTexture(texture);
             ro.setTextured(true);
         }
@@ -123,7 +127,7 @@ public class SceneStorage {
     }
 
     public void disableWireframeAll() {
-        cp = new DefaultColorProvider();
+        cp = new DefaultColorProvider(runtimeStates);
         for (RenderObject ro : renderObjectsMap.values()) {
             ro.setColorProvider(cp);
         }
@@ -250,5 +254,13 @@ public class SceneStorage {
                 continue;
             deleteTexture(ro.getFilename());
         }
+    }
+
+    public void setCp(ColorProvider cp) {
+        this.cp = cp;
+    }
+
+    public void setLp(LightProvider lp) {
+        this.lp = lp;
     }
 }

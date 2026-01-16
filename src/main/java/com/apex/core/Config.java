@@ -1,6 +1,9 @@
 package com.apex.core;
 
+import com.apex.buffer.JavaFXBasedRasterizationBuffer;
+import com.apex.buffer.RasterizationBuffer;
 import com.apex.model.scene.Camera;
+import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.render.pipeline.Pipeline;
@@ -8,6 +11,9 @@ import com.apex.render.pipeline.element.PipelineElement;
 import com.apex.render.pipeline.element.WireFramePipelineElement;
 import com.apex.render.rasterizator.Rasterizator;
 import com.apex.storage.CameraStorage;
+import com.apex.storage.SceneStorage;
+import com.apex.tool.colorization.DefaultColorProvider;
+import com.apex.tool.light.PointLightProvider;
 
 @AutoCreation
 public class Config {
@@ -27,6 +33,19 @@ public class Config {
         storage.addCamera(Constants.DEFAULT_CAMERA_NAME, camera);
     }
 
-    public void initialRasterizationConfig(@AutoInject Rasterizator rasterizator) {
+    public void initialRasterizationBufferConfig(@AutoInject JavaFXBasedRasterizationBuffer rasterizationBuffer) {
+        rasterizationBuffer.initBuffer();
+    }
+
+    public void initZBufferConfig(@AutoInject ZBuffer zBuffer) {
+        zBuffer.initZBuffer();
+    }
+
+    public void initialSceneStorageConfig(
+            @AutoInject SceneStorage sceneStorage,
+            @AutoInject RuntimeStates runtimeStates
+    ) {
+        sceneStorage.setCp(new DefaultColorProvider(runtimeStates));
+        sceneStorage.setLp(new PointLightProvider());
     }
 }

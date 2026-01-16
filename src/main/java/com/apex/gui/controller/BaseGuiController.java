@@ -67,7 +67,7 @@ public class BaseGuiController extends AbstractController {
 
     @Override
     public void refreshBuffer(int newWidth, int newHeight) {
-        buffer.updateBufferForNewScreenSizes(newWidth, newHeight);
+        buffer.updateBufferForNewScreenSizes();
         refreshRender();
     }
 

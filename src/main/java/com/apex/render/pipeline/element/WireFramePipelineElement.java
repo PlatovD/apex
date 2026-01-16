@@ -2,6 +2,7 @@ package com.apex.render.pipeline.element;
 
 import com.apex.buffer.RasterizationBuffer;
 import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.exception.RasterizationException;
 import com.apex.math.Vector3f;
 import com.apex.model.geometry.Model;
@@ -24,6 +25,9 @@ public class WireFramePipelineElement implements PipelineElement {
 
     @AutoInject
     private ActiveCameraWrapper activeCameraWrapper;
+
+    @AutoInject
+    private RuntimeStates runtimeStates;
 
     @Override
     public void apply(RenderObject ro) {
@@ -56,7 +60,7 @@ public class WireFramePipelineElement implements PipelineElement {
                 refreshVertexAttributeForPolygon(vertex1Attribute, vertex2Index, rawVertices);
                 refreshVertexAttributeForPolygon(vertex2Attribute, vertex3Index, rawVertices);
             }
-            if (!isOnScreen(vertex0Attribute, vertex1Attribute, vertex2Attribute, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT))
+            if (!isOnScreen(vertex0Attribute, vertex1Attribute, vertex2Attribute, runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT))
                 continue;
             if (!isVisibleByNormal(firstVertex, secondVertex, thirdVertex, activeCameraWrapper.getActiveCamera().getTarget().subtract(activeCameraWrapper.getActiveCamera().getPosition()).normalizeLocal())) {
                 continue;

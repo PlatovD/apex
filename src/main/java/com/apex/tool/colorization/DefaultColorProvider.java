@@ -1,8 +1,15 @@
 package com.apex.tool.colorization;
 
+import com.apex.core.RuntimeStates;
 import com.apex.model.texture.Texture;
 
 public class DefaultColorProvider implements ColorProvider {
+    private final RuntimeStates runtimeStates;
+
+    public DefaultColorProvider(RuntimeStates runtimeStates) {
+        this.runtimeStates = runtimeStates;
+    }
+
     @Override
     public int getColor(ColorData colorData, Texture texture) {
         int color;
@@ -16,7 +23,7 @@ public class DefaultColorProvider implements ColorProvider {
             double v_correct = vOverW_pixel / invW_pixel;
             color = texture.getPixelColor(u_correct, v_correct);
         } else {
-            color = com.apex.core.Constants.color;
+            color = runtimeStates.color;
         }
 
         int red = (color >> 16) & 0xFF;

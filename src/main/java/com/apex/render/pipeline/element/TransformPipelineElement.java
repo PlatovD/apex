@@ -1,6 +1,6 @@
 package com.apex.render.pipeline.element;
 
-import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.geometry.Model;
 import com.apex.math.Vector3f;
@@ -17,6 +17,9 @@ public class TransformPipelineElement implements PipelineElement {
     @AutoInject
     private ActiveCameraWrapper activeCameraWrapper;
 
+    @AutoInject
+    private RuntimeStates runtimeStates;
+
     @Override
     public void apply(RenderObject ro) {
         Model model = ro.getModel();
@@ -29,7 +32,7 @@ public class TransformPipelineElement implements PipelineElement {
 
         Matrix4x4 worldMatrix = ro.getWorldMatrix();
         Matrix4x4 viewMatrix = activeCameraWrapper.getActiveCamera().getViewMatrix();
-        Matrix4x4 projMatrix = activeCameraWrapper.getActiveCamera().getProjectionMatrix();
+        Matrix4x4 projMatrix = activeCameraWrapper.getActiveCamera().getProjectionMatrix(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
 
         Matrix4x4 mvpMatrix = projMatrix.multiply(viewMatrix).multiply(worldMatrix);
         for (int i = 0; i < vertexCount; i++) {
@@ -49,7 +52,7 @@ public class TransformPipelineElement implements PipelineElement {
             float zNdc = transformed.getZ() / w;
 
             ScreenSpaceUtils.ScreenPoint screenPoint =
-                    ScreenSpaceUtils.toScreenPoint(xNdc, yNdc, zNdc, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+                    ScreenSpaceUtils.toScreenPoint(xNdc, yNdc, zNdc, runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
 
             int offset = i * 4;
             workVertices[offset] = screenPoint.x;

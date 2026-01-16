@@ -1,6 +1,7 @@
 package com.apex.buffer;
 
 import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.reflection.AutoInject;
 import com.apex.util.PixelWriterWrapper;
 import javafx.scene.image.PixelFormat;
@@ -12,14 +13,16 @@ import static com.apex.core.Constants.backgroundColor;
 public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuffer {
     @AutoInject
     private PixelWriterWrapper pixelWriterWrapper;
+    @AutoInject
+    private RuntimeStates runtimeStates;
 
     private int width;
     private int height;
     private int[] pixels;
 
     public CustomIntArrayBasedRasterizationBuffer() {
-        this.width = Constants.SCENE_WIDTH;
-        this.height = Constants.SCENE_HEIGHT;
+        this.width = runtimeStates.SCENE_WIDTH;
+        this.height = runtimeStates.SCENE_HEIGHT;
         this.pixels = new int[width * height];
     }
 
@@ -29,9 +32,9 @@ public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuff
     }
 
     @Override
-    public void updateBufferForNewScreenSizes(int newWidth, int newHeight) {
-        width = Constants.SCENE_WIDTH;
-        height = Constants.SCENE_HEIGHT;
+    public void updateBufferForNewScreenSizes() {
+        width = runtimeStates.SCENE_WIDTH;
+        height = runtimeStates.SCENE_HEIGHT;
         pixels = new int[width * height];
     }
 
@@ -49,8 +52,8 @@ public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuff
 
     @Override
     public void rasterize() {
-        int width = Constants.SCENE_WIDTH;
-        int height = Constants.SCENE_HEIGHT;
+        int width = runtimeStates.SCENE_WIDTH;
+        int height = runtimeStates.SCENE_HEIGHT;
 
         pixelWriterWrapper.getPixelWriter().setPixels(
                 0, 0,

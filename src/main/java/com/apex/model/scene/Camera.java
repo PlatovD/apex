@@ -7,7 +7,6 @@ public class Camera {
     private Vector3f position;
     private Vector3f target;
     private float fov;
-    private float aspectRatio;
     private float nearPlane;
     private float farPlane;
     private float yaw = -90f;
@@ -23,13 +22,11 @@ public class Camera {
             final Vector3f position,
             final Vector3f target,
             final float fov,
-            final float aspectRatio,
             final float nearPlane,
             final float farPlane) {
         this.position = position;
         this.target = target;
         this.fov = fov;
-        this.aspectRatio = aspectRatio;
         this.nearPlane = nearPlane;
         this.farPlane = farPlane;
         updateCameraVectors();
@@ -47,7 +44,6 @@ public class Camera {
     }
 
     public void setAspectRatio(final float aspectRatio) {
-        this.aspectRatio = aspectRatio;
     }
 
     public Vector3f getPosition() {
@@ -80,8 +76,8 @@ public class Camera {
         return Matrix4x4.lookAt(position, target);
     }
 
-    public Matrix4x4 getProjectionMatrix() {
-        return Matrix4x4.perspective(fov, aspectRatio, nearPlane, farPlane);
+    public Matrix4x4 getProjectionMatrix(int screenWidth, int screenHeight) {
+        return Matrix4x4.perspective(fov, (float) screenWidth / screenHeight, nearPlane, farPlane);
     }
 
     public void rotate(float deltaX, float deltaY) {
@@ -211,7 +207,6 @@ public class Camera {
                 new Vector3f(this.position),
                 new Vector3f(this.target),
                 this.fov,
-                this.aspectRatio,
                 this.nearPlane,
                 this.farPlane);
     }

@@ -1,7 +1,9 @@
 package com.apex.buffer;
 
 import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.reflection.AutoCreation;
+import com.apex.reflection.AutoInject;
 import javafx.scene.image.PixelBuffer;
 import javafx.scene.image.PixelFormat;
 import javafx.scene.image.WritableImage;
@@ -18,9 +20,15 @@ public class JavaFXBasedRasterizationBuffer implements RasterizationBuffer {
     private PixelBuffer<IntBuffer> pixelBufferFX;
     private WritableImage writableImage;
 
+    @AutoInject
+    private RuntimeStates runtimeStates;
+
     public JavaFXBasedRasterizationBuffer() {
-        width = Constants.SCENE_WIDTH;
-        height = Constants.SCENE_HEIGHT;
+    }
+
+    public void initBuffer() {
+        width = runtimeStates.SCENE_WIDTH;
+        height = runtimeStates.SCENE_HEIGHT;
         IntBuffer buffer = IntBuffer.allocate(width * height);
         pixels = buffer.array();
         pixelBufferFX = new PixelBuffer<>(width, height, buffer, PixelFormat.getIntArgbPreInstance());
@@ -33,9 +41,9 @@ public class JavaFXBasedRasterizationBuffer implements RasterizationBuffer {
     }
 
     @Override
-    public void updateBufferForNewScreenSizes(int newWidth, int newHeight) {
-        width = Constants.SCENE_WIDTH;
-        height = Constants.SCENE_HEIGHT;
+    public void updateBufferForNewScreenSizes() {
+        width = runtimeStates.SCENE_WIDTH;
+        height = runtimeStates.SCENE_HEIGHT;
         IntBuffer buffer = IntBuffer.allocate(width * height);
         pixels = buffer.array();
         pixelBufferFX = new PixelBuffer<>(width, height, buffer, PixelFormat.getIntArgbPreInstance());

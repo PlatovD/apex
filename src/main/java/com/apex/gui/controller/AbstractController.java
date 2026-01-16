@@ -1,6 +1,7 @@
 package com.apex.gui.controller;
 
 import com.apex.core.Constants;
+import com.apex.core.RuntimeStates;
 import com.apex.gui.util.ErrorDialogRenderer;
 import com.apex.gui.util.GuiElementsBuilder;
 import com.apex.io.textureloader.TextureLoader;
@@ -12,6 +13,7 @@ import com.apex.model.geometry.Model;
 import com.apex.model.scene.Camera;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
+import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.render.RenderEngine;
 import com.apex.render.pipeline.PipelineConfigurer;
@@ -75,6 +77,8 @@ public abstract class AbstractController implements Controller {
     protected CameraStorage cameraStorage;
     @AutoInject
     protected PipelineConfigurer pipelineConfigurer;
+    @AutoInject
+    protected RuntimeStates runtimeStates;
 
     @FunctionalInterface
     protected interface ThrowableRunnable {
@@ -166,15 +170,15 @@ public abstract class AbstractController implements Controller {
 
         renderPane.widthProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.doubleValue() > 0) {
-                Constants.SCENE_WIDTH = newVal.intValue();
-                refreshBuffer(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+                runtimeStates.SCENE_WIDTH = newVal.intValue();
+                refreshBuffer(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
             }
         });
 
         renderPane.heightProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal.doubleValue() > 0) {
-                Constants.SCENE_HEIGHT = newVal.intValue();
-                refreshBuffer(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+                runtimeStates.SCENE_HEIGHT = newVal.intValue();
+                refreshBuffer(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
             }
         });
 
@@ -202,10 +206,10 @@ public abstract class AbstractController implements Controller {
 
         Platform.runLater(() -> {
             if (renderPane.getWidth() > 0)
-                Constants.SCENE_WIDTH = (int) renderPane.getWidth();
+                runtimeStates.SCENE_WIDTH = (int) renderPane.getWidth();
             if (renderPane.getHeight() > 0)
-                Constants.SCENE_HEIGHT = (int) renderPane.getHeight();
-            refreshBuffer(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+                runtimeStates.SCENE_HEIGHT = (int) renderPane.getHeight();
+            refreshBuffer(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
             refreshGui();
         });
     }
@@ -220,7 +224,6 @@ public abstract class AbstractController implements Controller {
                 renderPane.getScene().setCursor(javafx.scene.Cursor.CLOSED_HAND);
             }
         });
-
 
 
         renderPane.setOnMouseDragged(event -> {
@@ -597,7 +600,7 @@ public abstract class AbstractController implements Controller {
     public void handleBaseTextureColorChange(ActionEvent event) {
         executeSafe("changing base color", () -> {
             Color color = colorPicker.getValue();
-            Constants.color = ColorUtil.toARGB(color);
+            runtimeStates.color = ColorUtil.toARGB(color);
             sceneStorage.updateColors();
             refreshGui();
         });

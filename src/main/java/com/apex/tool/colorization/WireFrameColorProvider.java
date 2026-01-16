@@ -4,6 +4,10 @@ import com.apex.core.Constants;
 import com.apex.model.texture.Texture;
 
 public class WireFrameColorProvider extends DefaultColorProvider {
+    public WireFrameColorProvider() {
+        super(null);
+    }
+
     @Override
     public int getColor(ColorData colorData, Texture texture) {
         double[] barycentric = colorData.barycentric;

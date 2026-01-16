@@ -21,9 +21,8 @@ public class ApexApp extends Application {
         // этого он передает в этот метод именно этот класс
         loader.setControllerFactory(ReflectionScanner::findAssignableBeanByClass);
         AnchorPane viewport = loader.load();
-        viewport.setPrefSize(Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
 
-        Scene scene = new Scene(viewport, Constants.SCENE_WIDTH, Constants.SCENE_HEIGHT);
+        Scene scene = new Scene(viewport);
         stage.setScene(scene);
         stage.setFullScreen(true);
         stage.show();
