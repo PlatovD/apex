@@ -37,6 +37,24 @@ public class ZBuffer {
         return false;
     }
 
+    public boolean canSetPixel(int x, int y, double zCord) {
+        int bufferIndex = y * width + x;
+        if (bufferIndex < 0 || bufferIndex >= width * height) {
+            return false;
+        }
+
+        double normalizedZ = zCord;
+        if (normalizedZ < -1.0 || normalizedZ > 1.0) {
+            return false;
+        }
+        normalizedZ = (normalizedZ + 1.0) / 2.0; // [-1,1] → [0,1]
+
+        if (normalizedZ < buffer[bufferIndex]) {
+            return true;
+        }
+        return false;
+    }
+
     public void clear() {
         Arrays.fill(buffer, Double.MAX_VALUE);
     }

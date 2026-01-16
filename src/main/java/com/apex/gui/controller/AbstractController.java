@@ -92,6 +92,9 @@ public abstract class AbstractController implements Controller {
         }
     }
 
+    private long lastRenderTime = 0;
+    private final long RENDER_INTERVAL = 45;
+
     @FXML
     protected Canvas canvas;
     @FXML
@@ -195,6 +198,7 @@ public abstract class AbstractController implements Controller {
             refreshRender();
         });
         wireframeCheckBox.fire();
+        wireframeCheckBox.fire();
 
         Platform.runLater(() -> {
             if (renderPane.getWidth() > 0)
@@ -217,6 +221,8 @@ public abstract class AbstractController implements Controller {
             }
         });
 
+
+
         renderPane.setOnMouseDragged(event -> {
             if (isMousePressed && event.isPrimaryButtonDown()) {
                 double currentX = event.getSceneX();
@@ -228,16 +234,17 @@ public abstract class AbstractController implements Controller {
                 lastMouseX = currentX;
                 lastMouseY = currentY;
 
-                // определяем тип управления в зависимости от модификаторов
+                // определяем тип управления
                 if (event.isControlDown()) {
-                    // ctrl + ЛКМ = панорамирование
                     transformationController.panCamera(new Vector3f((float) deltaX, (float) deltaY, 0));
                 } else {
-                    // просто ЛКМ = вращение камеры
                     transformationController.moveCameraOnVector(new Vector3f((float) deltaX, (float) deltaY, 0));
                 }
-
-                refreshRender();
+                long now = System.currentTimeMillis();
+                if (now - lastRenderTime >= RENDER_INTERVAL) {
+                    refreshRender();
+                    lastRenderTime = now;
+                }
             }
         });
 
@@ -254,7 +261,11 @@ public abstract class AbstractController implements Controller {
             if (delta != 0) {
                 float zoomSpeed = 0.1f;
                 transformationController.zoomCamera((float) delta * zoomSpeed);
-                refreshRender();
+                long now = System.currentTimeMillis();
+                if (now - lastRenderTime >= RENDER_INTERVAL) {
+                    refreshRender();
+                    lastRenderTime = now;
+                }
             }
         });
     }

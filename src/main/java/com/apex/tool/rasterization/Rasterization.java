@@ -403,15 +403,33 @@ public class Rasterization {
         }
     }
 
-    /**
-     * Метод рисования линии с учётом Z-буфера.
-     */
+    private static double findZFromCoefficients(double[] coefficients, double z0, double invW0, double z1, double inwW1) {
+        double invW = coefficients[0] * invW0 + coefficients[1] * inwW1;
+        double zOverW = coefficients[0] * invW0 * z0 + coefficients[1] * inwW1 * z1;
+        return zOverW / invW;
+    }
+
+    private static void findLinearCoefficients(double[] coefficients, double x, double y, double x0, double y0, double x1, double y1) {
+        if (x1 == x0 && y1 == y0) {
+            coefficients[0] = 1;
+            coefficients[1] = 0;
+            return;
+        }
+        if (y1 - y0 != 0) {
+            coefficients[0] = (y1 - y) / (y1 - y0);
+            coefficients[1] = (y - y0) / (y1 - y0);
+        } else {
+            coefficients[0] = abs(x1 - x) / abs(x1 - x0);
+            coefficients[1] = 1D - coefficients[0];
+        }
+    }
+
     public static void drawLine(
             RasterizationBuffer rb,
             ZBuffer zBuffer,
-            int x1, int y1, double z1,
-            int x2, int y2, double z2,
-            int color) {
+            int x1, int y1, double z1, double invW1,
+            int x2, int y2, double z2, double invW2,
+            int color, double[] coefficients) {
 
         double dx = x2 - x1;
         double dy = y2 - y1;
@@ -433,16 +451,15 @@ public class Rasterization {
             }
 
             double slope = dy / dx;
-            double zSlope = dz / dx;
 
             double y = y1;
-            double z = z1;
             for (int x = x1; x <= x2; x++) {
-                if (zBuffer.setPixel(x, (int) Math.round(y), z + Constants.WIREFRAME_GAP)) {
+                findLinearCoefficients(coefficients, x, y, x1, y1, x2, y2);
+                double zCord = findZFromCoefficients(coefficients, z1, invW1, z2, invW2);
+                if (zBuffer.setPixel(x, (int) Math.round(y), zCord + Constants.WIREFRAME_GAP)) {
                     rb.setPixel(x, (int) Math.round(y), color);
                 }
                 y += slope;
-                z += zSlope;
             }
         } else {
             // Вертикальная линия
@@ -462,25 +479,22 @@ public class Rasterization {
             double zSlope = dz / dy;
 
             double x = x1;
-            double z = z1;
             for (int y = y1; y <= y2; y++) {
-                if (zBuffer.setPixel((int) Math.round(x), y, z + Constants.WIREFRAME_GAP)) {
+                findLinearCoefficients(coefficients, x, y, x1, y1, x2, y2);
+                double zCord = findZFromCoefficients(coefficients, z1, invW1, z2, invW2);
+                if (zBuffer.setPixel((int) Math.round(x), y, zCord + Constants.WIREFRAME_GAP)) {
                     rb.setPixel((int) Math.round(x), y, color);
                 }
                 x += slope;
-                z += zSlope;
             }
         }
     }
 
-    /**
-     * Рисует контур треугольника (wireframe) с учётом Z-буфера.
-     */
     public static void drawWireFrameTriangle(
             RasterizationBuffer rb,
             ZBuffer zBuffer,
             VertexAttribute v0, VertexAttribute v1, VertexAttribute v2,
-            int color) {
+            int color, double[] coefficients) {
 
         // Сортируем вершины по Y
         if (v0.y > v1.y) v0.swapWith(v1);
@@ -488,22 +502,19 @@ public class Rasterization {
         if (v0.y > v1.y) v0.swapWith(v1);
 
         // Рисуем 3 ребра
-        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v1.x, v1.y, v1.z, color);
-        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v2.x, v2.y, v2.z, color);
-        drawLine(rb, zBuffer, v1.x, v1.y, v1.z, v2.x, v2.y, v2.z, color);
+        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v0.invW, v1.x, v1.y, v1.z, v1.invW, color, coefficients);
+        drawLine(rb, zBuffer, v0.x, v0.y, v0.z, v0.invW, v2.x, v2.y, v2.z, v2.invW, color, coefficients);
+        drawLine(rb, zBuffer, v1.x, v1.y, v1.z, v1.invW, v2.x, v2.y, v2.z, v2.invW, color, coefficients);
     }
 
-    /**
-     * Упрощённая версия для 2D (без Z-буфера, для отладки).
-     */
     public static void drawWireFrameTriangle2D(
             RasterizationBuffer rb,
-            int x0, int y0, int x1, int y1, int x2, int y2,
+            VertexAttribute v0, VertexAttribute v1, VertexAttribute v2,
             int color) {
 
-        drawLine2D(rb, x0, y0, x1, y1, color);
-        drawLine2D(rb, x0, y0, x2, y2, color);
-        drawLine2D(rb, x1, y1, x2, y2, color);
+        drawLine2D(rb, v0.x, v0.y, v1.x, v1.y, color);
+        drawLine2D(rb, v0.x, v0.y, v2.x, v2.y, color);
+        drawLine2D(rb, v1.x, v1.y, v2.x, v2.y, color);
     }
 
     private static void drawLine2D(RasterizationBuffer rb, int x1, int y1, int x2, int y2, int color) {
