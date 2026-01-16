@@ -43,8 +43,6 @@ public interface Controller extends Initializable {
 
     void handleCameraDown(ActionEvent event);
 
-    void handleCameraMove(MouseEvent mouseEvent);
-
     @FXML
     @Override
     void initialize(URL url, ResourceBundle resourceBundle);

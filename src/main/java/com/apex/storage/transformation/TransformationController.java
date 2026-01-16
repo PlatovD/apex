@@ -9,6 +9,8 @@ import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
+import com.apex.util.ActiveCameraWrapper;
+import com.apex.model.scene.Camera;
 import javax.vecmath.Matrix4d;
 
 @AutoCreation
@@ -19,10 +21,13 @@ public class TransformationController {
     @AutoInject
     private CameraStorage cameraStorage;
 
+    @AutoInject
+    private ActiveCameraWrapper activeCameraWrapper;
+
     public void updateWorldMatrixForObject(RenderObject ro,
-            float scaleX, float scaleY, float scaleZ,
-            float rotationX, float rotationY, float rotationZ,
-            float positionX, float positionY, float positionZ) {
+                                           float scaleX, float scaleY, float scaleZ,
+                                           float rotationX, float rotationY, float rotationZ,
+                                           float positionX, float positionY, float positionZ) {
 
         Matrix4x4 worldMatrix = createAffineMatrix(
                 new Vector3f(positionX, positionY, positionZ),
@@ -48,9 +53,9 @@ public class TransformationController {
     }
 
     public void updateWorldMatrixForObject(String objectName,
-            float scaleX, float scaleY, float scaleZ,
-            float rotationX, float rotationY, float rotationZ,
-            float positionX, float positionY, float positionZ) {
+                                           float scaleX, float scaleY, float scaleZ,
+                                           float rotationX, float rotationY, float rotationZ,
+                                           float positionX, float positionY, float positionZ) {
 
         RenderObject ro = sceneStorage.getRenderObject(objectName);
         if (ro != null) {
@@ -62,8 +67,8 @@ public class TransformationController {
     }
 
     private Matrix4x4 createAffineMatrix(Vector3f position,
-            Vector3f rotationDegrees,
-            Vector3f scale) {
+                                         Vector3f rotationDegrees,
+                                         Vector3f scale) {
 
         AffineBuilder builder = new AffineBuilder();
 
@@ -79,8 +84,53 @@ public class TransformationController {
         return toMatrix4x4(affineMatrix);
     }
 
-    public void moveCameraOnVector(Vector3f moveVector) {
-        // TODO: Позже
+    public void moveCameraOnVector(Vector3f mouseDelta) {
+        if (mouseDelta == null || (mouseDelta.getX() == 0 && mouseDelta.getY() == 0)) return;
+
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.rotateAroundTarget(mouseDelta.getX(), mouseDelta.getY());
+    }
+
+    // панорамирование камеры (движение с зажатой средней кнопкой)
+    public void panCamera(Vector3f mouseDelta) {
+        if (mouseDelta == null) return;
+
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.pan(mouseDelta.getX(), mouseDelta.getY());
+    }
+
+    // метод для зума камеры (колесико мыши)
+    public void zoomCamera(float amount) {
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.zoom(amount);
+    }
+
+    // методы для клавиатурного управления
+    public void moveCameraForward(float amount) {
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.moveForwardBackward(amount);
+    }
+
+    public void moveCameraRight(float amount) {
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.moveRightLeft(amount);
+    }
+
+    public void moveCameraUp(float amount) {
+        Camera camera = activeCameraWrapper.getActiveCamera();
+        if (camera == null) return;
+
+        camera.moveUpDown(amount);
     }
 
     // Костыль для преобразования из Matrix4d в Matrix4x4
