@@ -12,6 +12,7 @@ import com.apex.exception.RasterizationException;
 import com.apex.model.geometry.Model;
 import com.apex.model.geometry.Polygon;
 import com.apex.tool.colorization.ColorData;
+import com.apex.tool.light.LightProvider;
 import com.apex.tool.rasterization.Rasterization;
 import com.apex.tool.rasterization.VertexAttribute;
 import com.apex.util.ActiveCameraWrapper;
@@ -52,6 +53,7 @@ public class RasterizationPipelineElement implements PipelineElement {
 
         Model model = ro.getModel();
         float[] rawVertices = ro.getWorkVertices();
+        LightProvider lp = ro.getLightProvider();
         Vector3f light = activeCameraWrapper.getActiveCamera().getTarget().subtract(activeCameraWrapper.getActiveCamera().getPosition());
         light.normalizeLocal();
         for (Polygon polygon : ro.getModel().polygons) {
@@ -115,7 +117,7 @@ public class RasterizationPipelineElement implements PipelineElement {
             }
 
             Rasterization.drawTriangle(rb, zBuffer,
-                    light, colorData, ro.getColorProvider(), ro.getTexture(),
+                    light, lp, colorData, ro.getColorProvider(), ro.getTexture(),
                     vertex0Attribute, vertex1Attribute, vertex2Attribute,
                     barycentric
             );

@@ -16,6 +16,9 @@ import com.apex.model.texture.Texture;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.tool.colorization.WireFrameColorProvider;
+import com.apex.tool.light.LightProvider;
+import com.apex.tool.light.NoLightProvider;
+import com.apex.tool.light.PointLightProvider;
 import javafx.scene.image.Image;
 
 import java.util.*;
@@ -25,7 +28,10 @@ public class SceneStorage {
     private final Map<String, RenderObject> renderObjectsMap = new HashMap<>();
     private final List<RenderObject> visibleRenderObjects = new ArrayList<>();
     private final Map<String, String> savedTextures = new HashMap<>();
+
+    // global objects
     private ColorProvider cp = new DefaultColorProvider();
+    private LightProvider lp = new PointLightProvider();
 
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
@@ -39,7 +45,7 @@ public class SceneStorage {
         Texture defaultTexture = textureCache.smartCache(String.valueOf(Constants.color),
                 new SolidTexture(Constants.color));
 
-        RenderObject ro = new RenderObject(filename, model, cp, defaultTexture);
+        RenderObject ro = new RenderObject(filename, model, cp, defaultTexture, lp);
         ro.refreshBounding(1, 1, 1);
         renderObjectsMap.put(filename, ro);
         visibleRenderObjects.add(ro);
@@ -124,14 +130,17 @@ public class SceneStorage {
     }
 
     public void enableLightingForAll() {
+        lp = new PointLightProvider();
         for (RenderObject ro : renderObjectsMap.values()) {
-            ro.getColorData().MIN_LIGHT_FACTOR = Constants.MIN_LIGHT_FACTOR;
+            ro.setLightProvider(lp);
+            ro.setLightProvider(lp);
         }
     }
 
     public void disableLightingForAll() {
+        lp = new NoLightProvider();
         for (RenderObject ro : renderObjectsMap.values()) {
-            ro.getColorData().MIN_LIGHT_FACTOR = 1;
+            ro.setLightProvider(lp);
         }
     }
 

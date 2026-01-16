@@ -8,6 +8,7 @@ import com.apex.model.scene.ZBuffer;
 import com.apex.model.texture.Texture;
 import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
+import com.apex.tool.light.LightProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,7 +21,8 @@ import static java.lang.Math.*;
 public class Rasterization {
     public static void drawTriangle(
             RasterizationBuffer rb, ZBuffer zBuffer,
-            Vector3f light, ColorData colorData, ColorProvider cp, Texture texture,
+            Vector3f light, LightProvider lightProvider, // about light
+            ColorData colorData, ColorProvider cp, Texture texture, // about color
             VertexAttribute v0A, VertexAttribute v1A, VertexAttribute v2A,
             double[] barycentric
     ) {
@@ -91,7 +93,7 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y0, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
@@ -135,7 +137,7 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
                         colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
@@ -177,9 +179,9 @@ public class Rasterization {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 if (barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f) {
                     double pixelZ = findZFromBarycentric(barycentric, z0, invW0, z1, invW1, z2, invW2);
-                    double lightFactor = findLightFactorForPixel(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
+                    double lightFactor = lightProvider.calcLightFactor(n_x0, n_x1, n_x2, n_y0, n_y1, n_y2, n_z0, n_z1, n_z2, light, barycentric);
                     if (zBuffer.setPixel(x, y, pixelZ)) {
-                        colorData.lightFactor = Math.max(lightFactor, colorData.MIN_LIGHT_FACTOR);
+                        colorData.lightFactor = Math.max(lightFactor, Constants.MIN_LIGHT_FACTOR);
                         colorData.barycentric = barycentric;
                         rb.setPixel(x, y, cp.getColor(colorData, texture));
                     }
@@ -190,16 +192,6 @@ public class Rasterization {
             longSide = nextLongSide;
             shortSide = nextShortSide;
         }
-    }
-
-    private static double findLightFactorForPixel(float n_x0, float n_x1, float n_x2,
-                                                  float n_y0, float n_y1, float n_y2,
-                                                  float n_z0, float n_z1, float n_z2,
-                                                  Vector3f light,
-                                                  double[] barycentric) {
-        return -(n_x0 * barycentric[0] + n_x1 * barycentric[1] + n_x2 * barycentric[2]) * light.getX()
-                - (n_y0 * barycentric[0] + n_y1 * barycentric[1] + n_y2 * barycentric[2]) * light.getY()
-                - (n_z0 * barycentric[0] + n_z1 * barycentric[1] + n_z2 * barycentric[2]) * light.getZ();
     }
 
     private static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1, double z2, double invW2) {

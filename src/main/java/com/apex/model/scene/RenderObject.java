@@ -7,6 +7,7 @@ import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
 import com.apex.math.Matrix4x4;
 import com.apex.math.Vector3f;
+import com.apex.tool.light.LightProvider;
 
 /**
  * Объект-обертка, содержащий все необходимые для рендеринга данные
@@ -21,14 +22,16 @@ public class RenderObject {
     private Texture texture;
     private boolean textured = false;
     private ColorProvider colorProvider;
+    private LightProvider lightProvider;
     private final ColorData colorData = new ColorData();
     private float[] workVertices;
 
-    public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture) {
+    public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
         this.colorProvider = colorProvider;
         this.texture = texture;
+        this.lightProvider = lightProvider;
         this.worldMatrix = new Matrix4x4(new float[][]{
                 {1, 0, 0, 0},
                 {0, 1, 0, 0},
@@ -163,5 +166,13 @@ public class RenderObject {
 
     public BoundingData getBoundingData() {
         return boundingData;
+    }
+
+    public LightProvider getLightProvider() {
+        return lightProvider;
+    }
+
+    public void setLightProvider(LightProvider lightProvider) {
+        this.lightProvider = lightProvider;
     }
 }
