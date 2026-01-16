@@ -23,10 +23,15 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class GuiElementsBuilder {
+
     @FunctionalInterface
     public interface Operation {
         void apply(String path, String s, boolean saveTransformed) throws IOException;
     }
+
+    // -----------------------------
+    // SAVE WINDOW
+    // -----------------------------
 
     public static Stage createModelChooseWindow(
             List<RenderObject> renderObjects,
@@ -40,13 +45,11 @@ public class GuiElementsBuilder {
         VBox mainLayout = new VBox(10);
         mainLayout.setPadding(new Insets(10));
 
-        // 1. Заголовок
         Label titleLabel = new Label("Select models to save:");
 
-        // 2. Список моделей
         VBox modelsList = new VBox(5);
         for (RenderObject ro : renderObjects) {
-            Node modelRow = createModelRow(ro);
+            Node modelRow = new ModelSaveRowGUI(ro);
             modelsList.getChildren().add(modelRow);
         }
         if (modelsList.getChildren().isEmpty()) modelsList.setVisible(false);
@@ -56,10 +59,10 @@ public class GuiElementsBuilder {
         scrollPane.setPrefWidth(400);
         scrollPane.setFitToWidth(true);
 
-        // 3. Выбор папки
         HBox folderSelection = new HBox(10);
         TextField folderPathField = new TextField();
         Button chooseFolderBtn = new Button("Directory");
+
         chooseFolderBtn.setOnAction(action -> {
             String path = fileChoosing.get();
             folderPathField.setText(path);
@@ -69,27 +72,36 @@ public class GuiElementsBuilder {
         folderPathField.setPrefWidth(350);
         folderSelection.getChildren().addAll(chooseFolderBtn, folderPathField);
 
-        // 4. Кнопки действий
         HBox buttonBox = new HBox(10);
         Button saveBtn = new Button("Save Selected");
+
         saveBtn.setOnAction(action -> {
-            if (folderPathField.getText().isBlank()) throw new GUIException("No directory selected to save");
+            if (folderPathField.getText().isBlank()) {
+                throw new GUIException("No directory selected to save");
+            }
+
             for (Node node : modelsList.getChildren()) {
                 if (!(node instanceof ModelSaveRowGUI modelSaveRowGUI)) continue;
                 if (!modelSaveRowGUI.isSelected()) continue;
+
                 try {
-                    saveOperation.apply(folderPathField.getText(), modelSaveRowGUI.getModelName(), modelSaveRowGUI.isSaveModified());
+                    saveOperation.apply(
+                            folderPathField.getText(),
+                            modelSaveRowGUI.getModelName(),
+                            modelSaveRowGUI.isSaveModified()
+                    );
                 } catch (IOException e) {
                     System.out.println(Arrays.toString(e.getStackTrace()));
                     throw new RuntimeException("Exception during saving model");
                 }
             }
         });
+
         Button cancelBtn = new Button("Cancel");
         cancelBtn.setOnAction(action -> stage.close());
+
         buttonBox.getChildren().addAll(saveBtn, cancelBtn);
 
-        // Сборка
         mainLayout.getChildren().addAll(
                 titleLabel,
                 scrollPane,
@@ -102,23 +114,12 @@ public class GuiElementsBuilder {
         scene.getStylesheets().add(GuiConstants.PATH_TO_CSS);
         stage.setScene(scene);
 
-        mainLayout.getStyleClass().add("save-window");
-        titleLabel.getStyleClass().add("save-title");
-        scrollPane.getStyleClass().add("save-scroll-pane");
-        modelsList.getStyleClass().add("models-list");
-        folderSelection.getStyleClass().add("folder-selection");
-        folderPathField.getStyleClass().add("folder-textfield");
-        chooseFolderBtn.getStyleClass().add("folder-button");
-        buttonBox.getStyleClass().add("save-buttons-panel");
-        saveBtn.getStyleClass().add("save-button");
-        cancelBtn.getStyleClass().add("cancel-button");
-
         return stage;
     }
 
-    private static ModelSaveRowGUI createModelRow(RenderObject renderObject) {
-        return new ModelSaveRowGUI(renderObject);
-    }
+    // -----------------------------
+    // OBJECT LIST (SCENE PANEL)
+    // -----------------------------
 
     public static Node createObjectNode(
             RenderObject renderObject,
@@ -126,8 +127,9 @@ public class GuiElementsBuilder {
             Consumer<String> onAddTexture,
             Consumer<String> onRemoveTexture,
             Consumer<String> onChangeVisibility,
-            Consumer<String> onChangeActiveStatus) {
-
+            Consumer<String> onChangeActiveStatus,
+            Consumer<String> onFocus // <--- НОВОЕ
+    ) {
         RenderObject.RenderObjectMetadata metadata = renderObject.getMetadata();
 
         VBox container = new VBox(2);
@@ -137,6 +139,7 @@ public class GuiElementsBuilder {
         HBox modelRow = new HBox(4);
         modelRow.getStyleClass().add("model-node");
         modelRow.getStyleClass().add(metadata.status.name().toLowerCase());
+
         if (!metadata.isVisible) {
             modelRow.getStyleClass().add("hidden");
         }
@@ -144,10 +147,12 @@ public class GuiElementsBuilder {
         modelRow.setPrefWidth(230);
         modelRow.setMaxWidth(230);
 
+        // VISIBILITY
         Button visibilityBtn = createVisibilityButton(metadata.isVisible);
         visibilityBtn.getStyleClass().addAll("model-btn", "visibility");
         visibilityBtn.setOnAction(e -> onChangeVisibility.accept(metadata.name));
 
+        // NAME / SELECT
         Button selectBtn = new Button(metadata.name);
         selectBtn.getStyleClass().addAll("model-btn", "name");
         selectBtn.setMinWidth(60);
@@ -158,23 +163,49 @@ public class GuiElementsBuilder {
         if (metadata.status == RenderObjectStatus.UNACTIVE) {
             selectBtn.getStyleClass().add("inactive");
         }
+
         selectBtn.setOnAction(e -> onChangeActiveStatus.accept(metadata.name));
 
+        // FOCUS BUTTON 🎯
+        Button focusBtn = createIconButton(
+                "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 " +
+                        "10-4.48 10-10S17.52 2 12 2zm1 17.93c-2.83.48-5.68-.3-7.78-2.4" +
+                        "-2.1-2.1-2.88-4.95-2.4-7.78L5 10v4h4l.25-2.25c.38-1.1 " +
+                        "1.22-2.06 2.35-2.58V5l1.65-.35c2.83-.48 5.68.3 7.78 2.4 " +
+                        "2.1 2.1 2.88 4.95 2.4 7.78L19 14v-4h-4l-.25 2.25c-.38 " +
+                        "1.1-1.22 2.06-2.35 2.58V19l-1.65.35z",
+                "focus-icon",
+                0.55
+        );
+        focusBtn.getStyleClass().addAll("model-btn", "focus");
+        focusBtn.setOnAction(e -> onFocus.accept(metadata.name));
+
+        // DELETE
         Button deleteBtn = createIconButton(
-                "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
+                "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12z" +
+                        "M19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
                 "delete-icon",
-                0.6);
+                0.6
+        );
         deleteBtn.getStyleClass().addAll("model-btn", "delete");
         deleteBtn.setOnAction(e -> onDelete.accept(metadata.name));
 
-        modelRow.getChildren().addAll(visibilityBtn, selectBtn, deleteBtn);
+        modelRow.getChildren().addAll(
+                visibilityBtn,
+                selectBtn,
+                focusBtn,
+                deleteBtn
+        );
 
         // --- Texture Row ---
         HBox textureRow = new HBox(4);
         textureRow.getStyleClass().add("texture-row");
-        textureRow.setPadding(new javafx.geometry.Insets(0, 0, 0, 24)); // Indent
+        textureRow.setPadding(new Insets(0, 0, 0, 24));
 
-        String textureName = renderObject.isTextured() ? renderObject.getTexture().getCache() : "Solid Color";
+        String textureName = renderObject.isTextured()
+                ? renderObject.getTexture().getCache()
+                : "Solid Color";
+
         Label textureLabel = new Label(textureName);
         textureLabel.getStyleClass().add("texture-label");
         textureLabel.setMinWidth(60);
@@ -182,18 +213,21 @@ public class GuiElementsBuilder {
         HBox.setHgrow(textureLabel, Priority.ALWAYS);
 
         Button textureActionBtn;
+
         if (renderObject.isTextured()) {
             textureActionBtn = createIconButton(
                     "M19 13H5v-2h14v2z",
                     "texture-remove-icon",
-                    0.5);
+                    0.5
+            );
             textureActionBtn.getStyleClass().addAll("model-btn", "texture-remove");
             textureActionBtn.setOnAction(e -> onRemoveTexture.accept(metadata.name));
         } else {
             textureActionBtn = createIconButton(
                     "M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z",
                     "texture-add-icon",
-                    0.5);
+                    0.5
+            );
             textureActionBtn.getStyleClass().addAll("model-btn", "texture-add");
             textureActionBtn.setOnAction(e -> onAddTexture.accept(metadata.name));
         }
@@ -202,17 +236,61 @@ public class GuiElementsBuilder {
 
         container.getChildren().addAll(modelRow, textureRow);
         container.setUserData(metadata.name);
+
         return container;
+    }
+
+    // -----------------------------
+    // HELPERS
+    // -----------------------------
+
+    private static Button createIconButton(String svgPath, String cssClass, double scale) {
+        Button btn = new Button();
+        SVGPath path = new SVGPath();
+        path.setContent(svgPath);
+        path.setScaleX(scale);
+        path.setScaleY(scale);
+        path.getStyleClass().add(cssClass);
+
+        StackPane graphic = new StackPane(path);
+        graphic.setPrefSize(16, 16);
+        btn.setGraphic(graphic);
+
+        return btn;
+    }
+
+    private static Button createVisibilityButton(boolean isVisible) {
+        if (isVisible) {
+            return createIconButton(
+                    "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 " +
+                            "6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39 " +
+                            "-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5 " +
+                            "s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z",
+                    "eye-icon",
+                    0.6
+            );
+        } else {
+            return createIconButton(
+                    "M2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 " +
+                            "10.02 1 12c1.73 4.39 6 7.5 11 7.5 " +
+                            "1.55 0 3.03-.3 4.38-.84l.42.42 " +
+                            "L19.73 22 21 20.73 3.27 3 2 4.27z",
+                    "eye-icon-hidden",
+                    0.6
+            );
+        }
     }
 
     public static Node createCameraNode(
             String name,
             boolean isActive,
             Consumer<String> onSelect,
-            Consumer<String> onDelete) {
+            Consumer<String> onDelete
+    ) {
 
         HBox hbox = new HBox(4);
-        hbox.getStyleClass().add("model-node"); // Reuse model-node style for consistency
+        hbox.getStyleClass().add("model-node");
+
         if (isActive) {
             hbox.getStyleClass().add("active");
         }
@@ -220,16 +298,21 @@ public class GuiElementsBuilder {
         hbox.setPrefWidth(230);
         hbox.setMaxWidth(230);
 
+        // Кнопка "активная камера"
         Button activeIndicator = createIconButton(
                 "M13 7h-2V6.08c0-1.13.92-2.08 2.09-2.08s2.1 1 2.1 2.12V18c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h2.18l2.58-3H12c1.1 0 2 .9 2 2v2h2V3h2v18h-2v-1h-2v1h-2v-2h2v-1h-2v1h-2v-2h2v-1h-2v1h-2V6h2V5h4v2h-2z",
                 "camera-icon",
-                0.6);
+                0.6
+        );
         activeIndicator.getStyleClass().addAll("model-btn", "camera-active");
+
         if (!isActive) {
             activeIndicator.getStyleClass().add("inactive-camera");
         }
+
         activeIndicator.setOnAction(e -> onSelect.accept(name));
 
+        // Имя камеры
         Button selectBtn = new Button(name);
         selectBtn.getStyleClass().addAll("model-btn", "name");
         selectBtn.setMinWidth(60);
@@ -238,10 +321,12 @@ public class GuiElementsBuilder {
         HBox.setHgrow(selectBtn, Priority.ALWAYS);
         selectBtn.setOnAction(e -> onSelect.accept(name));
 
+        // Удалить
         Button deleteBtn = createIconButton(
                 "M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z",
                 "delete-icon",
-                0.6);
+                0.6
+        );
         deleteBtn.getStyleClass().addAll("model-btn", "delete");
         deleteBtn.setOnAction(e -> onDelete.accept(name));
 
@@ -255,31 +340,4 @@ public class GuiElementsBuilder {
         return hbox;
     }
 
-    private static Button createIconButton(String svgPath, String cssClass, double scale) {
-        Button btn = new Button();
-        SVGPath path = new SVGPath();
-        path.setContent(svgPath);
-        path.setScaleX(scale);
-        path.setScaleY(scale);
-        path.getStyleClass().add(cssClass);
-
-        StackPane graphic = new StackPane(path);
-        graphic.setPrefSize(16, 16);
-        btn.setGraphic(graphic);
-        return btn;
-    }
-
-    private static Button createVisibilityButton(boolean isVisible) {
-        if (isVisible) {
-            return createIconButton(
-                    "M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z",
-                    "eye-icon",
-                    0.6);
-        } else {
-            return createIconButton(
-                    "M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z",
-                    "eye-icon-hidden",
-                    0.6);
-        }
-    }
 }
