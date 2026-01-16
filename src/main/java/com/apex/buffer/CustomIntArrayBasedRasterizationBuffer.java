@@ -46,6 +46,16 @@ public class CustomIntArrayBasedRasterizationBuffer implements RasterizationBuff
     }
 
     @Override
+    public void drawPoint(int x, int y, int size, int color) {
+        int half = size / 2;
+        for (int i = -half; i <= half; i++) {
+            for (int j = -half; j <= half; j++) {
+                setPixel(x + i, y + j, color);
+            }
+        }
+    }
+
+    @Override
     public void clear() {
         Arrays.fill(pixels, backgroundColor);
     }

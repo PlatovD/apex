@@ -120,6 +120,17 @@ public abstract class AbstractController implements Controller {
     @FXML
     protected Button camerasCollapseBtn;
 
+    // Modification UI elements
+    @FXML
+    protected VBox modificationContentVBox;
+    @FXML
+    protected Button modificationCollapseBtn;
+    @FXML
+    protected TextField vertexIndicesField;
+
+    @AutoInject
+    protected com.apex.modification.VertexRemover vertexRemover;
+
     // Affine transformation UI elements
     @FXML
     protected VBox affineContentVBox;
@@ -131,6 +142,8 @@ public abstract class AbstractController implements Controller {
     protected TextField rotateXField, rotateYField, rotateZField;
     @FXML
     protected TextField translateXField, translateYField, translateZField;
+    @FXML
+    protected TextField polygonIndicesField;
     @FXML
     protected Button affineApplyBtn, affineResetBtn;
 
@@ -194,15 +207,12 @@ public abstract class AbstractController implements Controller {
 
         setupMouseHandlers();
 
-        wireframeCheckBox.setOnAction((actionEvent) -> {
-            if (wireframeCheckBox.isSelected())
-                pipelineConfigurer.enableFirstReserved();
-            else
-                pipelineConfigurer.disableLast();
-            refreshRender();
-        });
-        wireframeCheckBox.fire();
-        wireframeCheckBox.fire();
+        // Collapse specific sections by default (except lists/cameras if desired)
+        // User requested: "all except camera list were collapsed"
+        collapseSection(affineContentVBox, affineCollapseBtn);
+        collapseSection(renderingModesContentVBox, renderingModesCollapseBtn);
+        collapseSection(modificationContentVBox, modificationCollapseBtn);
+        collapseSection(settingsContentVBox, settingsCollapseBtn);
 
         Platform.runLater(() -> {
             if (renderPane.getWidth() > 0)
@@ -289,16 +299,16 @@ public abstract class AbstractController implements Controller {
             }
 
             switch (event.getCode()) {
-                case W -> handleCameraUp(new ActionEvent());
-                case S -> handleCameraDown(new ActionEvent());
+                case W -> handleCameraForward(new ActionEvent());
+                case S -> handleCameraBackward(new ActionEvent());
                 case A -> handleCameraLeft(new ActionEvent());
                 case D -> handleCameraRight(new ActionEvent());
-                case UP -> handleCameraForward(new ActionEvent());
-                case DOWN -> handleCameraBackward(new ActionEvent());
-                // LEFT and RIGHT are already handled by A and D inside camera but here it
-                // matches the user's specific request
-                case LEFT -> handleCameraLeft(new ActionEvent());
-                case RIGHT -> handleCameraRight(new ActionEvent());
+                case Q -> handleCameraUp(new ActionEvent());
+                case E -> handleCameraDown(new ActionEvent());
+                case UP -> handleCameraRotateUp(new ActionEvent());
+                case DOWN -> handleCameraRotateDown(new ActionEvent());
+                case LEFT -> handleCameraRotateLeft(new ActionEvent());
+                case RIGHT -> handleCameraRotateRight(new ActionEvent());
                 default -> handled = false;
             }
             if (handled) {
@@ -308,30 +318,27 @@ public abstract class AbstractController implements Controller {
     }
 
     @FXML
-    public void handleAffineCollapseToggle(MouseEvent event) {
-        toggleSection(affineContentVBox, affineCollapseBtn);
+    public void handleCameraRotateLeft(ActionEvent actionEvent) {
+        transformationController.rotateCamera(-Constants.ROTATION_SPEED, 0);
+        refreshRender();
     }
 
     @FXML
-    public void handleCamerasCollapseToggle(MouseEvent event) {
-        toggleSection(camerasVBox, camerasCollapseBtn);
+    public void handleCameraRotateRight(ActionEvent actionEvent) {
+        transformationController.rotateCamera(Constants.ROTATION_SPEED, 0);
+        refreshRender();
     }
 
     @FXML
-    public void handleRenderingModesCollapseToggle(MouseEvent event) {
-        toggleSection(renderingModesContentVBox, renderingModesCollapseBtn);
+    public void handleCameraRotateUp(ActionEvent actionEvent) {
+        transformationController.rotateCamera(0, -Constants.ROTATION_SPEED);
+        refreshRender();
     }
 
     @FXML
-    public void handleSettingsCollapseToggle(MouseEvent event) {
-        toggleSection(settingsContentVBox, settingsCollapseBtn);
-    }
-
-    private void toggleSection(VBox content, Button indicator) {
-        boolean isVisible = content.isVisible();
-        content.setVisible(!isVisible);
-        content.setManaged(!isVisible);
-        indicator.setText(!isVisible ? "▼" : "▶");
+    public void handleCameraRotateDown(ActionEvent actionEvent) {
+        transformationController.rotateCamera(0, Constants.ROTATION_SPEED);
+        refreshRender();
     }
 
     @FXML
@@ -413,7 +420,8 @@ public abstract class AbstractController implements Controller {
     @Override
     public void onSaveModelHandler(ActionEvent event) {
         executeSafe("saving models", () -> {
-            Stage stage = GuiElementsBuilder.createModelChooseWindow(new ArrayList<>(sceneStorage.getRenderObjects()), this::onSaveModel, this::handleChoosingFolder);
+            Stage stage = GuiElementsBuilder.createModelChooseWindow(new ArrayList<>(sceneStorage.getRenderObjects()),
+                    this::onSaveModel, this::handleChoosingFolder);
             stage.showAndWait();
         });
     }
@@ -422,14 +430,16 @@ public abstract class AbstractController implements Controller {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Directory to save");
         File file = directoryChooser.showDialog(rootPane.getScene().getWindow());
-        if (file == null) return "";
+        if (file == null)
+            return "";
         return file.getPath();
     }
 
     private void onSaveModel(String path, String s, boolean saveTransformed) throws IOException {
         RenderObject ro = sceneStorage.getRenderObject(s);
         Model modelToSave = ro.getModel().copy();
-        writeProcessor.process(new IOProcessParams(modelToSave, IOProcessParams.IOType.OUTPUT, saveTransformed, ro.getWorldMatrix()));
+        writeProcessor.process(
+                new IOProcessParams(modelToSave, IOProcessParams.IOType.OUTPUT, saveTransformed, ro.getWorldMatrix()));
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         ObjWriter.write(modelToSave, Paths.get(path, timestamp + "_" + ro.getFilename()).toString());
@@ -644,5 +654,118 @@ public abstract class AbstractController implements Controller {
         translateZField.setText("0.0");
 
         handleAffineApply(event);
+    }
+
+    @FXML
+    public void handleModificationCollapseToggle(MouseEvent event) {
+        toggleCollapse(modificationContentVBox, modificationCollapseBtn);
+    }
+
+    @FXML
+    public void handleCamerasCollapseToggle(MouseEvent event) {
+        toggleCollapse(camerasVBox, camerasCollapseBtn);
+    }
+
+    @FXML
+    public void handleRenderingModesCollapseToggle(MouseEvent event) {
+        toggleCollapse(renderingModesContentVBox, renderingModesCollapseBtn);
+    }
+
+    @FXML
+    public void handleAffineCollapseToggle(MouseEvent event) {
+        toggleCollapse(affineContentVBox, affineCollapseBtn);
+    }
+
+    @FXML
+    public void handleSettingsCollapseToggle(MouseEvent event) {
+        toggleCollapse(settingsContentVBox, settingsCollapseBtn);
+    }
+
+    protected void toggleCollapse(VBox content, Button toggleBtn) {
+        if (content.isVisible()) {
+            collapseSection(content, toggleBtn);
+        } else {
+            expandSection(content, toggleBtn);
+        }
+    }
+
+    protected void collapseSection(VBox content, Button toggleBtn) {
+        content.setVisible(false);
+        content.setManaged(false);
+        toggleBtn.setText("▼");
+        toggleBtn.setRotate(-90);
+    }
+
+    protected void expandSection(VBox content, Button toggleBtn) {
+        content.setVisible(true);
+        content.setManaged(true);
+        toggleBtn.setText("▼");
+        toggleBtn.setRotate(0);
+    }
+
+    @FXML
+    public void handleSelectVertices(ActionEvent event) {
+        String text = vertexIndicesField.getText();
+        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
+
+        for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
+            ro.setSelectedVertexIndices(indices);
+        }
+        refreshRender();
+    }
+
+    @FXML
+    public void handleRemoveVertices(ActionEvent event) {
+        String text = vertexIndicesField.getText();
+        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
+
+        boolean changed = false;
+        for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
+            com.apex.modification.VertexRemovalResult result = vertexRemover.removeVertices(ro.getModel(), indices,
+                    true);
+            if (result.removedVerticesCount() > 0 || result.removedPolygonsCount() > 0) {
+                ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
+                ro.setSelectedVertexIndices(new java.util.HashSet<>());
+                ro.setSelectedPolygonIndices(new java.util.HashSet<>());
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            refreshRender();
+        }
+    }
+
+    @FXML
+    public void handleSelectPolygons(ActionEvent event) {
+        String text = polygonIndicesField.getText();
+        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
+
+        for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
+            ro.setSelectedPolygonIndices(indices);
+        }
+        refreshRender();
+    }
+
+    @FXML
+    public void handleRemovePolygons(ActionEvent event) {
+        String text = polygonIndicesField.getText();
+        java.util.Set<Integer> indices = com.apex.util.IndexParser.parseIndices(text);
+
+        boolean changed = false;
+        for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
+            com.apex.modification.VertexRemovalResult result = vertexRemover.removePolygons(ro.getModel(), indices,
+                    true);
+            if (result.removedPolygonsCount() > 0) {
+                ro.setWorkVertices(new float[ro.getModel().vertices.size() * 4]);
+                ro.setSelectedVertexIndices(new java.util.HashSet<>());
+                ro.setSelectedPolygonIndices(new java.util.HashSet<>());
+                changed = true;
+            }
+        }
+
+        if (changed) {
+            refreshRender();
+        }
     }
 }

@@ -50,9 +50,20 @@ public class JavaFXBasedRasterizationBuffer implements RasterizationBuffer {
         writableImage = new WritableImage(pixelBufferFX);
     }
 
+    @Override
     public void setPixel(int x, int y, int rgbColor) {
         if (x >= 0 && x < width && y >= 0 && y < height) {
             pixels[y * width + x] = rgbColor;
+        }
+    }
+
+    @Override
+    public void drawPoint(int x, int y, int size, int color) {
+        int half = size / 2;
+        for (int i = -half; i <= half; i++) {
+            for (int j = -half; j <= half; j++) {
+                setPixel(x + i, y + j, color);
+            }
         }
     }
 

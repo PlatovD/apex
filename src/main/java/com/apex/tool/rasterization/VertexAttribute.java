@@ -5,7 +5,7 @@ public class VertexAttribute {
     public double z, invW;
     public float u = 0, v = 0;
     public double uOverW;
-    public double vOwerW;
+    public double vOverW;
     public float n_x, n_y, n_z;
 
     public VertexAttribute() {
@@ -45,9 +45,9 @@ public class VertexAttribute {
         this.uOverW = other.uOverW;
         other.uOverW = tmpDouble;
 
-        tmpDouble = this.vOwerW;
-        this.vOwerW = other.vOwerW;
-        other.vOwerW = tmpDouble;
+        tmpDouble = this.vOverW;
+        this.vOverW = other.vOverW;
+        other.vOverW = tmpDouble;
 
         // float
         float tmpFloat = this.u;
