@@ -69,7 +69,7 @@ public class TransformationController {
         camera.rotateAroundTarget(mouseDelta.getX(), mouseDelta.getY());
     }
 
-    // панорамирование камеры (движение с зажатой средней кнопкой)
+    // панорамирование камеры
     public void panCamera(Vector3f mouseDelta) {
         if (mouseDelta == null)
             return;
