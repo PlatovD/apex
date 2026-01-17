@@ -16,6 +16,7 @@ import javax.vecmath.Matrix4d;
 
 @AutoCreation
 public class TransformationController {
+
     @AutoInject
     private SceneStorage sceneStorage;
 
@@ -33,14 +34,52 @@ public class TransformationController {
         Matrix4x4 worldMatrix = createAffineMatrix(
                 new Vector3f(positionX, positionY, positionZ),
                 new Vector3f(rotationX, rotationY, rotationZ),
-                new Vector3f(scaleX, scaleY, scaleZ));
+                new Vector3f(scaleX, scaleY, scaleZ)
+        );
 
         for (RenderObject ro : sceneStorage.getActiveRenderObjects()) {
-            ro.setWorldMatrix(worldMatrix.copy());
+            Matrix4x4 wmCopy = worldMatrix.copy();
+            ro.setWorldMatrix(wmCopy);
+
+            transformModelNormals(ro, wmCopy);
         }
     }
 
-    private Matrix4x4 createAffineMatrix(Vector3f position,
+    private void transformModelNormals(RenderObject ro, Matrix4x4 worldMatrix) {
+        if (ro.getModel() == null || ro.getModel().normals == null)
+            return;
+
+        for (Vector3f normal : ro.getModel().normals) {
+            float x = normal.getX();
+            float y = normal.getY();
+            float z = normal.getZ();
+
+            float nx =
+                    worldMatrix.get(0, 0) * x +
+                            worldMatrix.get(0, 1) * y +
+                            worldMatrix.get(0, 2) * z;
+
+            float ny =
+                    worldMatrix.get(1, 0) * x +
+                            worldMatrix.get(1, 1) * y +
+                            worldMatrix.get(1, 2) * z;
+
+            float nz =
+                    worldMatrix.get(2, 0) * x +
+                            worldMatrix.get(2, 1) * y +
+                            worldMatrix.get(2, 2) * z;
+
+            Vector3f transformed = new Vector3f(nx, ny, nz);
+            transformed.normalizeLocal();
+
+            normal.setX(transformed.getX());
+            normal.setY(transformed.getY());
+            normal.setZ(transformed.getZ());
+        }
+    }
+
+    private Matrix4x4 createAffineMatrix(
+            Vector3f position,
             Vector3f rotationDegrees,
             Vector3f scale) {
 
@@ -69,7 +108,6 @@ public class TransformationController {
         camera.rotateAroundTarget(mouseDelta.getX(), mouseDelta.getY());
     }
 
-    // панорамирование камеры (движение с зажатой средней кнопкой)
     public void panCamera(Vector3f mouseDelta) {
         if (mouseDelta == null)
             return;
@@ -81,7 +119,6 @@ public class TransformationController {
         camera.pan(mouseDelta.getX(), mouseDelta.getY());
     }
 
-    // метод для зума камеры (колесико мыши)
     public void zoomCamera(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
         if (camera == null)
@@ -90,7 +127,6 @@ public class TransformationController {
         camera.zoom(amount);
     }
 
-    // методы для клавиатурного управления
     public void moveCameraForward(float amount) {
         Camera camera = activeCameraWrapper.getActiveCamera();
         if (camera == null)

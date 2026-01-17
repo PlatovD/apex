@@ -9,7 +9,6 @@ import com.apex.math.Matrix4x4;
 import com.apex.math.Vector3f;
 import com.apex.tool.light.LightProvider;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -31,7 +30,7 @@ public class RenderObject {
     private float[] workVertices;
     private Set<Integer> selectedVertexIndices = new HashSet<>();
     private Set<Integer> selectedPolygonIndices = new HashSet<>();
-
+    private float[] workNormals;
     public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
@@ -45,6 +44,7 @@ public class RenderObject {
                 {0, 0, 0, 1},
         });
         this.workVertices = new float[model.vertices.size() * 4];
+        this.workNormals  = new float[model.normals.size() * 3];
     }
 
     public void refreshBounding(float scaleX, float scaleY, float scaleZ) {
@@ -62,10 +62,12 @@ public class RenderObject {
     private void calculateBoundingRadius(float scaleX, float scaleY, float scaleZ) {
         boundingData.boundingRadius = 0;
         float maxDist = 0;
+
         for (Vector3f vertex : model.vertices) {
             Vector3f distVector = boundingData.centerOfObject.subtract(vertex);
             maxDist = Math.max(distVector.length(), maxDist);
         }
+
         boundingData.boundingRadius = maxDist;
     }
 
@@ -90,20 +92,28 @@ public class RenderObject {
         this.worldMatrix = worldMatrix;
     }
 
-    public Texture getTexture() {
-        return texture;
-    }
-
-    public void setTexture(Texture texture) {
-        this.texture = texture;
-    }
-
     public float[] getWorkVertices() {
         return workVertices;
     }
 
     public void setWorkVertices(float[] workVertices) {
         this.workVertices = workVertices;
+    }
+
+    public float[] getWorkNormals() {
+        return workNormals;
+    }
+
+    public void setWorkNormals(float[] workNormals) {
+        this.workNormals = workNormals;
+    }
+
+    public Texture getTexture() {
+        return texture;
+    }
+
+    public void setTexture(Texture texture) {
+        this.texture = texture;
     }
 
     public ColorProvider getColorProvider() {
