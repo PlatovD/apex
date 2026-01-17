@@ -25,4 +25,12 @@ public class ColorUtil {
                 ((int)(color.getGreen()   * 255) << 8)  |
                 ((int)(color.getBlue()    * 255));
     }
+
+    public static Color fromARGB(int argb) {
+        double a = ((argb >> 24) & 0xFF) / 255.0;
+        double r = ((argb >> 16) & 0xFF) / 255.0;
+        double g = ((argb >> 8) & 0xFF) / 255.0;
+        double b = (argb & 0xFF) / 255.0;
+        return new Color(r, g, b, a);
+    }
 }
