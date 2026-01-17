@@ -210,4 +210,10 @@ public class Camera {
                 this.nearPlane,
                 this.farPlane);
     }
+
+    public void focusOn(Vector3f point) {
+        if (point == null) return;
+        setTarget(new Vector3f(point));
+    }
+
 }

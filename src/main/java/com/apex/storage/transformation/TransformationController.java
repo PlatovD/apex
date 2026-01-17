@@ -16,7 +16,6 @@ import javax.vecmath.Matrix4d;
 
 @AutoCreation
 public class TransformationController {
-
     @AutoInject
     private SceneStorage sceneStorage;
 

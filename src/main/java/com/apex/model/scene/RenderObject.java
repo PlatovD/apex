@@ -1,5 +1,6 @@
 package com.apex.model.scene;
 
+import com.apex.math.Vector4f;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
@@ -207,4 +208,21 @@ public class RenderObject {
     public void setSelectedPolygonIndices(java.util.Set<Integer> selectedPolygonIndices) {
         this.selectedPolygonIndices = selectedPolygonIndices;
     }
+
+    public Vector3f getWorldCenter() {
+        if (boundingData == null || boundingData.centerOfObject == null) {
+            return null;
+        }
+
+        Vector4f localCenter = Vector4f.fromVector3(
+                boundingData.centerOfObject,
+                1.0f
+        );
+
+        Vector4f worldCenter4 = worldMatrix.multiply(localCenter);
+
+        return worldCenter4.toVector3Projected();
+    }
+
+
 }

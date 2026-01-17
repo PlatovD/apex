@@ -550,10 +550,41 @@ public abstract class AbstractController implements Controller {
                     this::onAddTextureHandler,
                     this::onRemoveTextureHandler,
                     this::onChangeVisibilityHandler,
-                    this::onChangeActiveStatusHandler);
+                    this::onChangeActiveStatusHandler,
+                    this::focusOnObject
+            );
             modelsVBox.getChildren().add(node);
         }
     }
+
+
+    private void focusOnObject(String name) {
+        executeSafe("focusing camera on " + name, () -> {
+            RenderObject ro = sceneStorage.getRenderObject(name);
+            if (ro == null) return;
+
+            Vector3f newTarget = ro.getWorldCenter();
+            if (newTarget == null) return;
+
+            Camera camera = activeCameraWrapper.getActiveCamera();
+            Vector3f oldTarget = camera.getTarget();
+            Vector3f cameraPos = camera.getPosition();
+
+            float distance = cameraPos.subtract(oldTarget).length();
+
+            Vector3f directionToNewTarget = newTarget.subtract(cameraPos).normalize();
+
+            Vector3f newCameraPos = newTarget.subtract(directionToNewTarget.multiply(distance));
+
+            camera.setPosition(newCameraPos);
+            camera.setTarget(newTarget);
+
+            refreshRender();
+        });
+    }
+
+
+
 
     private void refreshCameraList() {
         if (camerasVBox == null)
