@@ -17,4 +17,6 @@ public class Constants {
     public static final Vector3f DEFAULT_UP = new Vector3f(0.0f, 0.1f, 0.0f);
     public static final float MIN_CAMERA_DIST = 3f;
     public static final float WIREFRAME_GAP = 0.1f;
+    public static final String DEFAULT_LIGHT_NAME = "Default Light";
+    public static final Vector3f DEFAULT_LIGHT = new Vector3f(1.0f, 1.0f, 1.0f); // Белый свет
 }
