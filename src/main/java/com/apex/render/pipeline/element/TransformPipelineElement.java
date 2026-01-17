@@ -25,7 +25,7 @@ public class TransformPipelineElement implements PipelineElement {
         Model model = ro.getModel();
         int vertexCount = model.vertices.size();
 
-        if (ro.getWorkVertices() == null || ro.getWorkVertices().length != vertexCount * 3) {
+        if (ro.getWorkVertices() == null || ro.getWorkVertices().length != vertexCount * 4) {
             ro.setWorkVertices(new float[vertexCount * 4]);
         }
         float[] workVertices = ro.getWorkVertices();
@@ -35,12 +35,16 @@ public class TransformPipelineElement implements PipelineElement {
         Matrix4x4 projMatrix = activeCameraWrapper.getActiveCamera().getProjectionMatrix(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
 
         Matrix4x4 mvpMatrix = projMatrix.multiply(viewMatrix).multiply(worldMatrix);
+
+        Vector4f v4 = new Vector4f();
+        Vector4f transformed = new Vector4f();
+
         for (int i = 0; i < vertexCount; i++) {
             Vector3f v = model.vertices.get(i);
 
-            Vector4f v4 = new Vector4f(v.getX(), v.getY(), v.getZ(), 1.0f);
+            v4.set(v.getX(), v.getY(), v.getZ(), 1.0f);
 
-            Vector4f transformed = mvpMatrix.multiply(v4);
+            mvpMatrix.multiply(v4, transformed);
 
             float w = transformed.getW();
             if (Math.abs(w) < com.apex.math.MathUtil.EPSILON) {
