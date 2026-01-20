@@ -47,7 +47,21 @@
                         </HBox>
                         <VBox fx:id="camerasVBox" maxWidth="230.0" minHeight="30.0" prefWidth="230.0" styleClass="render-objects-box" />
 
+
+                        <!-- Lights Section -->
+                        <HBox fx:id="lightsHeader" alignment="CENTER_LEFT" onMouseClicked="#handleLightsCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
+                            <children>
+                                <Label text="Lights" />
+                                <Pane HBox.hgrow="ALWAYS" />
+                                <Button fx:id="lightAddBtn" mnemonicParsing="false" onAction="#handleLightAdd" styleClass="model-btn" text="+ Light" />
+                                <Button fx:id="lightsCollapseBtn" mouseTransparent="true" mnemonicParsing="false" styleClass="collapse-indicator" text="▼" />
+                            </children>
+                        </HBox>
+                        <VBox fx:id="lightsVBox" maxWidth="230.0" minHeight="0.0" prefWidth="230.0" styleClass="render-objects-box" />
+
+                        <VBox fx:id="lightsVBox" maxWidth="230.0" minHeight="0.0" prefWidth="230.0" styleClass="render-objects-box" />
                         <!-- Affine Section -->
+
                         <HBox fx:id="affineHeader" onMouseClicked="#handleAffineCollapseToggle" prefWidth="250.0" spacing="8.0" styleClass="collapsible-header">
                             <children>
                                 <Label text="Affine" />
