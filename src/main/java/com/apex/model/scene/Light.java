@@ -1,4 +1,4 @@
-package com.apex.tool.light;
+package com.apex.model.scene;
 
 import com.apex.math.Vector3f;
 

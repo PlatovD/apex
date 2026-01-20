@@ -6,7 +6,7 @@ import com.apex.math.Vector3f;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.util.ActiveLightWrapper;
-import com.apex.tool.light.Light;
+import com.apex.model.scene.Light;
 
 import java.util.HashMap;
 import java.util.List;
