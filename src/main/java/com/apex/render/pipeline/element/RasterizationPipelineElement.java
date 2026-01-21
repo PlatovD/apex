@@ -4,6 +4,7 @@ import com.apex.buffer.RasterizationBuffer;
 import com.apex.core.Constants;
 import com.apex.core.RuntimeStates;
 import com.apex.exception.RasterizationException;
+import com.apex.math.Matrix4x4;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
 import com.apex.model.geometry.Model;
@@ -14,9 +15,7 @@ import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
 import com.apex.storage.LightStorage;
-import com.apex.tool.rasterization.Rasterizator;
-import com.apex.tool.rasterization.VertexAttribute;
-import com.apex.tool.rasterization.VertexAttributeExtended;
+import com.apex.tool.rasterization.*;
 import com.apex.util.ActiveCameraWrapper;
 
 import java.util.List;
@@ -45,6 +44,11 @@ public class RasterizationPipelineElement implements PipelineElement {
     private Rasterizator rasterizator;
 
     // инициализация переиспользуемых объектов
+    private SceneAttribute sceneAttribute = new SceneAttribute();
+    private DrawableModelAttribute modelAttribute = new DrawableModelAttribute();
+    private RenderObject currentRo;
+    private Model model;
+    private float[] rawVertices;
     private VertexAttributeExtended vertex0Attribute = new VertexAttributeExtended(), vertex1Attribute = new VertexAttributeExtended(), vertex2Attribute = new VertexAttributeExtended();
     private Vector2f textureVertex0, textureVertex1, textureVertex2;
     private Vector3f normalVertex0, normalVertex1, normalVertex2;
@@ -52,9 +56,25 @@ public class RasterizationPipelineElement implements PipelineElement {
     private List<Integer> textureIndices;
     private List<Integer> normalIndices;
 
+    // сервисные объекты
+    private Vector3f serviceV3f = new Vector3f();
+
     public void apply(RenderObject ro) {
-        Model model = ro.getModel();
-        float[] rawVertices = ro.getWorkVertices();
+        currentRo = ro;
+        model = ro.getModel();
+        rawVertices = ro.getWorkVertices();
+
+        {
+            sceneAttribute.camera = activeCameraWrapper.getActiveCamera();
+            sceneAttribute.lights = lightStorage.getLights();
+        }
+
+        {
+            modelAttribute.centerOfMass = ro.getWorldCenter();
+            modelAttribute.texture = ro.getTexture();
+            modelAttribute.shader = ro.getShader();
+        }
+
         for (int i = 0; i < model.polygons.size(); i++) {
             Polygon polygon = model.polygons.get(i);
             if (polygon.getVertexIndices().size() != 3)
@@ -75,6 +95,13 @@ public class RasterizationPipelineElement implements PipelineElement {
 
             if (!isOnScreen(vertex0Attribute, vertex1Attribute, vertex2Attribute, runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT))
                 continue;
+
+            // обновил мировые координаты
+            {
+                refreshVertexWorldCoordinates(vertex0Attribute, vertex0Index);
+                refreshVertexWorldCoordinates(vertex1Attribute, vertex1Index);
+                refreshVertexWorldCoordinates(vertex2Attribute, vertex2Index);
+            }
 
             // надо передавать текстурные вершины и смотреть, чтобы они были
             if (ro.isTextured()) {
@@ -133,7 +160,7 @@ public class RasterizationPipelineElement implements PipelineElement {
 
             rasterizator.drawTriangle(
                     rb, zBuffer, associationBuffer,
-                    lightStorage.getLights(), colorData, ro.getColorProvider(), ro.getTexture(),
+                    sceneAttribute, modelAttribute,
                     vertex0Attribute, vertex1Attribute, vertex2Attribute,
                     barycentric);
         }
@@ -153,6 +180,16 @@ public class RasterizationPipelineElement implements PipelineElement {
         vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
         vertexAttribute.invW = rawVertices[vertexIndex * 4 + 3] == 0 ? 1 / Constants.EPS
                 : 1 / rawVertices[vertexIndex * 4 + 3];
+    }
+
+    protected void refreshVertexWorldCoordinates(VertexAttributeExtended vertexAttributeExtended, int vertexIndex) {
+        Vector3f v = model.vertices.get(vertexIndex);
+        serviceV3f.set(v.getX(), v.getY(), v.getZ());
+        Matrix4x4 worldMatrix = currentRo.getWorldMatrix();
+        worldMatrix.multiplyToLocalVector(serviceV3f);
+        vertexAttributeExtended.worldX = serviceV3f.getX();
+        vertexAttributeExtended.worldY = serviceV3f.getY();
+        vertexAttributeExtended.worldZ = serviceV3f.getZ();
     }
 
     protected void refreshVertexTextureUVPerspectiveCorrection(VertexAttribute vertexAttribute) {

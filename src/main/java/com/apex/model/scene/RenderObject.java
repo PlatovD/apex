@@ -2,6 +2,7 @@ package com.apex.model.scene;
 
 import com.apex.math.Vector4f;
 import com.apex.model.util.RenderObjectStatus;
+import com.apex.shader.Shader;
 import com.apex.tool.colorization.ColorData;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.model.geometry.Model;
@@ -25,19 +26,18 @@ public class RenderObject {
     private Matrix4x4 worldMatrix;
     private Texture texture;
     private boolean textured = false;
-    private ColorProvider colorProvider;
-    private LightProvider lightProvider;
+    private Shader shader;
     private final ColorData colorData = new ColorData();
     private float[] workVertices;
     private Set<Integer> selectedVertexIndices = new HashSet<>();
     private Set<Integer> selectedPolygonIndices = new HashSet<>();
     private float[] workNormals;
-    public RenderObject(String filename, Model model, ColorProvider colorProvider, Texture texture, LightProvider lightProvider) {
+
+    public RenderObject(String filename, Model model, Shader shader, Texture texture) {
         metadata = new RenderObjectMetadata(filename, true, RenderObjectStatus.ACTIVE);
         this.model = model;
-        this.colorProvider = colorProvider;
+        this.shader = shader;
         this.texture = texture;
-        this.lightProvider = lightProvider;
         this.worldMatrix = new Matrix4x4(new float[][]{
                 {1, 0, 0, 0},
                 {0, 1, 0, 0},
@@ -45,7 +45,7 @@ public class RenderObject {
                 {0, 0, 0, 1},
         });
         this.workVertices = new float[model.vertices.size() * 4];
-        this.workNormals  = new float[model.normals.size() * 3];
+        this.workNormals = new float[model.normals.size() * 3];
     }
 
     public void refreshBounding(float scaleX, float scaleY, float scaleZ) {
@@ -117,10 +117,6 @@ public class RenderObject {
         this.texture = texture;
     }
 
-    public ColorProvider getColorProvider() {
-        return colorProvider;
-    }
-
     public boolean isTextured() {
         return textured;
     }
@@ -145,6 +141,14 @@ public class RenderObject {
         metadata.isVisible = visibility;
     }
 
+    public void setShader(Shader shader) {
+        this.shader = shader;
+    }
+
+    public Shader getShader() {
+        return shader;
+    }
+
     public boolean isVisible() {
         return metadata.isVisible;
     }
@@ -164,10 +168,6 @@ public class RenderObject {
         }
     }
 
-    public void setColorProvider(ColorProvider colorProvider) {
-        this.colorProvider = colorProvider;
-    }
-
     public ColorData getColorData() {
         return colorData;
     }
@@ -183,14 +183,6 @@ public class RenderObject {
 
     public BoundingData getBoundingData() {
         return boundingData;
-    }
-
-    public LightProvider getLightProvider() {
-        return lightProvider;
-    }
-
-    public void setLightProvider(LightProvider lightProvider) {
-        this.lightProvider = lightProvider;
     }
 
     public java.util.Set<Integer> getSelectedVertexIndices() {
@@ -223,6 +215,4 @@ public class RenderObject {
 
         return worldCenter4.toVector3Projected();
     }
-
-
 }

@@ -8,6 +8,10 @@ import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.util.RenderObjectStatus;
+import com.apex.shader.NoLightingShader;
+import com.apex.shader.PhongShader;
+import com.apex.shader.Shader;
+import com.apex.shader.SimpleShader;
 import com.apex.tool.colorization.ColorProvider;
 import com.apex.tool.colorization.DefaultColorProvider;
 import com.apex.model.geometry.Model;
@@ -33,9 +37,7 @@ public class SceneStorage {
     @AutoInject
     private RuntimeStates runtimeStates;
 
-    // global objects
-    private ColorProvider cp;
-    private LightProvider lp;
+    private Shader shader = new SimpleShader();
 
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
@@ -49,7 +51,7 @@ public class SceneStorage {
         Texture defaultTexture = textureCache.smartCache(String.valueOf(runtimeStates.color),
                 new SolidTexture(runtimeStates.color));
 
-        RenderObject ro = new RenderObject(filename, model, cp, defaultTexture, lp);
+        RenderObject ro = new RenderObject(filename, model, shader, defaultTexture);
         ro.refreshBounding(1, 1, 1);
         renderObjectsMap.put(filename, ro);
         visibleRenderObjects.add(ro);
@@ -119,32 +121,17 @@ public class SceneStorage {
         }
     }
 
-    public void enableWireframeForAll() {
-        cp = new WireFrameColorProvider();
-        for (RenderObject ro : renderObjectsMap.values()) {
-            ro.setColorProvider(cp);
-        }
-    }
-
-    public void disableWireframeAll() {
-        cp = new DefaultColorProvider(runtimeStates);
-        for (RenderObject ro : renderObjectsMap.values()) {
-            ro.setColorProvider(cp);
-        }
-    }
-
     public void enableLightingForAll() {
-        lp = new PointLightProvider();
+        shader = new PhongShader();
         for (RenderObject ro : renderObjectsMap.values()) {
-            ro.setLightProvider(lp);
-            ro.setLightProvider(lp);
+            ro.setShader(shader);
         }
     }
 
     public void disableLightingForAll() {
-        lp = new NoLightProvider();
+        shader = new NoLightingShader();
         for (RenderObject ro : renderObjectsMap.values()) {
-            ro.setLightProvider(lp);
+            ro.setShader(shader);
         }
     }
 
@@ -254,13 +241,5 @@ public class SceneStorage {
                 continue;
             deleteTexture(ro.getFilename());
         }
-    }
-
-    public void setCp(ColorProvider cp) {
-        this.cp = cp;
-    }
-
-    public void setLp(LightProvider lp) {
-        this.lp = lp;
     }
 }
