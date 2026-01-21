@@ -10,10 +10,9 @@ import com.apex.render.pipeline.Pipeline;
 import com.apex.render.pipeline.element.PipelineElement;
 
 import com.apex.render.pipeline.element.PolygonHighlightPipelineElement;
+import com.apex.shader.NoLightingShader;
 import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
-import com.apex.tool.colorization.DefaultColorProvider;
-import com.apex.tool.light.PointLightProvider;
 
 @AutoCreation
 public class Config {
@@ -47,11 +46,9 @@ public class Config {
     }
 
     public void initialSceneStorageConfig(
-            @AutoInject SceneStorage sceneStorage,
-            @AutoInject RuntimeStates runtimeStates
+            @AutoInject SceneStorage sceneStorage
     ) {
-        sceneStorage.setCp(new DefaultColorProvider(runtimeStates));
-        sceneStorage.setLp(new PointLightProvider());
+        sceneStorage.setShader(new NoLightingShader());
     }
 
     public void initialAssociationBufferConfig(

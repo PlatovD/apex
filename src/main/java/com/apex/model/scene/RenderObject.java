@@ -3,13 +3,10 @@ package com.apex.model.scene;
 import com.apex.math.Vector4f;
 import com.apex.model.util.RenderObjectStatus;
 import com.apex.shader.Shader;
-import com.apex.tool.colorization.ColorData;
-import com.apex.tool.colorization.ColorProvider;
 import com.apex.model.geometry.Model;
 import com.apex.model.texture.Texture;
 import com.apex.math.Matrix4x4;
 import com.apex.math.Vector3f;
-import com.apex.tool.light.LightProvider;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,7 +24,6 @@ public class RenderObject {
     private Texture texture;
     private boolean textured = false;
     private Shader shader;
-    private final ColorData colorData = new ColorData();
     private float[] workVertices;
     private Set<Integer> selectedVertexIndices = new HashSet<>();
     private Set<Integer> selectedPolygonIndices = new HashSet<>();
@@ -166,10 +162,6 @@ public class RenderObject {
             this.isVisible = isVisible;
             this.status = status;
         }
-    }
-
-    public ColorData getColorData() {
-        return colorData;
     }
 
     public RenderObjectMetadata getMetadata() {

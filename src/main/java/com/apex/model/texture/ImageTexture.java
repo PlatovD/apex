@@ -30,16 +30,8 @@ public class ImageTexture implements Texture {
     public int getPixelColor(double u, double v) {
         int x = (int) (1 - (u * (width - 1)) % width);
         int y = (int) (1 - (v * (height - 1)) % height);
-
-
-
         if (x < 0) x += width;
         if (y < 0) y += height;
-
-
-
-
-
         return pixels[y * width + x];
     }
 

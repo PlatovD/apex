@@ -46,7 +46,7 @@ public class Rasterizator {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
                 findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
                 pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
-                // todo
+                updateBuffers(x, y0, rb, zBuffer, assBuffer, sceneAttribute, modelAttribute, v0AE, v1AE, v2AE);
             }
         }
 
@@ -83,7 +83,7 @@ public class Rasterizator {
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
-                // todo
+                updateBuffers(x, y, rb, zBuffer, assBuffer, sceneAttribute, modelAttribute, v0AE, v1AE, v2AE);
             }
 
             longSide = nextLongSide;
@@ -118,7 +118,7 @@ public class Rasterizator {
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
                 pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
-                // todo
+                updateBuffers(x, y, rb, zBuffer, assBuffer, sceneAttribute, modelAttribute, v0AE, v1AE, v2AE);
             }
 
             longSide = nextLongSide;
@@ -126,18 +126,18 @@ public class Rasterizator {
         }
     }
 
-    private boolean updateBuffers(
+    private void updateBuffers(
             int x, int y,
             RasterizationBuffer rb, ZBuffer zBuffer, AssociationBuffer assBuffer,
             SceneAttribute sceneAttribute,
             DrawableModelAttribute modelAttribute,
             VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE) {
         // проверка принадлежности треугольнику
-        if (!(barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f)) return false;
+        if (!(barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f)) return;
 
         // тут проверяю через z-buffer
         double pixelZ = findZFromBarycentric(barycentric, v0AE.z, v0AE.invW, v1AE.z, v1AE.invW, v2AE.z, v2AE.invW);
-        if (!zBuffer.setPixel(x, y, pixelZ)) return false;
+        if (!zBuffer.setPixel(x, y, pixelZ)) return;
 
         // здесь уже должен быть расчет цвета пикселя через шейдер
         int color = modelAttribute.shader.calcPixel(
@@ -149,6 +149,52 @@ public class Rasterizator {
         // обновляю буферы
         assBuffer.setPixel(x, y, getClosestVertexIndexByBarycentric(barycentric, v0AE, v1AE, v2AE), v0AE.polygonIndex, v0AE.modelFilename);
         rb.setPixel(x, y, color);
-        return true;
+    }
+
+    public void drawWireFrameTriangle2D(
+            RasterizationBuffer rb,
+            VertexAttribute v0, VertexAttribute v1, VertexAttribute v2,
+            int color) {
+
+        drawLine2D(rb, v0.x, v0.y, v1.x, v1.y, color);
+        drawLine2D(rb, v0.x, v0.y, v2.x, v2.y, color);
+        drawLine2D(rb, v1.x, v1.y, v2.x, v2.y, color);
+    }
+
+    private void drawLine2D(RasterizationBuffer rb, int x1, int y1, int x2, int y2, int color) {
+        double dx = x2 - x1;
+        double dy = y2 - y1;
+
+        if (Math.abs(dx) > Math.abs(dy)) {
+            if (x1 > x2) {
+                int tmp = x2;
+                x2 = x1;
+                x1 = tmp;
+                tmp = y2;
+                y2 = y1;
+                y1 = tmp;
+            }
+            double slope = dy / dx;
+            double y = y1;
+            for (int x = x1; x <= x2; x++) {
+                rb.setPixel(x, (int) Math.round(y), color);
+                y += slope;
+            }
+        } else {
+            if (y1 > y2) {
+                int tmp = x2;
+                x2 = x1;
+                x1 = tmp;
+                tmp = y2;
+                y2 = y1;
+                y1 = tmp;
+            }
+            double slope = dx / dy;
+            double x = x1;
+            for (int y = y1; y <= y2; y++) {
+                rb.setPixel((int) Math.round(x), y, color);
+                x += slope;
+            }
+        }
     }
 }

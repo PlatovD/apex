@@ -11,7 +11,7 @@ import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.tool.rasterization.Rasterization;
+import com.apex.tool.rasterization.Rasterizator;
 import com.apex.tool.rasterization.VertexAttribute;
 import com.apex.util.ActiveCameraWrapper;
 
@@ -28,6 +28,9 @@ public class WireFramePipelineElement implements PipelineElement {
 
     @AutoInject
     private RuntimeStates runtimeStates;
+
+    @AutoInject
+    private Rasterizator rasterizator;
 
     @Override
     public void apply(RenderObject ro) {
@@ -68,7 +71,7 @@ public class WireFramePipelineElement implements PipelineElement {
             if (!isVisibleByZBuffer(vertex0Attribute, vertex1Attribute, vertex2Attribute)) {
                 continue;
             }
-            Rasterization.drawWireFrameTriangle2D(rb, vertex0Attribute, vertex1Attribute, vertex2Attribute, Constants.WIREFRAME_COLOR);
+            rasterizator.drawWireFrameTriangle2D(rb, vertex0Attribute, vertex1Attribute, vertex2Attribute, Constants.WIREFRAME_COLOR);
         }
     }
 

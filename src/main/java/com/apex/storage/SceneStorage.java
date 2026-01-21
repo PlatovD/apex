@@ -2,7 +2,6 @@ package com.apex.storage;
 
 import com.apex.cache.ModelCache;
 import com.apex.cache.TextureCache;
-import com.apex.core.Constants;
 import com.apex.core.RuntimeStates;
 import com.apex.exception.SceneStorageException;
 import com.apex.model.geometry.Polygon;
@@ -11,19 +10,12 @@ import com.apex.model.util.RenderObjectStatus;
 import com.apex.shader.NoLightingShader;
 import com.apex.shader.PhongShader;
 import com.apex.shader.Shader;
-import com.apex.shader.SimpleShader;
-import com.apex.tool.colorization.ColorProvider;
-import com.apex.tool.colorization.DefaultColorProvider;
 import com.apex.model.geometry.Model;
 import com.apex.model.texture.ImageTexture;
 import com.apex.model.texture.SolidTexture;
 import com.apex.model.texture.Texture;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.tool.colorization.WireFrameColorProvider;
-import com.apex.tool.light.LightProvider;
-import com.apex.tool.light.NoLightProvider;
-import com.apex.tool.light.PointLightProvider;
 import javafx.scene.image.Image;
 
 import java.util.*;
@@ -37,7 +29,7 @@ public class SceneStorage {
     @AutoInject
     private RuntimeStates runtimeStates;
 
-    private Shader shader = new SimpleShader();
+    private Shader shader = new NoLightingShader();
 
     @AutoInject(name = "ModelCache")
     private ModelCache modelCache;
@@ -133,6 +125,10 @@ public class SceneStorage {
         for (RenderObject ro : renderObjectsMap.values()) {
             ro.setShader(shader);
         }
+    }
+
+    public void setShader(Shader shader) {
+        this.shader = shader;
     }
 
     public Model getModel(String fileObjName) {
