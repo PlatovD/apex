@@ -4,6 +4,9 @@ public class VertexAttributeExtended extends VertexAttribute {
     public Integer polygonIndex;
     public Integer vertexIndex;
     public String modelFilename;
+    public float worldX;
+    public float worldY;
+    public float worldZ;
 
     public void swapWith(VertexAttributeExtended other) {
         // int
@@ -61,6 +64,19 @@ public class VertexAttributeExtended extends VertexAttribute {
         this.n_z = other.n_z;
         other.n_z = tmpFloat;
 
+        tmpFloat = this.worldX;
+        this.worldX = other.worldX;
+        other.worldX = tmpFloat;
+
+        tmpFloat = this.worldY;
+        this.worldY = other.worldY;
+        other.worldY = tmpFloat;
+
+        tmpFloat = this.worldZ;
+        this.worldZ = other.worldZ;
+        other.worldZ = tmpFloat;
+
+        // String
         String tmpString = this.modelFilename;
         this.modelFilename = other.modelFilename;
         other.modelFilename = tmpString;

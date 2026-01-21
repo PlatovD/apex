@@ -1,5 +1,7 @@
 package com.apex.math;
 
+import com.apex.tool.rasterization.VertexAttributeExtended;
+
 import static java.lang.Math.pow;
 import static java.lang.Math.sqrt;
 
@@ -82,5 +84,18 @@ public class MathUtil {
 
     public static double clamp(double value, double min, double max) {
         return Math.max(min, Math.min(max, value));
+    }
+
+    public static double findZFromBarycentric(double[] barycentric, double z0, double invW0, double z1, double invW1,
+                                              double z2, double invW2) {
+        double invW = barycentric[0] * invW0 + barycentric[1] * invW1 + barycentric[2] * invW2;
+        double zOverW = barycentric[0] * z0 * invW0 + barycentric[1] * z1 * invW1 + barycentric[2] * z2 * invW2;
+        return zOverW / invW;
+    }
+
+    public static int getClosestVertexIndexByBarycentric(double[] barycentric, VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE) {
+        if (barycentric[0] >= barycentric[1] && barycentric[0] >= barycentric[2]) return v0AE.vertexIndex;
+        if (barycentric[1] >= barycentric[2]) return v1AE.vertexIndex;
+        return v2AE.vertexIndex;
     }
 }

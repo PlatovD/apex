@@ -20,7 +20,7 @@ public class Config {
     public void pipelineConfig(
             @AutoInject Pipeline pipeline,
             @AutoInject(name = "TransformPipelineElement") PipelineElement transformEl,
-            @AutoInject(name = "RasterizationWithAssociationPipelineElement") PipelineElement rasterizationEl,
+            @AutoInject(name = "RasterizationPipelineElement") PipelineElement rasterizationEl,
             @AutoInject(name = "VertexHighlightPipelineElement") PipelineElement vertexHighlightEl,
             @AutoInject(name = "PolygonHighlightPipelineElement") PolygonHighlightPipelineElement polygonHighlightEl,
             @AutoInject(name = "WireFramePipelineElement") PipelineElement wireframePipelineElement) {
