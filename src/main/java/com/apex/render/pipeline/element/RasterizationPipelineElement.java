@@ -52,7 +52,6 @@ public class RasterizationPipelineElement implements PipelineElement {
     private VertexAttributeExtended vertex0Attribute = new VertexAttributeExtended(), vertex1Attribute = new VertexAttributeExtended(), vertex2Attribute = new VertexAttributeExtended();
     private Vector2f textureVertex0, textureVertex1, textureVertex2;
     private Vector3f normalVertex0, normalVertex1, normalVertex2;
-    private double[] barycentric = new double[3];
     private List<Integer> textureIndices;
     private List<Integer> normalIndices;
 
@@ -130,17 +129,17 @@ public class RasterizationPipelineElement implements PipelineElement {
                 normalVertex1 = model.normals.get(normalIndices.get(1));
                 normalVertex2 = model.normals.get(normalIndices.get(2));
 
-                vertex0Attribute.n_x = normalVertex0.getX();
-                vertex0Attribute.n_y = normalVertex0.getY();
-                vertex0Attribute.n_z = normalVertex0.getZ();
+                vertex0Attribute.normalX = normalVertex0.getX();
+                vertex0Attribute.normalY = normalVertex0.getY();
+                vertex0Attribute.normalZ = normalVertex0.getZ();
 
-                vertex1Attribute.n_x = normalVertex1.getX();
-                vertex1Attribute.n_y = normalVertex1.getY();
-                vertex1Attribute.n_z = normalVertex1.getZ();
+                vertex1Attribute.normalX = normalVertex1.getX();
+                vertex1Attribute.normalY = normalVertex1.getY();
+                vertex1Attribute.normalZ = normalVertex1.getZ();
 
-                vertex2Attribute.n_x = normalVertex2.getX();
-                vertex2Attribute.n_y = normalVertex2.getY();
-                vertex2Attribute.n_z = normalVertex2.getZ();
+                vertex2Attribute.normalX = normalVertex2.getX();
+                vertex2Attribute.normalY = normalVertex2.getY();
+                vertex2Attribute.normalZ = normalVertex2.getZ();
             }
 
             // то самое отличие от просто Rasterization element
@@ -161,8 +160,7 @@ public class RasterizationPipelineElement implements PipelineElement {
             rasterizator.drawTriangle(
                     rb, zBuffer, associationBuffer,
                     sceneAttribute, modelAttribute,
-                    vertex0Attribute, vertex1Attribute, vertex2Attribute,
-                    barycentric);
+                    vertex0Attribute, vertex1Attribute, vertex2Attribute);
         }
     }
 

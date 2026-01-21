@@ -11,12 +11,15 @@ import static java.lang.Math.min;
 
 @AutoCreation
 public class Rasterizator {
+    // переиспользуемые поля
+    private PixelAttribute pixelAttribute = new PixelAttribute();
+    private double[] barycentric = new double[3];
+
     public void drawTriangle(
             RasterizationBuffer rb, ZBuffer zBuffer, AssociationBuffer assBuffer,
             SceneAttribute sceneAttribute,
             DrawableModelAttribute modelAttribute,
-            VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE,
-            double[] barycentric
+            VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE
     ) {
         if (v0AE.y > v1AE.y) {
             v0AE.swapWith(v1AE);
@@ -42,6 +45,7 @@ public class Rasterizator {
         if (y0 == y1 && y1 == y2) {
             for (int x = minX; x <= max(x0, max(x1, x2)); x++) {
                 findBarycentricCords(barycentric, x, y0, x0, y0, x1, y1, x2, y2);
+                pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
                 // todo
             }
         }
@@ -78,6 +82,7 @@ public class Rasterizator {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
                 // todo
             }
 
@@ -112,6 +117,7 @@ public class Rasterizator {
             xEnd = min(xEnd, maxX);
             for (int x = xStart; x <= xEnd; x++) {
                 findBarycentricCords(barycentric, x, y, x0, y0, x1, y1, x2, y2);
+                pixelAttribute.setFromBarycentric(v0AE, v1AE, v2AE, barycentric);
                 // todo
             }
 
@@ -120,13 +126,12 @@ public class Rasterizator {
         }
     }
 
-    private static boolean updateBuffers(
+    private boolean updateBuffers(
             int x, int y,
             RasterizationBuffer rb, ZBuffer zBuffer, AssociationBuffer assBuffer,
             SceneAttribute sceneAttribute,
             DrawableModelAttribute modelAttribute,
-            VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE,
-            double[] barycentric) {
+            VertexAttributeExtended v0AE, VertexAttributeExtended v1AE, VertexAttributeExtended v2AE) {
         // проверка принадлежности треугольнику
         if (!(barycentric[0] > -0.0001f && barycentric[1] > -0.0001f && barycentric[2] > -0.0001f)) return false;
 
@@ -135,7 +140,11 @@ public class Rasterizator {
         if (!zBuffer.setPixel(x, y, pixelZ)) return false;
 
         // здесь уже должен быть расчет цвета пикселя через шейдер
-        int color = modelAttribute.shader.calcPixel();
+        int color = modelAttribute.shader.calcPixel(
+                pixelAttribute,
+                sceneAttribute,
+                modelAttribute
+        );
 
         // обновляю буферы
         assBuffer.setPixel(x, y, getClosestVertexIndexByBarycentric(barycentric, v0AE, v1AE, v2AE), v0AE.polygonIndex, v0AE.modelFilename);

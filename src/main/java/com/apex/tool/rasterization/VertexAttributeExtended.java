@@ -52,17 +52,17 @@ public class VertexAttributeExtended extends VertexAttribute {
         this.v = other.v;
         other.v = tmpFloat;
 
-        tmpFloat = this.n_x;
-        this.n_x = other.n_x;
-        other.n_x = tmpFloat;
+        tmpFloat = this.normalX;
+        this.normalX = other.normalX;
+        other.normalX = tmpFloat;
 
-        tmpFloat = this.n_y;
-        this.n_y = other.n_y;
-        other.n_y = tmpFloat;
+        tmpFloat = this.normalY;
+        this.normalY = other.normalY;
+        other.normalY = tmpFloat;
 
-        tmpFloat = this.n_z;
-        this.n_z = other.n_z;
-        other.n_z = tmpFloat;
+        tmpFloat = this.normalZ;
+        this.normalZ = other.normalZ;
+        other.normalZ = tmpFloat;
 
         tmpFloat = this.worldX;
         this.worldX = other.worldX;
