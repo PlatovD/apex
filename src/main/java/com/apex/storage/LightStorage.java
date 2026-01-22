@@ -50,7 +50,7 @@ public class LightStorage {
             return;
         if (Objects.isNull(name) || name.isBlank())
             throw new LightStorageException("Name of deleting light can't be empty");
-        if (lights.containsKey(name))
+        if (!lights.containsKey(name))
             throw new LightStorageException("No light with name " + name);
         lights.remove(name);
     }
