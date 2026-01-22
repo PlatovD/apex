@@ -3,19 +3,19 @@ package com.apex.render.pipeline.element;
 import com.apex.buffer.RasterizationBuffer;
 import com.apex.core.Constants;
 import com.apex.core.RuntimeStates;
+import com.apex.exception.RasterizationException;
+import com.apex.math.Matrix4x4;
 import com.apex.math.Vector2f;
 import com.apex.math.Vector3f;
+import com.apex.model.geometry.Model;
+import com.apex.model.geometry.Polygon;
+import com.apex.model.scene.AssociationBuffer;
 import com.apex.model.scene.RenderObject;
 import com.apex.model.scene.ZBuffer;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.exception.RasterizationException;
-import com.apex.model.geometry.Model;
-import com.apex.model.geometry.Polygon;
-import com.apex.tool.colorization.ColorData;
-import com.apex.tool.light.LightProvider;
-import com.apex.tool.rasterization.Rasterization;
-import com.apex.tool.rasterization.VertexAttribute;
+import com.apex.storage.LightStorage;
+import com.apex.tool.rasterization.*;
 import com.apex.util.ActiveCameraWrapper;
 
 import java.util.List;
@@ -34,35 +34,48 @@ public class RasterizationPipelineElement implements PipelineElement {
     @AutoInject
     private RuntimeStates runtimeStates;
 
-    @Override
+    @AutoInject
+    private AssociationBuffer associationBuffer;
+
+    @AutoInject
+    private LightStorage lightStorage;
+
+    @AutoInject
+    private Rasterizator rasterizator;
+
+    // инициализация переиспользуемых объектов
+    private SceneAttribute sceneAttribute = new SceneAttribute();
+    private DrawableModelAttribute modelAttribute = new DrawableModelAttribute();
+    private RenderObject currentRo;
+    private Model model;
+    private float[] rawVertices;
+    private VertexAttributeExtended vertex0Attribute = new VertexAttributeExtended(), vertex1Attribute = new VertexAttributeExtended(), vertex2Attribute = new VertexAttributeExtended();
+    private Vector2f textureVertex0, textureVertex1, textureVertex2;
+    private Vector3f normalVertex0, normalVertex1, normalVertex2;
+    private List<Integer> textureIndices;
+    private List<Integer> normalIndices;
+
+    // сервисные объекты
+    private Vector3f serviceV3f = new Vector3f();
+
     public void apply(RenderObject ro) {
-        VertexAttribute vertex0Attribute = new VertexAttribute();
-        VertexAttribute vertex1Attribute = new VertexAttribute();
-        VertexAttribute vertex2Attribute = new VertexAttribute();
+        currentRo = ro;
+        model = ro.getModel();
+        rawVertices = ro.getWorkVertices();
 
-        Vector2f textureVertex0;
-        Vector2f textureVertex1;
-        Vector2f textureVertex2;
+        {
+            sceneAttribute.camera = activeCameraWrapper.getActiveCamera();
+            sceneAttribute.lights = lightStorage.getLights();
+        }
 
-        Vector3f normalVertex0;
-        Vector3f normalVertex1;
-        Vector3f normalVertex2;
+        {
+            modelAttribute.centerOfMass = ro.getWorldCenter();
+            modelAttribute.texture = ro.getTexture();
+            modelAttribute.shader = ro.getShader();
+        }
 
-        // инициализирую то, что будет переиспользоваться. Уменьшаю нагрузку на сборщик
-        // мусора
-        ColorData colorData = ro.getColorData();
-        double[] barycentric = new double[3];
-
-        List<Integer> textureIndices;
-        List<Integer> normalIndices;
-
-        Model model = ro.getModel();
-        float[] rawVertices = ro.getWorkVertices();
-        LightProvider lp = ro.getLightProvider();
-        Vector3f light = activeCameraWrapper.getActiveCamera().getTarget()
-                .subtract(activeCameraWrapper.getActiveCamera().getPosition());
-        light.normalizeLocal();
-        for (Polygon polygon : ro.getModel().polygons) {
+        for (int i = 0; i < model.polygons.size(); i++) {
+            Polygon polygon = model.polygons.get(i);
             if (polygon.getVertexIndices().size() != 3)
                 throw new RasterizationException("One of polygons is not triangle");
 
@@ -82,6 +95,13 @@ public class RasterizationPipelineElement implements PipelineElement {
             if (!isOnScreen(vertex0Attribute, vertex1Attribute, vertex2Attribute, runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT))
                 continue;
 
+            // обновил мировые координаты
+            {
+                refreshVertexWorldCoordinates(vertex0Attribute, vertex0Index);
+                refreshVertexWorldCoordinates(vertex1Attribute, vertex1Index);
+                refreshVertexWorldCoordinates(vertex2Attribute, vertex2Index);
+            }
+
             // надо передавать текстурные вершины и смотреть, чтобы они были
             if (ro.isTextured()) {
                 textureVertex0 = model.textureVertices.get(textureIndices.get(0));
@@ -96,9 +116,9 @@ public class RasterizationPipelineElement implements PipelineElement {
 
                 vertex2Attribute.u = textureVertex2.getX();
                 vertex2Attribute.v = textureVertex2.getY();
-                refreshVertexPerspectiveCorrection(vertex0Attribute);
-                refreshVertexPerspectiveCorrection(vertex1Attribute);
-                refreshVertexPerspectiveCorrection(vertex2Attribute);
+                refreshVertexTextureUVPerspectiveCorrection(vertex0Attribute);
+                refreshVertexTextureUVPerspectiveCorrection(vertex1Attribute);
+                refreshVertexTextureUVPerspectiveCorrection(vertex2Attribute);
             }
 
             // здесь прикрепляю нормали
@@ -109,28 +129,50 @@ public class RasterizationPipelineElement implements PipelineElement {
                 normalVertex1 = model.normals.get(normalIndices.get(1));
                 normalVertex2 = model.normals.get(normalIndices.get(2));
 
-                vertex0Attribute.n_x = normalVertex0.getX();
-                vertex0Attribute.n_y = normalVertex0.getY();
-                vertex0Attribute.n_z = normalVertex0.getZ();
+                vertex0Attribute.normalX = normalVertex0.getX();
+                vertex0Attribute.normalY = normalVertex0.getY();
+                vertex0Attribute.normalZ = normalVertex0.getZ();
 
-                vertex1Attribute.n_x = normalVertex1.getX();
-                vertex1Attribute.n_y = normalVertex1.getY();
-                vertex1Attribute.n_z = normalVertex1.getZ();
+                vertex1Attribute.normalX = normalVertex1.getX();
+                vertex1Attribute.normalY = normalVertex1.getY();
+                vertex1Attribute.normalZ = normalVertex1.getZ();
 
-                vertex2Attribute.n_x = normalVertex2.getX();
-                vertex2Attribute.n_y = normalVertex2.getY();
-                vertex2Attribute.n_z = normalVertex2.getZ();
+                vertex2Attribute.normalX = normalVertex2.getX();
+                vertex2Attribute.normalY = normalVertex2.getY();
+                vertex2Attribute.normalZ = normalVertex2.getZ();
             }
 
-            Rasterization.drawTriangle(rb, zBuffer,
-                    light, lp, colorData, ro.getColorProvider(), ro.getTexture(),
-                    vertex0Attribute, vertex1Attribute, vertex2Attribute,
-                    barycentric);
+            // то самое отличие от просто Rasterization element
+            {
+                vertex0Attribute.vertexIndex = vertex0Index;
+                vertex1Attribute.vertexIndex = vertex1Index;
+                vertex2Attribute.vertexIndex = vertex2Index;
+
+                vertex0Attribute.polygonIndex = i;
+                vertex1Attribute.polygonIndex = i;
+                vertex2Attribute.polygonIndex = i;
+
+                vertex0Attribute.modelFilename = ro.getFilename();
+                vertex1Attribute.modelFilename = ro.getFilename();
+                vertex2Attribute.modelFilename = ro.getFilename();
+            }
+
+            rasterizator.drawTriangle(
+                    rb, zBuffer, associationBuffer,
+                    sceneAttribute, modelAttribute,
+                    vertex0Attribute, vertex1Attribute, vertex2Attribute);
         }
     }
 
+    @Override
+    public void prepare() {
+        zBuffer.clear();
+        rb.clear();
+        associationBuffer.update(runtimeStates.SCENE_WIDTH, runtimeStates.SCENE_HEIGHT);
+    }
+
     protected void refreshVertexAttributeForPolygon(VertexAttribute vertexAttribute, int vertexIndex,
-                                                  float[] rawVertices) {
+                                                    float[] rawVertices) {
         vertexAttribute.x = Math.round(rawVertices[vertexIndex * 4]);
         vertexAttribute.y = Math.round(rawVertices[vertexIndex * 4 + 1]);
         vertexAttribute.z = rawVertices[vertexIndex * 4 + 2];
@@ -138,13 +180,23 @@ public class RasterizationPipelineElement implements PipelineElement {
                 : 1 / rawVertices[vertexIndex * 4 + 3];
     }
 
-    protected void refreshVertexPerspectiveCorrection(VertexAttribute vertexAttribute) {
+    protected void refreshVertexWorldCoordinates(VertexAttributeExtended vertexAttributeExtended, int vertexIndex) {
+        Vector3f v = model.vertices.get(vertexIndex);
+        serviceV3f.set(v.getX(), v.getY(), v.getZ());
+        Matrix4x4 worldMatrix = currentRo.getWorldMatrix();
+        worldMatrix.multiplyToLocalVector(serviceV3f);
+        vertexAttributeExtended.worldX = serviceV3f.getX();
+        vertexAttributeExtended.worldY = serviceV3f.getY();
+        vertexAttributeExtended.worldZ = serviceV3f.getZ();
+    }
+
+    protected void refreshVertexTextureUVPerspectiveCorrection(VertexAttribute vertexAttribute) {
         vertexAttribute.uOverW = vertexAttribute.u * vertexAttribute.invW;
         vertexAttribute.vOverW = vertexAttribute.v * vertexAttribute.invW;
     }
 
     protected boolean isOnScreen(VertexAttribute v0, VertexAttribute v1, VertexAttribute v2, int screenWidth,
-                               int screenHeight) {
+                                 int screenHeight) {
         boolean lefter = v0.x < 0 && v1.x < 0 && v2.x < 0;
         boolean righter = v0.x >= screenWidth && v1.x >= screenWidth && v2.x >= screenWidth;
         boolean toper = v0.y < 0 && v1.y < 0 && v2.y < 0;
@@ -152,11 +204,5 @@ public class RasterizationPipelineElement implements PipelineElement {
         boolean nearer = v0.z < -1 || v1.z < -1 || v2.z < -1;
         boolean fairer = v0.z > 1 || v1.z > 1 || v2.z > 1;
         return !(lefter || righter || toper || downer || nearer | fairer);
-    }
-
-    @Override
-    public void prepare() {
-        zBuffer.clear();
-        rb.clear();
     }
 }

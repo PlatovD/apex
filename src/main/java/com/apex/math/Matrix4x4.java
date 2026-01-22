@@ -88,6 +88,25 @@ public class Matrix4x4 {
         return new Vector4f(x, y, z, w);
     }
 
+    public Vector3f multiply(Vector3f vector) {
+        float x = data[0][0] * vector.getX() +
+                data[0][1] * vector.getY() +
+                data[0][2] * vector.getZ();
+        float y = data[1][0] * vector.getX() +
+                data[1][1] * vector.getY() +
+                data[1][2] * vector.getZ();
+        float z = data[2][0] * vector.getX() +
+                data[2][1] * vector.getY() +
+                data[2][2] * vector.getZ();
+        return new Vector3f(x, y, z);
+    }
+
+    public void multiplyToLocalVector(Vector3f vector) {
+        vector.setX(data[0][0] * vector.getX() + data[0][1] * vector.getY() + data[0][2] * vector.getZ());
+        vector.setY(data[1][0] * vector.getX() + data[1][1] * vector.getY() + data[1][2] * vector.getZ());
+        vector.setZ(data[2][0] * vector.getX() + data[2][1] * vector.getY() + data[2][2] * vector.getZ());
+    }
+
     public Matrix4x4 multiply(Matrix4x4 other) {
         Matrix4x4 result = new Matrix4x4();
         for (int i = 0; i < 4; i++) {
@@ -245,10 +264,10 @@ public class Matrix4x4 {
         float tz = -z.dot(eye);
 
         return new Matrix4x4(new float[][]{
-                { x.getX(), x.getY(), x.getZ(), tx },
-                { y.getX(), y.getY(), y.getZ(), ty },
-                { z.getX(), z.getY(), z.getZ(), tz },
-                { 0, 0, 0, 1 }
+                {x.getX(), x.getY(), x.getZ(), tx},
+                {y.getX(), y.getY(), y.getZ(), ty},
+                {z.getX(), z.getY(), z.getZ(), tz},
+                {0, 0, 0, 1}
         });
     }
 

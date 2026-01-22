@@ -6,7 +6,7 @@ import com.apex.model.geometry.Polygon;
 import com.apex.model.scene.RenderObject;
 import com.apex.reflection.AutoCreation;
 import com.apex.reflection.AutoInject;
-import com.apex.tool.rasterization.Rasterization;
+import com.apex.tool.rasterization.Rasterizator;
 import com.apex.tool.rasterization.VertexAttribute;
 
 import java.util.Set;
@@ -17,7 +17,10 @@ public class PolygonHighlightPipelineElement implements PipelineElement {
     @AutoInject
     private RasterizationBuffer rb;
 
-    private static final int HIGHLIGHT_COLOR = 0xFFFFFF00; // Yellow
+    @AutoInject
+    private Rasterizator rasterizator;
+
+    private static final int HIGHLIGHT_COLOR = 0xFFFFFF00;
 
     @Override
     public void apply(RenderObject ro) {
@@ -51,7 +54,7 @@ public class PolygonHighlightPipelineElement implements PipelineElement {
             refreshVertex(v2, i2, rawVertices);
 
             // Draw outlines of the triangle
-            Rasterization.drawWireFrameTriangle2D(rb, v0, v1, v2, HIGHLIGHT_COLOR);
+            rasterizator.drawWireFrameTriangle2D(rb, v0, v1, v2, HIGHLIGHT_COLOR);
         }
     }
 

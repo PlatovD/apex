@@ -6,20 +6,20 @@ public class VertexAttribute {
     public float u = 0, v = 0;
     public double uOverW;
     public double vOverW;
-    public float n_x, n_y, n_z;
+    public float normalX, normalY, normalZ;
 
     public VertexAttribute() {
     }
 
-    public VertexAttribute(int x, int y, int z, float invW, float u, float v, float n_x, float n_y, float n_z) {
+    public VertexAttribute(int x, int y, int z, float invW, float u, float v, float normalX, float normalY, float normalZ) {
         this.x = x;
         this.y = y;
         this.z = z;
         this.u = u;
         this.v = v;
-        this.n_x = n_x;
-        this.n_y = n_y;
-        this.n_z = n_z;
+        this.normalX = normalX;
+        this.normalY = normalY;
+        this.normalZ = normalZ;
     }
 
     public void swapWith(VertexAttribute other) {
@@ -58,16 +58,16 @@ public class VertexAttribute {
         this.v = other.v;
         other.v = tmpFloat;
 
-        tmpFloat = this.n_x;
-        this.n_x = other.n_x;
-        other.n_x = tmpFloat;
+        tmpFloat = this.normalX;
+        this.normalX = other.normalX;
+        other.normalX = tmpFloat;
 
-        tmpFloat = this.n_y;
-        this.n_y = other.n_y;
-        other.n_y = tmpFloat;
+        tmpFloat = this.normalY;
+        this.normalY = other.normalY;
+        other.normalY = tmpFloat;
 
-        tmpFloat = this.n_z;
-        this.n_z = other.n_z;
-        other.n_z = tmpFloat;
+        tmpFloat = this.normalZ;
+        this.normalZ = other.normalZ;
+        other.normalZ = tmpFloat;
     }
 }

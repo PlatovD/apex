@@ -53,6 +53,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import com.apex.io.read.ObjReader;
@@ -885,23 +886,10 @@ public abstract class AbstractController implements Controller {
     protected void refreshLightList() {
         Platform.runLater(() -> {
             lightsVBox.getChildren().clear();
-            String activeName = lightStorage.getActiveLightName();
 
             for (String name : lightStorage.getLightsNames()) {
                 HBox row = new HBox(5);
                 row.setStyle("-fx-alignment: CENTER_LEFT; -fx-padding: 2;");
-
-                // Кнопка выбора активного света
-                Button selectBtn = new Button(name);
-                selectBtn.getStyleClass().add("model-btn");
-                if (name.equals(activeName)) {
-                    selectBtn.setStyle("-fx-text-fill: #00ff00; -fx-border-color: #00ff00;");
-                }
-                selectBtn.setOnAction(e -> {
-                    lightStorage.setActiveLight(name);
-                    refreshLightList();
-                    refreshRender();
-                });
 
                 // Изменение цвета
                 Light light = lightStorage.getLight(name);
@@ -922,7 +910,7 @@ public abstract class AbstractController implements Controller {
                     refreshRender();
                 });
 
-                row.getChildren().addAll(selectBtn, cp, delBtn);
+                row.getChildren().addAll(cp, delBtn);
                 lightsVBox.getChildren().add(row);
             }
         });

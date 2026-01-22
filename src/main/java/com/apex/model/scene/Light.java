@@ -27,6 +27,18 @@ public class Light {
         this.color = color;
     }
 
+    public int getColorR() {
+        return color >> 16 & 0xFF;
+    }
+
+    public int getColorG() {
+        return color >> 8 & 0xFF;
+    }
+
+    public int getColorB() {
+        return color & 0xFF;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
