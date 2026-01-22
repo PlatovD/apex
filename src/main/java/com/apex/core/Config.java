@@ -11,6 +11,7 @@ import com.apex.render.pipeline.element.PipelineElement;
 
 import com.apex.render.pipeline.element.PolygonHighlightPipelineElement;
 import com.apex.shader.NoLightingShader;
+import com.apex.shader.SimpleShader;
 import com.apex.storage.CameraStorage;
 import com.apex.storage.SceneStorage;
 
@@ -48,7 +49,7 @@ public class Config {
     public void initialSceneStorageConfig(
             @AutoInject SceneStorage sceneStorage
     ) {
-        sceneStorage.setShader(new NoLightingShader());
+        sceneStorage.setShader(new SimpleShader());
     }
 
     public void initialAssociationBufferConfig(
