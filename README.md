@@ -1,4 +1,4 @@
-# Sofrware Render Application
+# Software Render Application
 <img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/a4116820-0c0d-439d-8b15-9e3a66ed816a" />
 
 ## Основные возможности
